@@ -1,0 +1,45 @@
+{
+  "name": "trakt-manager",
+  "description": "Control your Trakt account directly from Raycast",
+  "author": "thesobercoder",
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "categories": [
+    "Media",
+    "Other"
+  ],
+  "commands": [
+    {
+      "name": "search",
+      "title": "Search Movies",
+      "description": "Search for movies",
+      "mode": "view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.75.1",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.6",
+    "@types/node": "20.8.10",
+    "@types/react": "18.2.27",
+    "eslint": "^8.51.0",
+    "prettier": "^3.2.5",
+    "syncpack": "^12.3.2",
+    "typescript": "^5.2.2"
+  },
+  "icon": "command-icon.png",
+  "license": "MIT",
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "fmt": "prettier '**/*' -wu && syncpack-format",
+    "lint": "ray lint",
+    "publish": "npx @raycast/api@latest publish"
+  },
+  "title": "Trakt Manager",
+  "trustedDependencies": [
+    "@raycast/api"
+  ]
+}
