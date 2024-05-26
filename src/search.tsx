@@ -1,13 +1,14 @@
 import { Action, ActionPanel, Detail, List, OAuth } from "@raycast/api";
-import { authorize } from "./lib";
 import { useEffect } from "react";
+import { searchMovies } from "./lib";
 
 export default function Command() {
   useEffect(() => {
     (async () => {
-      await authorize();
+      const items = await searchMovies("terminator");
+      console.log(items);
     })();
-  }, [authorize]);
+  });
 
   return (
     <List>
@@ -16,7 +17,10 @@ export default function Command() {
         title="Greeting"
         actions={
           <ActionPanel>
-            <Action.Push title="Show Details" target={<Detail markdown="# Hey! 👋" />} />
+            <Action.Push
+              title="Show Details"
+              target={<Detail markdown="# Hey! 👋" />}
+            />
           </ActionPanel>
         }
       />
@@ -25,7 +29,10 @@ export default function Command() {
         title="Hello"
         actions={
           <ActionPanel>
-            <Action.Push title="Show Details" target={<Detail markdown="# Hello! 👋" />} />
+            <Action.Push
+              title="Show Details"
+              target={<Detail markdown="# Hello! 👋" />}
+            />
           </ActionPanel>
         }
       />
