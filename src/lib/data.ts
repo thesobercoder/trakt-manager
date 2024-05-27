@@ -1,10 +1,14 @@
+import { Movie } from "./types";
 import { API_URL, CLIENT_ID } from "./constants";
-import { oauthClient } from "./oauth";
+import { isAuthorized, oauthClient } from "./oauth";
 import fetch from "node-fetch";
 
 export async function searchMovies(query: string) {
-  const tokens = await oauthClient.getTokens();
+  if (!await isAuthorized()) {
+    return;
+  }
 
+  const tokens = await oauthClient.getTokens();
   const response = await fetch(`${API_URL}/search/movie?query=${query}`, {
     headers: {
       "Content-Type": "application/json",
@@ -19,5 +23,5 @@ export async function searchMovies(query: string) {
     throw new Error(response.statusText);
   }
 
-  return await response.json();
+  return await response.json() as Movie[];
 }

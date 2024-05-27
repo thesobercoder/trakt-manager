@@ -12,7 +12,6 @@ export const oauthClient = new OAuth.PKCEClient({
 
 export const isAuthorized = async () => {
   const existingTokens = await oauthClient.getTokens();
-  console.log("Existing tokens", existingTokens);
   if (existingTokens && !existingTokens?.isExpired()) {
     return true;
   }
@@ -21,9 +20,6 @@ export const isAuthorized = async () => {
 
 export const authorize = async () => {
   const existingTokens = await oauthClient.getTokens();
-
-  console.log("Existing token", existingTokens);
-
   if (existingTokens?.accessToken) {
     if (existingTokens?.refreshToken && existingTokens.isExpired()) {
       await refreshTokens(existingTokens.refreshToken);

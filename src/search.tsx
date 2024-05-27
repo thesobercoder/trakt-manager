@@ -1,45 +1,56 @@
-import { Action, ActionPanel, Detail, List } from "@raycast/api";
-import { useEffect } from "react";
+import { Action, ActionPanel, Detail, Keyboard, List } from "@raycast/api";
+import { useEffect, useState } from "react";
 import { searchMovies } from "./lib/data";
 import { View } from "./components/view";
+import { Movie } from "./lib/types";
 
-const SearchCommand = () => {
+function SearchCommand() {
+  const [searchText, setSearchText] = useState<string | undefined>();
+  const [movies, setMovies] = useState<Movie[] | undefined>();
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
-    (async () => {
-      const items = await searchMovies("terminator");
-      console.log({ items });
-    })();
-  });
+    if (!searchText) {
+      setMovies(undefined);
+    }
+  }, [searchText]);
+
+  const onSearch = async () => {
+    if (searchText) {
+      setIsLoading(true);
+      const items = await searchMovies(searchText);
+      setMovies(items);
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <List>
-      <List.Item
-        icon="list-icon.png"
-        title="Greeting"
-        actions={
-          <ActionPanel>
-            <Action.Push
-              title="Show Details"
-              target={<Detail markdown="# Hey! 👋" />}
-            />
-          </ActionPanel>
-        }
-      />
-      <List.Item
-        icon="list-icon.png"
-        title="Hello"
-        actions={
-          <ActionPanel>
-            <Action.Push
-              title="Show Details"
-              target={<Detail markdown="# Hello! 👋" />}
-            />
-          </ActionPanel>
-        }
-      />
+    <List
+      isLoading={isLoading}
+      onSearchTextChange={setSearchText}
+      actions={
+        <ActionPanel>
+          <Action
+            title="Search"
+            shortcut={Keyboard.Shortcut.Common.Open}
+            onAction={onSearch}
+          />
+        </ActionPanel>
+      }
+    >
+      <List.EmptyView title="Search for movies" />
+      {movies && movies.map((m) => {
+        return (
+          <List.Item
+            icon="trakt.png"
+            title={m.movie.title}
+            detail={<Detail key={m.movie.ids.slug} />}
+          />
+        );
+      })}
     </List>
   );
-};
+}
 
 export default function Command() {
   return (
