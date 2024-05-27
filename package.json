@@ -11,6 +11,7 @@
     {
       "name": "search",
       "title": "Search Movies",
+      "subtitle": "Trakt Manager",
       "description": "Search for movies",
       "mode": "view"
     }

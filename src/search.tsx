@@ -1,6 +1,13 @@
-import { Action, ActionPanel, Detail, Keyboard, List } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Keyboard,
+  List,
+  showToast,
+  Toast,
+} from "@raycast/api";
 import { useEffect, useState } from "react";
-import { searchMovies } from "./lib/data";
+import { addToWatchlist, searchMovies } from "./lib/data";
 import { View } from "./components/view";
 import { Movie } from "./lib/types";
 
@@ -24,10 +31,22 @@ function SearchCommand() {
     }
   };
 
+  const onAddToWatchlist = async (id: number) => {
+    setIsLoading(true);
+    await addToWatchlist(id);
+    setIsLoading(false);
+    showToast({
+      title: "Trakt Manager",
+      message: "Movie added to watchlist",
+      style: Toast.Style.Success,
+    });
+  };
+
   return (
     <List
       isLoading={isLoading}
       onSearchTextChange={setSearchText}
+      isShowingDetail
       actions={
         <ActionPanel>
           <Action
@@ -40,11 +59,39 @@ function SearchCommand() {
     >
       <List.EmptyView title="Search for movies" />
       {movies && movies.map((m) => {
+        const markdown = `# ${m.movie.title}`;
+
         return (
           <List.Item
+            key={m.movie.ids.trakt}
             icon="trakt.png"
             title={m.movie.title}
-            detail={<Detail key={m.movie.ids.slug} />}
+            actions={
+              <ActionPanel>
+                <Action
+                  title="Add to watchlist"
+                  shortcut={Keyboard.Shortcut.Common.Open}
+                  onAction={() => onAddToWatchlist(m.movie.ids.trakt)}
+                />
+              </ActionPanel>
+            }
+            detail={
+              <List.Item.Detail
+                markdown={markdown}
+                metadata={
+                  <List.Item.Detail.Metadata>
+                    <List.Item.Detail.Metadata.Label
+                      title="Name"
+                      text={m.movie.title}
+                    />
+                    <List.Item.Detail.Metadata.Label
+                      title="Year"
+                      text={"2001"}
+                    />
+                  </List.Item.Detail.Metadata>
+                }
+              />
+            }
           />
         );
       })}
