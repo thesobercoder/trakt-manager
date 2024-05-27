@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { addMovieToWatchlist, searchShows } from "./lib/data";
 import { View } from "./components/view";
 import { Show } from "./lib/types";
+import { Seasons } from "./components/seasons";
 
 function SearchCommand() {
   const [searchText, setSearchText] = useState<string | undefined>();
@@ -57,23 +58,28 @@ function SearchCommand() {
       }
     >
       <List.EmptyView title="Search for shows" />
-      {shows && shows.map((m) => {
-        const markdown = `# ${m.show.title}`;
+      {shows && shows.map((item) => {
+        const markdown = `## ${item.show.title}`;
 
         return (
           <List.Item
-            key={m.show.ids.trakt}
+            key={item.show.ids.trakt}
             icon="trakt.png"
-            title={m.show.title}
+            title={item.show.title}
             actions={
               <ActionPanel>
-                <Action
-                  title="Add to watchlist"
+                <Action.Push
+                  title="Show Seasons"
                   shortcut={Keyboard.Shortcut.Common.Open}
-                  onAction={() => onAddToWatchlist(m.show.ids.trakt)}
+                  target={<Seasons id={item.show.ids.trakt} />}
+                />
+                <Action
+                  title="Add To Watchlist"
+                  shortcut={Keyboard.Shortcut.Common.Edit}
+                  onAction={() => onAddToWatchlist(item.show.ids.trakt)}
                 />
                 <Action.OpenInBrowser
-                  url={`https://trakt.tv/shows/${m.show.ids.slug}`}
+                  url={`https://trakt.tv/shows/${item.show.ids.slug}`}
                   shortcut={Keyboard.Shortcut.Common.Duplicate}
                 />
               </ActionPanel>
@@ -85,11 +91,11 @@ function SearchCommand() {
                   <List.Item.Detail.Metadata>
                     <List.Item.Detail.Metadata.Label
                       title="Name"
-                      text={m.show.title}
+                      text={item.show.title}
                     />
                     <List.Item.Detail.Metadata.Label
                       title="Year"
-                      text={String(m.show.year || "")}
+                      text={String(item.show.year || "")}
                     />
                   </List.Item.Detail.Metadata>
                 }

@@ -10,14 +10,6 @@ export const oauthClient = new OAuth.PKCEClient({
   providerId: "trakt",
 });
 
-export const isAuthorized = async () => {
-  const existingTokens = await oauthClient.getTokens();
-  if (existingTokens && !existingTokens?.isExpired()) {
-    return true;
-  }
-  return false;
-};
-
 export const authorize = async () => {
   const existingTokens = await oauthClient.getTokens();
   if (existingTokens?.accessToken) {

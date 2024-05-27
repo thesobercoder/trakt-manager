@@ -28,3 +28,12 @@ export type Show = {
     };
   };
 };
+
+export type Season = {
+  number: number;
+  ids: {
+    trakt: number;
+    tvdb: number;
+    tmdb: number;
+  };
+};

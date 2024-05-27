@@ -1,13 +1,9 @@
-import { Movie, Show } from "./types";
+import { Movie, Season, Show } from "./types";
 import { API_URL, CLIENT_ID } from "./constants";
-import { isAuthorized, oauthClient } from "./oauth";
+import { oauthClient } from "./oauth";
 import fetch from "node-fetch";
 
 export const searchMovies = async (query: string) => {
-  if (!await isAuthorized()) {
-    return;
-  }
-
   const tokens = await oauthClient.getTokens();
   const response = await fetch(
     `${API_URL}/search/movie?query=${encodeURIComponent(query)}`,
@@ -30,10 +26,6 @@ export const searchMovies = async (query: string) => {
 };
 
 export const addMovieToWatchlist = async (id: number) => {
-  if (!await isAuthorized()) {
-    return;
-  }
-
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${API_URL}/sync/watchlist`, {
     method: "POST",
@@ -61,10 +53,6 @@ export const addMovieToWatchlist = async (id: number) => {
 };
 
 export const checkInMovie = async (id: number) => {
-  if (!await isAuthorized()) {
-    return;
-  }
-
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${API_URL}/sync/watchlist`, {
     method: "POST",
@@ -92,10 +80,6 @@ export const checkInMovie = async (id: number) => {
 };
 
 export const searchShows = async (query: string) => {
-  if (!await isAuthorized()) {
-    return;
-  }
-
   const tokens = await oauthClient.getTokens();
   const response = await fetch(
     `${API_URL}/search/show?query=${encodeURIComponent(query)}`,
@@ -115,4 +99,26 @@ export const searchShows = async (query: string) => {
   }
 
   return await response.json() as Show[];
+};
+
+export const getShowSeasons = async (id: number) => {
+  const tokens = await oauthClient.getTokens();
+  const response = await fetch(
+    `${API_URL}/shows/${encodeURIComponent(id)}/seasons`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "trakt-api-version": "2",
+        "trakt-api-key": CLIENT_ID,
+        "Authorization": `Bearer ${tokens?.accessToken}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    console.error("Get show seasons:", await response.text());
+    throw new Error(response.statusText);
+  }
+
+  return await response.json() as Season[];
 };
