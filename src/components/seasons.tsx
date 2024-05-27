@@ -1,5 +1,5 @@
-import { Action, ActionPanel, Keyboard, List, showToast, Toast } from "@raycast/api";
-import { ReactNode, useEffect, useState } from "react";
+import { List } from "@raycast/api";
+import { useEffect, useState } from "react";
 import { Season } from "../lib/types";
 import { getShowSeasons } from "../lib/data";
 

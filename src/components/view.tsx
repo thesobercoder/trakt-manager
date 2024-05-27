@@ -1,4 +1,4 @@
-import { FC, ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { authorize } from "../lib/oauth";
 
 export const View = ({ children }: { children: ReactNode }) => {

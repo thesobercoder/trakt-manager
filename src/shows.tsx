@@ -46,7 +46,7 @@ function SearchCommand() {
         </ActionPanel>
       }
     >
-      <List.EmptyView title="Search for shows" />
+      <List.EmptyView title="Search For Shows" />
       {shows &&
         shows.map((item) => {
           const markdown = `## ${item.show.title}`;

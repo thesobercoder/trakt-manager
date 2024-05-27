@@ -68,7 +68,7 @@ function SearchCommand() {
               actions={
                 <ActionPanel>
                   <Action
-                    title="Add to watchlist"
+                    title="Add To Watchlist"
                     shortcut={Keyboard.Shortcut.Common.Open}
                     onAction={() => onAddToWatchlist(m.movie.ids.trakt)}
                   />
