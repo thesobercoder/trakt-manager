@@ -13,12 +13,6 @@
       "title": "Search Movies",
       "description": "Search for movies",
       "mode": "view"
-    },
-    {
-      "name": "oauth",
-      "title": "Authorize",
-      "description": "Aurthorize with Trakt",
-      "mode": "no-view"
     }
   ],
   "dependencies": {
@@ -34,7 +28,7 @@
     "syncpack": "^12.3.2",
     "typescript": "^5.2.2"
   },
-  "icon": "command-icon.png",
+  "icon": "trakt.png",
   "license": "MIT",
   "scripts": {
     "build": "ray build -e dist",

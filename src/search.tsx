@@ -1,12 +1,13 @@
-import { Action, ActionPanel, Detail, List, OAuth } from "@raycast/api";
+import { Action, ActionPanel, Detail, List } from "@raycast/api";
 import { useEffect } from "react";
-import { searchMovies } from "./lib";
+import { searchMovies } from "./lib/data";
+import { View } from "./components/view";
 
-export default function Command() {
+const SearchCommand = () => {
   useEffect(() => {
     (async () => {
       const items = await searchMovies("terminator");
-      console.log(items);
+      console.log({ items });
     })();
   });
 
@@ -37,5 +38,13 @@ export default function Command() {
         }
       />
     </List>
+  );
+};
+
+export default function Command() {
+  return (
+    <View>
+      <SearchCommand />
+    </View>
   );
 }

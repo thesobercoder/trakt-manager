@@ -1,28 +1,47 @@
 import { OAuth } from "@raycast/api";
-import { API_URL, OAUTH_URL } from "./constants";
+import { CLIENT_ID, OAUTH_URL } from "./constants";
 import fetch from "node-fetch";
 
-const clientId =
-  "f7525a53be3842c4ff7570cfd33ca792c7f9717ab8f74af34337d6595f40af46";
-
-const client = new OAuth.PKCEClient({
+export const oauthClient = new OAuth.PKCEClient({
   redirectMethod: OAuth.RedirectMethod.Web,
   providerName: "Trakt",
-  // providerIcon: "twitter-logo.png",
+  providerIcon: "trakt.png",
   description: "Connect your Trakt account…",
+  providerId: "trakt",
 });
 
+export const isAuthorized = async () => {
+  const existingTokens = await oauthClient.getTokens();
+  console.log("Existing tokens", existingTokens);
+  if (existingTokens && !existingTokens?.isExpired()) {
+    return true;
+  }
+  return false;
+};
+
 export const authorize = async () => {
-  const authRequest = await client.authorizationRequest({
+  const existingTokens = await oauthClient.getTokens();
+
+  console.log("Existing token", existingTokens);
+
+  if (existingTokens?.accessToken) {
+    if (existingTokens?.refreshToken && existingTokens.isExpired()) {
+      await refreshTokens(existingTokens.refreshToken);
+      return;
+    }
+    return;
+  }
+
+  const authRequest = await oauthClient.authorizationRequest({
     endpoint: `${OAUTH_URL}/oauth/authorize`,
-    clientId: clientId,
+    clientId: CLIENT_ID,
     scope: "",
   });
 
-  const { authorizationCode } = await client.authorize(authRequest);
+  const { authorizationCode } = await oauthClient.authorize(authRequest);
 
   const params = new URLSearchParams();
-  params.append("client_id", clientId);
+  params.append("client_id", CLIENT_ID);
   params.append("code", authorizationCode);
   params.append("code_verifier", authRequest.codeVerifier);
   params.append("grant_type", "authorization_code");
@@ -37,16 +56,16 @@ export const authorize = async () => {
     throw new Error(response.statusText);
   }
 
-  const tokenResponse = (await response.json()) as OAuth.TokenResponse;
-  await client.setTokens(tokenResponse);
+  const tokens = (await response.json()) as OAuth.TokenResponse;
+  await oauthClient.setTokens(tokens);
 };
 
-export async function fetchToken(
+export const fetchTokens = async (
   authRequest: OAuth.AuthorizationRequest,
   authCode: string,
-) {
+) => {
   const params = new URLSearchParams();
-  params.append("client_id", clientId);
+  params.append("client_id", CLIENT_ID);
   params.append("code", authCode);
   params.append("verifier", authRequest.codeVerifier);
   params.append("grant_type", "authorization_code");
@@ -61,13 +80,13 @@ export async function fetchToken(
     throw new Error(response.statusText);
   }
 
-  const tokenResponse = (await response.json()) as OAuth.TokenResponse;
-  await client.setTokens(tokenResponse);
-}
+  const tokens = (await response.json()) as OAuth.TokenResponse;
+  await oauthClient.setTokens(tokens);
+};
 
-export async function refreshToken(refreshToken: string) {
+export const refreshTokens = async (refreshToken: string) => {
   const params = new URLSearchParams();
-  params.append("client_id", clientId);
+  params.append("client_id", CLIENT_ID);
   params.append("refresh_token", refreshToken);
   params.append("grant_type", "refresh_token");
 
@@ -79,22 +98,7 @@ export async function refreshToken(refreshToken: string) {
     console.error("refresh tokens error:", await response.text());
     throw new Error(response.statusText);
   }
-  const tokenResponse = (await response.json()) as OAuth.TokenResponse;
-  tokenResponse.refresh_token = tokenResponse.refresh_token ?? refreshToken;
-  await client.setTokens(tokenResponse);
-}
-
-export async function searchMovies(query: string) {
-  const tokens = await client.getTokens();
-
-  const response = await fetch(`${API_URL}/search/movie?query=${query}`, {
-    headers: {
-      "Content-Type": "application/json",
-      "trakt-api-version": "2",
-      "trakt-api-key": clientId,
-      "Authorization": `Bearer ${tokens?.accessToken}`,
-    },
-  });
-
-  return await response.json();
-}
+  const tokens = (await response.json()) as OAuth.TokenResponse;
+  tokens.refresh_token = tokens.refresh_token ?? refreshToken;
+  await oauthClient.setTokens(tokens);
+};
