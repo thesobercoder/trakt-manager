@@ -5,24 +5,21 @@ import fetch from "node-fetch";
 
 export const searchMovies = async (query: string) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(
-    `${API_URL}/search/movie?query=${encodeURIComponent(query)}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "trakt-api-version": "2",
-        "trakt-api-key": CLIENT_ID,
-        "Authorization": `Bearer ${tokens?.accessToken}`,
-      },
+  const response = await fetch(`${API_URL}/search/movie?query=${encodeURIComponent(query)}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": CLIENT_ID,
+      Authorization: `Bearer ${tokens?.accessToken}`,
     },
-  );
+  });
 
   if (!response.ok) {
     console.error("Search movies:", await response.text());
     throw new Error(response.statusText);
   }
 
-  return await response.json() as Movie[];
+  return (await response.json()) as Movie[];
 };
 
 export const addMovieToWatchlist = async (id: number) => {
@@ -33,7 +30,7 @@ export const addMovieToWatchlist = async (id: number) => {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
       "trakt-api-key": CLIENT_ID,
-      "Authorization": `Bearer ${tokens?.accessToken}`,
+      Authorization: `Bearer ${tokens?.accessToken}`,
     },
     body: JSON.stringify({
       movies: [
@@ -60,7 +57,7 @@ export const checkInMovie = async (id: number) => {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
       "trakt-api-key": CLIENT_ID,
-      "Authorization": `Bearer ${tokens?.accessToken}`,
+      Authorization: `Bearer ${tokens?.accessToken}`,
     },
     body: JSON.stringify({
       movies: [
@@ -81,44 +78,38 @@ export const checkInMovie = async (id: number) => {
 
 export const searchShows = async (query: string) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(
-    `${API_URL}/search/show?query=${encodeURIComponent(query)}`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "trakt-api-version": "2",
-        "trakt-api-key": CLIENT_ID,
-        "Authorization": `Bearer ${tokens?.accessToken}`,
-      },
+  const response = await fetch(`${API_URL}/search/show?query=${encodeURIComponent(query)}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": CLIENT_ID,
+      Authorization: `Bearer ${tokens?.accessToken}`,
     },
-  );
+  });
 
   if (!response.ok) {
     console.error("Search shows:", await response.text());
     throw new Error(response.statusText);
   }
 
-  return await response.json() as Show[];
+  return (await response.json()) as Show[];
 };
 
 export const getShowSeasons = async (id: number) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(
-    `${API_URL}/shows/${encodeURIComponent(id)}/seasons`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "trakt-api-version": "2",
-        "trakt-api-key": CLIENT_ID,
-        "Authorization": `Bearer ${tokens?.accessToken}`,
-      },
+  const response = await fetch(`${API_URL}/shows/${encodeURIComponent(id)}/seasons`, {
+    headers: {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": CLIENT_ID,
+      Authorization: `Bearer ${tokens?.accessToken}`,
     },
-  );
+  });
 
   if (!response.ok) {
     console.error("Get show seasons:", await response.text());
     throw new Error(response.statusText);
   }
 
-  return await response.json() as Season[];
+  return (await response.json()) as Season[];
 };

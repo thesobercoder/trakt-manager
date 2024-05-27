@@ -48,10 +48,7 @@ export const authorize = async () => {
   await oauthClient.setTokens(tokens);
 };
 
-export const fetchTokens = async (
-  authRequest: OAuth.AuthorizationRequest,
-  authCode: string,
-) => {
+export const fetchTokens = async (authRequest: OAuth.AuthorizationRequest, authCode: string) => {
   const params = new URLSearchParams();
   params.append("client_id", CLIENT_ID);
   params.append("code", authCode);

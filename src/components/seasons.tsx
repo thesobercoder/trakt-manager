@@ -1,11 +1,4 @@
-import {
-  Action,
-  ActionPanel,
-  Keyboard,
-  List,
-  showToast,
-  Toast,
-} from "@raycast/api";
+import { Action, ActionPanel, Keyboard, List, showToast, Toast } from "@raycast/api";
 import { ReactNode, useEffect, useState } from "react";
 import { Season } from "../lib/types";
 import { getShowSeasons } from "../lib/data";
@@ -25,14 +18,10 @@ export const Seasons = ({ id }: { id: number }) => {
 
   return (
     <List isLoading={isLoading}>
-      {seasons && seasons.map((item) => {
-        return (
-          <List.Item
-            key={item.ids.trakt}
-            title={`Season ${item.number + 1}`}
-          />
-        );
-      })}
+      {seasons &&
+        seasons.map((item) => {
+          return <List.Item key={item.ids.trakt} title={`Season ${item.number + 1}`} />;
+        })}
     </List>
   );
 };

@@ -1,11 +1,4 @@
-import {
-  Action,
-  ActionPanel,
-  Keyboard,
-  List,
-  showToast,
-  Toast,
-} from "@raycast/api";
+import { Action, ActionPanel, Keyboard, List, showToast, Toast } from "@raycast/api";
 import { useEffect, useState } from "react";
 import { addMovieToWatchlist, searchMovies } from "./lib/data";
 import { View } from "./components/view";
@@ -58,61 +51,52 @@ function SearchCommand() {
       isShowingDetail
       actions={
         <ActionPanel>
-          <Action
-            title="Search"
-            shortcut={Keyboard.Shortcut.Common.Open}
-            onAction={onSearch}
-          />
+          <Action title="Search" shortcut={Keyboard.Shortcut.Common.Open} onAction={onSearch} />
         </ActionPanel>
       }
     >
       <List.EmptyView title="Search for movies" />
-      {movies && movies.map((m) => {
-        const markdown = `# ${m.movie.title}`;
+      {movies &&
+        movies.map((m) => {
+          const markdown = `# ${m.movie.title}`;
 
-        return (
-          <List.Item
-            key={m.movie.ids.trakt}
-            icon="trakt.png"
-            title={m.movie.title}
-            actions={
-              <ActionPanel>
-                <Action
-                  title="Add to watchlist"
-                  shortcut={Keyboard.Shortcut.Common.Open}
-                  onAction={() => onAddToWatchlist(m.movie.ids.trakt)}
+          return (
+            <List.Item
+              key={m.movie.ids.trakt}
+              icon="trakt.png"
+              title={m.movie.title}
+              actions={
+                <ActionPanel>
+                  <Action
+                    title="Add to watchlist"
+                    shortcut={Keyboard.Shortcut.Common.Open}
+                    onAction={() => onAddToWatchlist(m.movie.ids.trakt)}
+                  />
+                  <Action
+                    title="Check-in Movie"
+                    shortcut={Keyboard.Shortcut.Common.Edit}
+                    onAction={() => checkInMovie(m.movie.ids.trakt)}
+                  />
+                  <Action.OpenInBrowser
+                    url={`https://trakt.tv/movies/${m.movie.ids.slug}`}
+                    shortcut={Keyboard.Shortcut.Common.Duplicate}
+                  />
+                </ActionPanel>
+              }
+              detail={
+                <List.Item.Detail
+                  markdown={markdown}
+                  metadata={
+                    <List.Item.Detail.Metadata>
+                      <List.Item.Detail.Metadata.Label title="Name" text={m.movie.title} />
+                      <List.Item.Detail.Metadata.Label title="Year" text={String(m.movie.year || "")} />
+                    </List.Item.Detail.Metadata>
+                  }
                 />
-                <Action
-                  title="Check-in Movie"
-                  shortcut={Keyboard.Shortcut.Common.Edit}
-                  onAction={() => checkInMovie(m.movie.ids.trakt)}
-                />
-                <Action.OpenInBrowser
-                  url={`https://trakt.tv/movies/${m.movie.ids.slug}`}
-                  shortcut={Keyboard.Shortcut.Common.Duplicate}
-                />
-              </ActionPanel>
-            }
-            detail={
-              <List.Item.Detail
-                markdown={markdown}
-                metadata={
-                  <List.Item.Detail.Metadata>
-                    <List.Item.Detail.Metadata.Label
-                      title="Name"
-                      text={m.movie.title}
-                    />
-                    <List.Item.Detail.Metadata.Label
-                      title="Year"
-                      text={String(m.movie.year || "")}
-                    />
-                  </List.Item.Detail.Metadata>
-                }
-              />
-            }
-          />
-        );
-      })}
+              }
+            />
+          );
+        })}
     </List>
   );
 }
