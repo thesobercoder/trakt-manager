@@ -7,7 +7,7 @@ import {
   Toast,
 } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { addToWatchlist, searchMovies } from "./lib/data";
+import { addMovieToWatchlist, searchMovies } from "./lib/data";
 import { View } from "./components/view";
 import { Movie } from "./lib/types";
 
@@ -33,11 +33,20 @@ function SearchCommand() {
 
   const onAddToWatchlist = async (id: number) => {
     setIsLoading(true);
-    await addToWatchlist(id);
+    await addMovieToWatchlist(id);
     setIsLoading(false);
     showToast({
-      title: "Trakt Manager",
-      message: "Movie added to watchlist",
+      title: "Movie added to watchlist",
+      style: Toast.Style.Success,
+    });
+  };
+
+  const checkInMovie = async (id: number) => {
+    setIsLoading(true);
+    await checkInMovie(id);
+    setIsLoading(false);
+    showToast({
+      title: "Movie checked in",
       style: Toast.Style.Success,
     });
   };
@@ -73,6 +82,15 @@ function SearchCommand() {
                   shortcut={Keyboard.Shortcut.Common.Open}
                   onAction={() => onAddToWatchlist(m.movie.ids.trakt)}
                 />
+                <Action
+                  title="Check-in Movie"
+                  shortcut={Keyboard.Shortcut.Common.Edit}
+                  onAction={() => checkInMovie(m.movie.ids.trakt)}
+                />
+                <Action.OpenInBrowser
+                  url={`https://trakt.tv/movies/${m.movie.ids.slug}`}
+                  shortcut={Keyboard.Shortcut.Common.Duplicate}
+                />
               </ActionPanel>
             }
             detail={
@@ -86,7 +104,7 @@ function SearchCommand() {
                     />
                     <List.Item.Detail.Metadata.Label
                       title="Year"
-                      text={"2001"}
+                      text={String(m.movie.year || "")}
                     />
                   </List.Item.Detail.Metadata>
                 }

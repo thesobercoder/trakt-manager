@@ -9,10 +9,17 @@
   ],
   "commands": [
     {
-      "name": "search",
+      "name": "movies",
       "title": "Search Movies",
       "subtitle": "Trakt Manager",
       "description": "Search for movies",
+      "mode": "view"
+    },
+    {
+      "name": "shows",
+      "title": "Search Shows",
+      "subtitle": "Trakt Manager",
+      "description": "Search for shows",
       "mode": "view"
     }
   ],
