@@ -78,12 +78,12 @@ function SearchCommand() {
   const onSelectionChange = async (id: string | null) => {
     setIsLoading(true);
     if (abortable.current) {
-      abortable.current?.abort();
+      abortable.current.abort();
     }
     abortable.current = new AbortController();
     if (id) {
       try {
-        setPoster(await getMoviePoster(id, abortable.current?.signal));
+        setPoster(await getMoviePoster(id, abortable.current.signal));
       } catch (e) {
         setPoster(undefined);
       }
