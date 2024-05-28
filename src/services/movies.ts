@@ -87,7 +87,6 @@ export const getMoviePoster = async (id: string, signal: AbortSignal | undefined
   });
 
   if (!response.ok) {
-    console.error("Get movie poster:", await response.text());
     throw new Error(response.statusText);
   }
 
