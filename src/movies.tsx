@@ -83,7 +83,7 @@ function SearchCommand() {
     abortable.current = new AbortController();
     if (id) {
       try {
-        setPoster(await getMoviePoster(id, abortable.current.signal));
+        setPoster(await getMoviePoster(id.toString(), abortable.current.signal));
       } catch (e) {
         setPoster(undefined);
       }
@@ -112,7 +112,7 @@ function SearchCommand() {
 
           return (
             <List.Item
-              id={`${m.movie.ids.trakt}`}
+              id={`${m.movie.ids.tmdb}`}
               key={m.movie.ids.trakt}
               icon="trakt.png"
               title={m.movie.title}
@@ -137,6 +137,11 @@ function SearchCommand() {
                     url={`https://www.imdb.com/title/${m.movie.ids.imdb}`}
                     shortcut={Keyboard.Shortcut.Common.New}
                     title="IMDb"
+                  />
+                  <Action.OpenInBrowser
+                    url={`https://www.themoviedb.org/movie/${m.movie.ids.tmdb}`}
+                    shortcut={Keyboard.Shortcut.Common.Pin}
+                    title="TMDB"
                   />
                 </ActionPanel>
               }

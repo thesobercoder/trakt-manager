@@ -15,7 +15,6 @@ export const searchShows = async (query: string) => {
   });
 
   if (!response.ok) {
-    console.error("Search shows:", await response.text());
     throw new Error(response.statusText);
   }
 
@@ -34,7 +33,6 @@ export const getShowSeasons = async (id: number) => {
   });
 
   if (!response.ok) {
-    console.error("Get show seasons:", await response.text());
     throw new Error(response.statusText);
   }
 
@@ -63,7 +61,6 @@ export const addShowToWatchlist = async (id: number) => {
   });
 
   if (!response.ok) {
-    console.error("Add show to watchlist:", await response.text());
     throw new Error(response.statusText);
   }
 };

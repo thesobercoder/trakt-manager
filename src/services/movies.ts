@@ -1,6 +1,7 @@
+import { LocalStorage } from "@raycast/api";
 import { load } from "cheerio";
 import fetch from "node-fetch";
-import { API_URL, APP_URL, CLIENT_ID } from "../lib/constants";
+import { API_URL, CLIENT_ID, POSTER_URL } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
 import { Movie } from "../lib/types";
 
@@ -16,7 +17,6 @@ export const searchMovies = async (query: string) => {
   });
 
   if (!response.ok) {
-    console.error("Search movies:", await response.text());
     throw new Error(response.statusText);
   }
 
@@ -45,7 +45,6 @@ export const addMovieToWatchlist = async (id: number) => {
   });
 
   if (!response.ok) {
-    console.error("Add movie to watchlist:", await response.text());
     throw new Error(response.statusText);
   }
 };
@@ -72,13 +71,18 @@ export const checkInMovie = async (id: number) => {
   });
 
   if (!response.ok) {
-    console.error("Checkin movie:", await response.text());
     throw new Error(response.statusText);
   }
 };
 
 export const getMoviePoster = async (id: string, signal: AbortSignal | undefined) => {
-  const response = await fetch(`${APP_URL}/movies/${id}`, {
+  const cachedPoster = await LocalStorage.getItem(id);
+
+  if (cachedPoster && typeof cachedPoster === "string") {
+    return cachedPoster;
+  }
+
+  const response = await fetch(`${POSTER_URL}/movie/${id}`, {
     signal,
   });
 
@@ -89,7 +93,10 @@ export const getMoviePoster = async (id: string, signal: AbortSignal | undefined
 
   const html = await response.text();
   const $ = load(html);
-  const poster = $(".poster.with-overflow .real").attr("data-original");
+  const poster = $(".poster.w-full").attr("src");
+  if (poster) {
+    await LocalStorage.setItem(id, poster);
+  }
 
   return poster;
 };
