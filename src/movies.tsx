@@ -1,17 +1,15 @@
 import { Action, ActionPanel, Keyboard, List, showToast, Toast } from "@raycast/api";
-import { useDebounce } from "@uidotdev/usehooks";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
 import { Movie } from "./lib/types";
 import { addMovieToWatchlist, getMoviePoster, searchMovies } from "./services/movies";
 
 function SearchCommand() {
+  const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string | undefined>();
   const [movies, setMovies] = useState<Movie[] | undefined>();
   const [poster, setPoster] = useState<string | undefined>();
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedMovie, setSelecteMovie] = useState<string | null>();
-  const debouncedSelectedMovie = useDebounce(selectedMovie, 300);
 
   useEffect(() => {
     if (!searchText) {
@@ -49,18 +47,18 @@ function SearchCommand() {
   };
 
   const onSelectionChange = async (id: string | null) => {
-    setSelecteMovie(id);
-  };
-
-  useEffect(() => {
-    (async () => {
-      if (debouncedSelectedMovie) {
-        setIsLoading(true);
-        setPoster(await getMoviePoster(debouncedSelectedMovie));
-        setIsLoading(false);
+    setIsLoading(true);
+    abortable.current?.abort();
+    abortable.current = new AbortController();
+    if (id) {
+      try {
+        setPoster(await getMoviePoster(id, abortable.current?.signal));
+      } catch (e) {
+        setPoster(undefined);
       }
-    })();
-  }, [selectedMovie]);
+    }
+    setIsLoading(false);
+  };
 
   return (
     <List

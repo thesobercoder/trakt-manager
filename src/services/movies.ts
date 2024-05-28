@@ -77,12 +77,13 @@ export const checkInMovie = async (id: number) => {
   }
 };
 
-export const getMoviePoster = async (id: string) => {
-  const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${APP_URL}/movies/${id}`);
+export const getMoviePoster = async (id: string, signal: AbortSignal | undefined) => {
+  const response = await fetch(`${APP_URL}/movies/${id}`, {
+    signal,
+  });
 
   if (!response.ok) {
-    console.error("Checkin movie:", await response.text());
+    console.error("Get movie poster:", await response.text());
     throw new Error(response.statusText);
   }
 
