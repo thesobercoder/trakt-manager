@@ -1,4 +1,5 @@
 import { Action, ActionPanel, Keyboard, List, showToast, Toast } from "@raycast/api";
+import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
 import { Movie } from "./lib/types";
@@ -77,6 +78,7 @@ function SearchCommand() {
 
   const onSelectionChange = async (id: string | null) => {
     setIsLoading(true);
+    setPoster(undefined);
     if (abortable.current) {
       abortable.current.abort();
     }
@@ -85,7 +87,12 @@ function SearchCommand() {
       try {
         setPoster(await getMoviePoster(id.toString(), abortable.current.signal));
       } catch (e) {
-        setPoster(undefined);
+        if (!(e instanceof AbortError)) {
+          showToast({
+            title: "Error fetching movie poster",
+            style: Toast.Style.Failure,
+          });
+        }
       }
     }
     setIsLoading(false);
