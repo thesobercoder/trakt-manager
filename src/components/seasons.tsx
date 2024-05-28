@@ -1,7 +1,7 @@
 import { List } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { getShowSeasons } from "../lib/data";
 import { Season } from "../lib/types";
+import { getShowSeasons } from "../services/shows";
 
 export const Seasons = ({ id }: { id: number }) => {
   const [seasons, setSeasons] = useState<Season[] | undefined>();

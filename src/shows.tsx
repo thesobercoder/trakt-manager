@@ -2,8 +2,8 @@ import { Action, ActionPanel, Keyboard, List, showToast, Toast } from "@raycast/
 import { useEffect, useState } from "react";
 import { Seasons } from "./components/seasons";
 import { View } from "./components/view";
-import { addMovieToWatchlist, searchShows } from "./lib/data";
 import { Show } from "./lib/types";
+import { addShowToWatchlist, searchShows } from "./services/shows";
 
 function SearchCommand() {
   const [searchText, setSearchText] = useState<string | undefined>();
@@ -27,7 +27,7 @@ function SearchCommand() {
 
   const onAddToWatchlist = async (id: number) => {
     setIsLoading(true);
-    await addMovieToWatchlist(id);
+    await addShowToWatchlist(id);
     setIsLoading(false);
     showToast({
       title: "Show added to watchlist",

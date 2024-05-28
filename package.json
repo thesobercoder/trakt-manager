@@ -25,6 +25,8 @@
   ],
   "dependencies": {
     "@raycast/api": "^1.75.1",
+    "@uidotdev/usehooks": "^2.4.1",
+    "cheerio": "^1.0.0-rc.12",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
