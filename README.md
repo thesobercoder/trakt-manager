@@ -1,6 +1,6 @@
 # Trakt Manager
 
-Control your trakt account directly from Raycast.
+Control your Trakt account directly from Raycast.
 
 # Commands
 
