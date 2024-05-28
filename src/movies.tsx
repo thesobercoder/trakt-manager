@@ -12,6 +12,14 @@ function SearchCommand() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    return () => {
+      if (abortable.current) {
+        abortable.current.abort();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
     if (!searchText) {
       setMovies(undefined);
     }
@@ -69,7 +77,9 @@ function SearchCommand() {
 
   const onSelectionChange = async (id: string | null) => {
     setIsLoading(true);
-    abortable.current?.abort();
+    if (abortable.current) {
+      abortable.current?.abort();
+    }
     abortable.current = new AbortController();
     if (id) {
       try {
