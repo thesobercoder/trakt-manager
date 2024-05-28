@@ -1,6 +1,6 @@
 import { OAuth } from "@raycast/api";
-import { CLIENT_ID, OAUTH_URL } from "./constants";
 import fetch from "node-fetch";
+import { CLIENT_ID, OAUTH_URL } from "./constants";
 
 export const oauthClient = new OAuth.PKCEClient({
   redirectMethod: OAuth.RedirectMethod.Web,

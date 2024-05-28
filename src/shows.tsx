@@ -1,9 +1,9 @@
 import { Action, ActionPanel, Keyboard, List, showToast, Toast } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { addMovieToWatchlist, searchShows } from "./lib/data";
-import { View } from "./components/view";
-import { Show } from "./lib/types";
 import { Seasons } from "./components/seasons";
+import { View } from "./components/view";
+import { addMovieToWatchlist, searchShows } from "./lib/data";
+import { Show } from "./lib/types";
 
 function SearchCommand() {
   const [searchText, setSearchText] = useState<string | undefined>();

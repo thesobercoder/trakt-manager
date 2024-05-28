@@ -1,7 +1,7 @@
-import { Movie, Season, Show } from "./types";
+import fetch from "node-fetch";
 import { API_URL, CLIENT_ID } from "./constants";
 import { oauthClient } from "./oauth";
-import fetch from "node-fetch";
+import { Movie, Season, Show } from "./types";
 
 export const searchMovies = async (query: string) => {
   const tokens = await oauthClient.getTokens();

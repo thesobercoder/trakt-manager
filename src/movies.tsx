@@ -1,7 +1,7 @@
 import { Action, ActionPanel, Keyboard, List, showToast, Toast } from "@raycast/api";
 import { useEffect, useState } from "react";
-import { addMovieToWatchlist, searchMovies } from "./lib/data";
 import { View } from "./components/view";
+import { addMovieToWatchlist, searchMovies } from "./lib/data";
 import { Movie } from "./lib/types";
 
 function SearchCommand() {
