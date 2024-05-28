@@ -20,15 +20,29 @@ function SearchCommand() {
   const onSearch = async () => {
     if (searchText) {
       setIsLoading(true);
-      const items = await searchMovies(searchText);
-      setMovies(items);
+      try {
+        const items = await searchMovies(searchText);
+        setMovies(items);
+      } catch (e) {
+        showToast({
+          title: "Error searching movies",
+          style: Toast.Style.Failure,
+        });
+      }
       setIsLoading(false);
     }
   };
 
   const onAddToWatchlist = async (id: number) => {
     setIsLoading(true);
-    await addMovieToWatchlist(id);
+    try {
+      await addMovieToWatchlist(id);
+    } catch (e) {
+      showToast({
+        title: "Error adding movie to watchlist",
+        style: Toast.Style.Failure,
+      });
+    }
     setIsLoading(false);
     showToast({
       title: "Movie added to watchlist",
@@ -38,7 +52,14 @@ function SearchCommand() {
 
   const checkInMovie = async (id: number) => {
     setIsLoading(true);
-    await checkInMovie(id);
+    try {
+      await checkInMovie(id);
+    } catch (e) {
+      showToast({
+        title: "Error checking in movie",
+        style: Toast.Style.Failure,
+      });
+    }
     setIsLoading(false);
     showToast({
       title: "Movie checked in",
@@ -66,7 +87,7 @@ function SearchCommand() {
       onSearchTextChange={setSearchText}
       onSelectionChange={onSelectionChange}
       throttle={true}
-      isShowingDetail
+      isShowingDetail={Boolean(movies)}
       actions={
         <ActionPanel>
           <Action title="Search" shortcut={Keyboard.Shortcut.Common.Open} onAction={onSearch} />
