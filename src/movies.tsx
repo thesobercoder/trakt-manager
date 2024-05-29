@@ -55,10 +55,12 @@ function SearchCommand() {
     try {
       await addMovieToWatchlist(id, abortable.current?.signal);
     } catch (e) {
-      showToast({
-        title: "Error adding movie to watchlist",
-        style: Toast.Style.Failure,
-      });
+      if (!(e instanceof AbortError)) {
+        showToast({
+          title: "Error adding movie to watchlist",
+          style: Toast.Style.Failure,
+        });
+      }
     }
     setIsLoading(false);
     showToast({
@@ -72,10 +74,12 @@ function SearchCommand() {
     try {
       await checkInMovie(id, abortable.current?.signal);
     } catch (e) {
-      showToast({
-        title: "Error checking in movie",
-        style: Toast.Style.Failure,
-      });
+      if (!(e instanceof AbortError)) {
+        showToast({
+          title: "Error checking in movie",
+          style: Toast.Style.Failure,
+        });
+      }
     }
     setIsLoading(false);
     showToast({
