@@ -107,7 +107,7 @@ function SearchCommand() {
           return (
             <Grid.Item
               key={movie.id}
-              title={movie.title}
+              title={movie.title ?? movie.original_title ?? "Unknown Movie"}
               content={`${TMDB_IMG_URL}/${movie.poster_path}`}
               actions={
                 <ActionPanel>
