@@ -1,6 +1,6 @@
 import { OAuth } from "@raycast/api";
 import fetch from "node-fetch";
-import { APP_URL, CLIENT_ID } from "./constants";
+import { CLIENT_ID, TRAKT_APP_URL } from "./constants";
 
 export const oauthClient = new OAuth.PKCEClient({
   redirectMethod: OAuth.RedirectMethod.Web,
@@ -21,7 +21,7 @@ export const authorize = async () => {
   }
 
   const authRequest = await oauthClient.authorizationRequest({
-    endpoint: `${APP_URL}/oauth/authorize`,
+    endpoint: `${TRAKT_APP_URL}/oauth/authorize`,
     clientId: CLIENT_ID,
     scope: "",
   });
@@ -35,7 +35,7 @@ export const authorize = async () => {
   params.append("grant_type", "authorization_code");
   params.append("redirect_uri", authRequest.redirectURI);
 
-  const response = await fetch(`${APP_URL}/oauth/token`, {
+  const response = await fetch(`${TRAKT_APP_URL}/oauth/token`, {
     method: "POST",
     body: params,
   });
@@ -56,7 +56,7 @@ export const fetchTokens = async (authRequest: OAuth.AuthorizationRequest, authC
   params.append("grant_type", "authorization_code");
   params.append("redirect_uri", authRequest.redirectURI);
 
-  const response = await fetch(`${APP_URL}/oauth/token`, {
+  const response = await fetch(`${TRAKT_APP_URL}/oauth/token`, {
     method: "POST",
     body: params,
   });
@@ -75,7 +75,7 @@ export const refreshTokens = async (refreshToken: string) => {
   params.append("refresh_token", refreshToken);
   params.append("grant_type", "refresh_token");
 
-  const response = await fetch(`${APP_URL}/oauth/token`, {
+  const response = await fetch(`${TRAKT_APP_URL}/oauth/token`, {
     method: "POST",
     body: params,
   });

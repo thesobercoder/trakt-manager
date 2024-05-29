@@ -7,6 +7,15 @@
     "Media",
     "Other"
   ],
+  "preferences": [
+    {
+      "name": "apiKey",
+      "title": "TMDB API Key",
+      "description": "Your TMDB API Key",
+      "type": "password",
+      "required": true
+    }
+  ],
   "commands": [
     {
       "name": "movies",

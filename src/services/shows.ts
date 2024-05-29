@@ -1,11 +1,11 @@
 import fetch from "node-fetch";
-import { API_URL, CLIENT_ID } from "../lib/constants";
+import { CLIENT_ID, TRAKT_API_URL } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
 import { Season, Show } from "../lib/types";
 
 export const searchShows = async (query: string) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${API_URL}/search/show?query=${encodeURIComponent(query)}`, {
+  const response = await fetch(`${TRAKT_API_URL}/search/show?query=${encodeURIComponent(query)}`, {
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
@@ -23,7 +23,7 @@ export const searchShows = async (query: string) => {
 
 export const getShowSeasons = async (id: number) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${API_URL}/shows/${encodeURIComponent(id)}/seasons`, {
+  const response = await fetch(`${TRAKT_API_URL}/shows/${encodeURIComponent(id)}/seasons`, {
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
@@ -41,7 +41,7 @@ export const getShowSeasons = async (id: number) => {
 
 export const addShowToWatchlist = async (id: number) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${API_URL}/sync/watchlist`, {
+  const response = await fetch(`${TRAKT_API_URL}/sync/watchlist`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
