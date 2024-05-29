@@ -1,6 +1,6 @@
 import { Action, ActionPanel, Grid, Keyboard } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
-import { TMDB_IMG_URL } from "../lib/constants";
+import { TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
 import { ShowDetails } from "../lib/types";
 import { getShowSeasons } from "../services/shows";
 import { Episodes } from "./episodes";
@@ -41,6 +41,7 @@ export const Seasons = ({ showId }: { showId: number }) => {
                     shortcut={Keyboard.Shortcut.Common.Open}
                     target={<Episodes showId={showId} seasonNumber={season.season_number} />}
                   />
+                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/search/tmdb/${showId}?id_type=show`} />
                 </ActionPanel>
               }
             />
