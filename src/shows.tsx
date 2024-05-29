@@ -1,33 +1,68 @@
-import { Action, ActionPanel, Keyboard, List, showToast, Toast } from "@raycast/api";
-import { useEffect, useState } from "react";
+import { Action, ActionPanel, Grid, Icon, Keyboard, showToast, Toast } from "@raycast/api";
+import { AbortError } from "node-fetch";
+import { useEffect, useRef, useState } from "react";
 import { Seasons } from "./components/seasons";
 import { View } from "./components/view";
-import { Show } from "./lib/types";
+import { TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
+import { Shows } from "./lib/types";
 import { addShowToWatchlist, searchShows } from "./services/shows";
 
 function SearchCommand() {
+  const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string | undefined>();
-  const [shows, setShows] = useState<Show[] | undefined>();
+  const [shows, setMovies] = useState<Shows | undefined>();
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!searchText) {
-      setShows(undefined);
-    }
-  }, [searchText]);
+    return () => {
+      if (abortable.current) {
+        abortable.current.abort();
+      }
+    };
+  }, []);
 
-  const onSearch = async () => {
-    if (searchText) {
-      setIsLoading(true);
-      const items = await searchShows(searchText);
-      setShows(items);
-      setIsLoading(false);
-    }
-  };
+  useEffect(() => {
+    (async () => {
+      if (abortable.current) {
+        abortable.current.abort();
+      }
+      abortable.current = new AbortController();
+      if (!searchText) {
+        setMovies(undefined);
+      } else {
+        setIsLoading(true);
+        try {
+          const shows = await searchShows(searchText, page, abortable.current.signal);
+          setMovies(shows);
+          setPage(shows.page);
+          setTotalPages(shows.total_pages);
+        } catch (e) {
+          if (!(e instanceof AbortError)) {
+            showToast({
+              title: "Error searching shows",
+              style: Toast.Style.Failure,
+            });
+          }
+        }
+        setIsLoading(false);
+      }
+    })();
+  }, [searchText, page]);
 
   const onAddToWatchlist = async (id: number) => {
     setIsLoading(true);
-    await addShowToWatchlist(id);
+    try {
+      await addShowToWatchlist(id, abortable.current?.signal);
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        showToast({
+          title: "Error adding show to watchlist",
+          style: Toast.Style.Failure,
+        });
+      }
+    }
     setIsLoading(false);
     showToast({
       title: "Show added to watchlist",
@@ -36,59 +71,66 @@ function SearchCommand() {
   };
 
   return (
-    <List
+    <Grid
       isLoading={isLoading}
-      onSearchTextChange={setSearchText}
-      isShowingDetail
-      actions={
-        <ActionPanel>
-          <Action title="Search" shortcut={Keyboard.Shortcut.Common.Open} onAction={onSearch} />
-        </ActionPanel>
-      }
+      aspectRatio="9/16"
+      fit={Grid.Fit.Fill}
+      searchBarPlaceholder="Search for shows"
+      onSearchTextChange={(text) => {
+        setSearchText(text);
+        setPage(1);
+        setTotalPages(1);
+      }}
+      throttle={true}
     >
-      <List.EmptyView title="Search For Shows" />
+      <Grid.EmptyView title="Search for shows" />
       {shows &&
-        shows.map((item) => {
-          const markdown = `## ${item.show.title}`;
-
+        shows.results.map((show) => {
           return (
-            <List.Item
-              key={item.show.ids.trakt}
-              icon="trakt.png"
-              title={item.show.title}
+            <Grid.Item
+              key={show.id}
+              title={`${show.name ?? show.original_name ?? "Unknown Show"} (${new Date(show.first_air_date).getFullYear()})`}
+              content={`${TMDB_IMG_URL}/${show.poster_path}`}
               actions={
                 <ActionPanel>
                   <Action.Push
-                    title="Show Seasons"
+                    title="Seasons"
                     shortcut={Keyboard.Shortcut.Common.Open}
-                    target={<Seasons id={item.show.ids.trakt} />}
+                    target={<Seasons id={show.id} />}
                   />
+                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/search/tmdb/${show.id}?id_type=show`} />
                   <Action
                     title="Add To Watchlist"
                     shortcut={Keyboard.Shortcut.Common.Edit}
-                    onAction={() => onAddToWatchlist(item.show.ids.trakt)}
+                    onAction={() => onAddToWatchlist(show.id)}
                   />
-                  <Action.OpenInBrowser
-                    url={`https://trakt.tv/shows/${item.show.ids.slug}`}
+                  {/* <Action
+                    title="Show Seasons"
                     shortcut={Keyboard.Shortcut.Common.Duplicate}
-                  />
+                    onAction={() => onCheckInMovie(movie.id)}
+                  /> */}
+                  <ActionPanel.Section>
+                    <Action
+                      icon={Icon.ArrowRight}
+                      title="Next Page"
+                      shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
+                      onAction={() => setPage((page) => (page + 1 > totalPages ? totalPages : page + 1))}
+                    />
+                    {page > 1 ? (
+                      <Action
+                        icon={Icon.ArrowLeft}
+                        title="Previous Page"
+                        shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
+                        onAction={() => setPage((page) => (page - 1 < 1 ? 1 : page - 1))}
+                      />
+                    ) : null}
+                  </ActionPanel.Section>
                 </ActionPanel>
-              }
-              detail={
-                <List.Item.Detail
-                  markdown={markdown}
-                  metadata={
-                    <List.Item.Detail.Metadata>
-                      <List.Item.Detail.Metadata.Label title="Name" text={item.show.title} />
-                      <List.Item.Detail.Metadata.Label title="Year" text={String(item.show.year || "")} />
-                    </List.Item.Detail.Metadata>
-                  }
-                />
               }
             />
           );
         })}
-    </List>
+    </Grid>
   );
 }
 

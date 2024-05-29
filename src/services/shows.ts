@@ -1,45 +1,39 @@
+import { getPreferenceValues } from "@raycast/api";
 import fetch from "node-fetch";
-import { CLIENT_ID, TRAKT_API_URL } from "../lib/constants";
+import { CLIENT_ID, TMDB_API_URL, TRAKT_API_URL } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
-import { Season, Show } from "../lib/types";
+import { ShowDetails, Shows } from "../lib/types";
 
-export const searchShows = async (query: string) => {
-  const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${TRAKT_API_URL}/search/show?query=${encodeURIComponent(query)}`, {
-    headers: {
-      "Content-Type": "application/json",
-      "trakt-api-version": "2",
-      "trakt-api-key": CLIENT_ID,
-      Authorization: `Bearer ${tokens?.accessToken}`,
+export const searchShows = async (query: string, page: number, signal: AbortSignal | undefined) => {
+  const preferences = getPreferenceValues<ExtensionPreferences>();
+  const response = await fetch(
+    `${TMDB_API_URL}/search/tv?query=${encodeURIComponent(query)}&page=${page}&api_key=${preferences.apiKey}`,
+    {
+      signal,
     },
+  );
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+
+  return (await response.json()) as Shows;
+};
+
+export const getShowSeasons = async (id: number, signal: AbortSignal | undefined) => {
+  const preferences = getPreferenceValues<ExtensionPreferences>();
+  const response = await fetch(`${TMDB_API_URL}/tv/${encodeURIComponent(id)}?api_key=${preferences.apiKey}`, {
+    signal,
   });
 
   if (!response.ok) {
     throw new Error(response.statusText);
   }
 
-  return (await response.json()) as Show[];
+  return (await response.json()) as ShowDetails;
 };
 
-export const getShowSeasons = async (id: number) => {
-  const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${TRAKT_API_URL}/shows/${encodeURIComponent(id)}/seasons`, {
-    headers: {
-      "Content-Type": "application/json",
-      "trakt-api-version": "2",
-      "trakt-api-key": CLIENT_ID,
-      Authorization: `Bearer ${tokens?.accessToken}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(response.statusText);
-  }
-
-  return (await response.json()) as Season[];
-};
-
-export const addShowToWatchlist = async (id: number) => {
+export const addShowToWatchlist = async (id: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watchlist`, {
     method: "POST",
@@ -53,11 +47,12 @@ export const addShowToWatchlist = async (id: number) => {
       shows: [
         {
           ids: {
-            trakt: id,
+            tmdb: id,
           },
         },
       ],
     }),
+    signal,
   });
 
   if (!response.ok) {

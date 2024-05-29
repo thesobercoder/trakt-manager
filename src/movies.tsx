@@ -3,13 +3,13 @@ import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
 import { TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
-import { Movie } from "./lib/types";
+import { Movies } from "./lib/types";
 import { addMovieToWatchlist, checkInMovie, searchMovies } from "./services/movies";
 
 function SearchCommand() {
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string | undefined>();
-  const [movies, setMovies] = useState<Movie | undefined>();
+  const [movies, setMovies] = useState<Movies | undefined>();
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,10 +33,10 @@ function SearchCommand() {
       } else {
         setIsLoading(true);
         try {
-          const items = await searchMovies(searchText, page, abortable.current.signal);
-          setMovies(items);
-          setPage(items.page);
-          setTotalPages(items.total_pages);
+          const movies = await searchMovies(searchText, page, abortable.current.signal);
+          setMovies(movies);
+          setPage(movies.page);
+          setTotalPages(movies.total_pages);
         } catch (e) {
           if (!(e instanceof AbortError)) {
             showToast({
