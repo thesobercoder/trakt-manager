@@ -2,7 +2,7 @@ import { getPreferenceValues } from "@raycast/api";
 import fetch from "node-fetch";
 import { CLIENT_ID, TMDB_API_URL, TRAKT_API_URL } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
-import { ShowDetails, Shows } from "../lib/types";
+import { EpisodeDetails, ShowDetails, Shows } from "../lib/types";
 
 export const searchShows = async (query: string, page: number, signal: AbortSignal | undefined) => {
   const preferences = getPreferenceValues<ExtensionPreferences>();
@@ -20,9 +20,9 @@ export const searchShows = async (query: string, page: number, signal: AbortSign
   return (await response.json()) as Shows;
 };
 
-export const getShowSeasons = async (id: number, signal: AbortSignal | undefined) => {
+export const getShowSeasons = async (showId: number, signal: AbortSignal | undefined) => {
   const preferences = getPreferenceValues<ExtensionPreferences>();
-  const response = await fetch(`${TMDB_API_URL}/tv/${encodeURIComponent(id)}?api_key=${preferences.apiKey}`, {
+  const response = await fetch(`${TMDB_API_URL}/tv/${encodeURIComponent(showId)}?api_key=${preferences.apiKey}`, {
     signal,
   });
 
@@ -33,7 +33,23 @@ export const getShowSeasons = async (id: number, signal: AbortSignal | undefined
   return (await response.json()) as ShowDetails;
 };
 
-export const addShowToWatchlist = async (id: number, signal: AbortSignal | undefined) => {
+export const getSeasonEpisodes = async (showId: number, seasonNumber: number, signal: AbortSignal | undefined) => {
+  const preferences = getPreferenceValues<ExtensionPreferences>();
+  const response = await fetch(
+    `${TMDB_API_URL}/tv/${encodeURIComponent(showId)}/season/${seasonNumber}?api_key=${preferences.apiKey}`,
+    {
+      signal,
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+
+  return (await response.json()) as EpisodeDetails;
+};
+
+export const addShowToWatchlist = async (showId: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watchlist`, {
     method: "POST",
@@ -47,7 +63,7 @@ export const addShowToWatchlist = async (id: number, signal: AbortSignal | undef
       shows: [
         {
           ids: {
-            tmdb: id,
+            tmdb: showId,
           },
         },
       ],

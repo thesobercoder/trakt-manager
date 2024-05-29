@@ -96,7 +96,7 @@ function SearchCommand() {
                   <Action.Push
                     title="Seasons"
                     shortcut={Keyboard.Shortcut.Common.Open}
-                    target={<Seasons id={show.id} />}
+                    target={<Seasons showId={show.id} />}
                   />
                   <Action.OpenInBrowser url={`${TRAKT_APP_URL}/search/tmdb/${show.id}?id_type=show`} />
                   <Action

@@ -42,15 +42,6 @@ export type Shows = {
   total_results: number;
 };
 
-export type Season = {
-  number: number;
-  ids: {
-    trakt: number;
-    tvdb: number;
-    tmdb: number;
-  };
-};
-
 export type ShowDetails = {
   adult: boolean;
   backdrop_path: string;
@@ -134,4 +125,56 @@ export type ShowDetails = {
   type: string;
   vote_average: number;
   vote_count: number;
+};
+
+export type EpisodeDetails = {
+  _id: string;
+  air_date: string;
+  episodes: Array<{
+    air_date: string;
+    episode_number: number;
+    episode_type: string;
+    id: number;
+    name: string;
+    overview: string;
+    production_code: string;
+    runtime: number;
+    season_number: number;
+    show_id: number;
+    still_path: string;
+    vote_average: number;
+    vote_count: number;
+    crew: Array<{
+      department: string;
+      job: string;
+      credit_id: string;
+      adult: boolean;
+      gender: number;
+      id: number;
+      known_for_department: string;
+      name: string;
+      original_name: string;
+      popularity: number;
+      profile_path?: string;
+    }>;
+    guest_stars: Array<{
+      character: string;
+      credit_id: string;
+      order: number;
+      adult: boolean;
+      gender: number;
+      id: number;
+      known_for_department: string;
+      name: string;
+      original_name: string;
+      popularity: number;
+      profile_path?: string;
+    }>;
+  }>;
+  name: string;
+  overview: string;
+  id: number;
+  poster_path: string;
+  season_number: number;
+  vote_average: number;
 };

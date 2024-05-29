@@ -1,10 +1,11 @@
-import { Grid } from "@raycast/api";
+import { Action, ActionPanel, Grid, Keyboard } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
 import { TMDB_IMG_URL } from "../lib/constants";
 import { ShowDetails } from "../lib/types";
 import { getShowSeasons } from "../services/shows";
+import { Episodes } from "./episodes";
 
-export const Seasons = ({ id }: { id: number }) => {
+export const Seasons = ({ showId }: { showId: number }) => {
   const abortable = useRef<AbortController>();
   const [seasons, setSeasons] = useState<ShowDetails | undefined>();
   const [isLoading, setIsLoading] = useState(false);
@@ -13,7 +14,7 @@ export const Seasons = ({ id }: { id: number }) => {
     (async () => {
       abortable.current = new AbortController();
       setIsLoading(true);
-      const showDetails = await getShowSeasons(id, abortable.current?.signal);
+      const showDetails = await getShowSeasons(showId, abortable.current?.signal);
       setSeasons(showDetails);
       setIsLoading(false);
       return () => {
@@ -33,6 +34,15 @@ export const Seasons = ({ id }: { id: number }) => {
               key={season.id}
               title={`${season.name ?? "Unknown Season"} (${new Date(season.air_date).getFullYear()})`}
               content={`${TMDB_IMG_URL}/${season.poster_path}`}
+              actions={
+                <ActionPanel>
+                  <Action.Push
+                    title="Episodes"
+                    shortcut={Keyboard.Shortcut.Common.Open}
+                    target={<Episodes showId={showId} seasonNumber={season.season_number} />}
+                  />
+                </ActionPanel>
+              }
             />
           );
         })}
