@@ -47,6 +47,33 @@ export const addMovieToWatchlist = async (movieId: number, signal: AbortSignal |
   }
 };
 
+export const removeMovieFromWatchlist = async (movieId: number, signal: AbortSignal | undefined) => {
+  const tokens = await oauthClient.getTokens();
+  const response = await fetch(`${TRAKT_API_URL}/sync/watchlist/remove`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": CLIENT_ID,
+      Authorization: `Bearer ${tokens?.accessToken}`,
+    },
+    body: JSON.stringify({
+      movies: [
+        {
+          ids: {
+            tmdb: movieId,
+          },
+        },
+      ],
+    }),
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+};
+
 export const checkInMovie = async (movieId: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watchlist`, {
