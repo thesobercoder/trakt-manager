@@ -30,6 +30,13 @@
       "subtitle": "Trakt Manager",
       "description": "Search for shows",
       "mode": "view"
+    },
+    {
+      "name": "watchlist",
+      "title": "Watchlist",
+      "subtitle": "Trakt Manager",
+      "description": "Search watchlist",
+      "mode": "view"
     }
   ],
   "dependencies": {

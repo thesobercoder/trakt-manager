@@ -112,16 +112,18 @@ function SearchCommand() {
               actions={
                 <ActionPanel>
                   <Action.OpenInBrowser url={`${TRAKT_APP_URL}/search/tmdb/${movie.id}?id_type=movie`} />
-                  <Action
-                    title="Add To Watchlist"
-                    shortcut={Keyboard.Shortcut.Common.Edit}
-                    onAction={() => onAddToWatchlist(movie.id)}
-                  />
-                  <Action
-                    title="Checkin Movie"
-                    shortcut={Keyboard.Shortcut.Common.Duplicate}
-                    onAction={() => onCheckInMovie(movie.id)}
-                  />
+                  <ActionPanel.Section>
+                    <Action
+                      title="Add To Watchlist"
+                      shortcut={Keyboard.Shortcut.Common.Edit}
+                      onAction={() => onAddToWatchlist(movie.id)}
+                    />
+                    <Action
+                      title="Checkin Movie"
+                      shortcut={Keyboard.Shortcut.Common.Duplicate}
+                      onAction={() => onCheckInMovie(movie.id)}
+                    />
+                  </ActionPanel.Section>
                   <ActionPanel.Section>
                     <Action
                       icon={Icon.ArrowRight}
