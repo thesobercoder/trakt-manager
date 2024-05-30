@@ -1,9 +1,10 @@
-import { Action, ActionPanel, Grid, Icon, Keyboard } from "@raycast/api";
+import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
-import { TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
+import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
 import { MovieWatchlist } from "./lib/types";
-import { getWatchlist, removeMovieFromWatchlist } from "./services/movies";
+import { checkInMovie, getWatchlist, removeMovieFromWatchlist } from "./services/movies";
 
 const WatchlistCommand = () => {
   const abortable = useRef<AbortController>();
@@ -32,7 +33,41 @@ const WatchlistCommand = () => {
 
   const onRemoveMovieFromWatchlist = async (movieId: number) => {
     setIsLoading(true);
-    await removeMovieFromWatchlist(movieId, abortable.current?.signal);
+    try {
+      await removeMovieFromWatchlist(movieId, abortable.current?.signal);
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        showToast({
+          title: "Error checking in movie",
+          style: Toast.Style.Failure,
+        });
+      }
+    }
+    setIsLoading(false);
+    showToast({
+      title: "Movie removed from watchlist",
+      style: Toast.Style.Success,
+    });
+    forceRerender((value) => value + 1);
+  };
+
+  const onCheckInMovie = async (movieId: number) => {
+    setIsLoading(true);
+    try {
+      await checkInMovie(movieId, abortable.current?.signal);
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        showToast({
+          title: "Error checking in movie",
+          style: Toast.Style.Failure,
+        });
+      }
+    }
+    setIsLoading(false);
+    showToast({
+      title: "Movie checked in",
+      style: Toast.Style.Success,
+    });
     forceRerender((value) => value + 1);
   };
 
@@ -47,13 +82,22 @@ const WatchlistCommand = () => {
               content={`${movie.movie.poster_path ? `${TMDB_IMG_URL}/${movie.movie.poster_path}` : "poster.png"}`}
               actions={
                 <ActionPanel>
-                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`} />
+                  <ActionPanel.Section>
+                    <Action.OpenInBrowser title="Trakt" url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`} />
+                    <Action.OpenInBrowser title="IMDb" url={`${IMDB_APP_URL}/${movie.movie.ids.imdb}`} />
+                  </ActionPanel.Section>
                   <ActionPanel.Section>
                     <Action
-                      icon={Icon.DeleteDocument}
+                      icon={Icon.Trash}
                       title="Remove from Watchlist"
                       shortcut={Keyboard.Shortcut.Common.Remove}
                       onAction={() => onRemoveMovieFromWatchlist(movie.movie.ids.trakt)}
+                    />
+                    <Action
+                      icon={Icon.Checkmark}
+                      title="Check-in Movie"
+                      shortcut={Keyboard.Shortcut.Common.Duplicate}
+                      onAction={() => onCheckInMovie(movie.movie.ids.trakt)}
                     />
                   </ActionPanel.Section>
                   <ActionPanel.Section>

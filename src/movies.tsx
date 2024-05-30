@@ -2,7 +2,7 @@ import { Action, ActionPanel, Grid, Icon, Keyboard, showToast, Toast } from "@ra
 import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
-import { TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
+import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
 import { MovieSearchList } from "./lib/types";
 import { addMovieToWatchlist, checkInMovie, searchMovies } from "./services/movies";
 
@@ -111,7 +111,10 @@ function SearchCommand() {
               content={`${movie.movie.poster_path ? `${TMDB_IMG_URL}/${movie.movie.poster_path}` : "poster.png"}`}
               actions={
                 <ActionPanel>
-                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`} />
+                  <ActionPanel.Section>
+                    <Action.OpenInBrowser title="Trakt" url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`} />
+                    <Action.OpenInBrowser title="IMDb" url={`${IMDB_APP_URL}/${movie.movie.ids.imdb}`} />
+                  </ActionPanel.Section>
                   <ActionPanel.Section>
                     <Action
                       icon={Icon.Bookmark}

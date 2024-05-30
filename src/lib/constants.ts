@@ -1,5 +1,6 @@
 export const TRAKT_API_URL = "https://api.trakt.tv";
 export const TRAKT_APP_URL = "https://trakt.tv";
+export const IMDB_APP_URL = "https://www.imdb.com/title";
 export const TMDB_API_URL = "https://api.themoviedb.org/3";
 export const TMDB_IMG_URL = "https://image.tmdb.org/t/p/w500";
 export const POSTER_URL = "https://www.themoviedb.org";
