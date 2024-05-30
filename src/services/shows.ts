@@ -1,6 +1,6 @@
 import { getPreferenceValues } from "@raycast/api";
 import fetch from "node-fetch";
-import { CLIENT_ID, TMDB_API_URL, TRAKT_API_URL } from "../lib/constants";
+import { TMDB_API_URL, TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
 import { EpisodeDetails, ShowDetails, Shows } from "../lib/types";
 
@@ -56,7 +56,7 @@ export const addShowToWatchlist = async (showId: number, signal: AbortSignal | u
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
-      "trakt-api-key": CLIENT_ID,
+      "trakt-api-key": TRAKT_CLIENT_ID,
       Authorization: `Bearer ${tokens?.accessToken}`,
     },
     body: JSON.stringify({

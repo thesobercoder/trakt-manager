@@ -1,6 +1,6 @@
 import { LocalStorage, getPreferenceValues } from "@raycast/api";
 import fetch, { type Response } from "node-fetch";
-import { CLIENT_ID, TMDB_API_URL, TRAKT_API_URL } from "../lib/constants";
+import { TMDB_API_URL, TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
 import { MovieDetails, MovieSearchList, MovieWatchlist } from "../lib/types";
 
@@ -10,7 +10,7 @@ export const searchMovies = async (query: string, page: number = 1, signal: Abor
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
-      "trakt-api-key": CLIENT_ID,
+      "trakt-api-key": TRAKT_CLIENT_ID,
       Authorization: `Bearer ${tokens?.accessToken}`,
     },
     signal,
@@ -67,7 +67,7 @@ export const addMovieToWatchlist = async (movieId: number, signal: AbortSignal |
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
-      "trakt-api-key": CLIENT_ID,
+      "trakt-api-key": TRAKT_CLIENT_ID,
       Authorization: `Bearer ${tokens?.accessToken}`,
     },
     body: JSON.stringify({
@@ -94,7 +94,7 @@ export const removeMovieFromWatchlist = async (movieId: number, signal: AbortSig
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
-      "trakt-api-key": CLIENT_ID,
+      "trakt-api-key": TRAKT_CLIENT_ID,
       Authorization: `Bearer ${tokens?.accessToken}`,
     },
     body: JSON.stringify({
@@ -121,7 +121,7 @@ export const checkInMovie = async (movieId: number, signal: AbortSignal | undefi
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
-      "trakt-api-key": CLIENT_ID,
+      "trakt-api-key": TRAKT_CLIENT_ID,
       Authorization: `Bearer ${tokens?.accessToken}`,
     },
     body: JSON.stringify({
@@ -147,7 +147,7 @@ export const getWatchlist = async (page: number = 1, signal: AbortSignal | undef
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
-      "trakt-api-key": CLIENT_ID,
+      "trakt-api-key": TRAKT_CLIENT_ID,
       Authorization: `Bearer ${tokens?.accessToken}`,
     },
     signal,
