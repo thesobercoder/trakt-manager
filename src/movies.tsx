@@ -3,13 +3,13 @@ import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
 import { TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
-import { Movies } from "./lib/types";
+import { MovieSearchList } from "./lib/types";
 import { addMovieToWatchlist, checkInMovie, searchMovies } from "./services/movies";
 
 function SearchCommand() {
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string | undefined>();
-  const [movies, setMovies] = useState<Movies | undefined>();
+  const [movies, setMovies] = useState<MovieSearchList | undefined>();
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,10 +50,10 @@ function SearchCommand() {
     })();
   }, [searchText, page]);
 
-  const onAddToWatchlist = async (id: number) => {
+  const onAddToWatchlist = async (movieId: number) => {
     setIsLoading(true);
     try {
-      await addMovieToWatchlist(id, abortable.current?.signal);
+      await addMovieToWatchlist(movieId, abortable.current?.signal);
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
@@ -69,10 +69,10 @@ function SearchCommand() {
     });
   };
 
-  const onCheckInMovie = async (id: number) => {
+  const onCheckInMovie = async (movieId: number) => {
     setIsLoading(true);
     try {
-      await checkInMovie(id, abortable.current?.signal);
+      await checkInMovie(movieId, abortable.current?.signal);
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
@@ -103,25 +103,27 @@ function SearchCommand() {
     >
       <Grid.EmptyView title="Search for movies" />
       {movies &&
-        movies.results.map((movie) => {
+        movies.map((movie) => {
           return (
             <Grid.Item
-              key={movie.id}
-              title={movie.title ?? movie.original_title ?? "Unknown Movie"}
-              content={`${TMDB_IMG_URL}/${movie.poster_path}`}
+              key={movie.movie.ids.trakt}
+              title={`${movie.movie.title ?? "Unknown Movie"} ${movie.movie.year ? `(${movie.movie.year})` : ""}`}
+              content={`${movie.movie.poster_path ? `${TMDB_IMG_URL}/${movie.movie.poster_path}` : "poster.png"}`}
               actions={
                 <ActionPanel>
-                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/search/tmdb/${movie.id}?id_type=movie`} />
+                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`} />
                   <ActionPanel.Section>
                     <Action
+                      icon={Icon.Bookmark}
                       title="Add To Watchlist"
                       shortcut={Keyboard.Shortcut.Common.Edit}
-                      onAction={() => onAddToWatchlist(movie.id)}
+                      onAction={() => onAddToWatchlist(movie.movie.ids.trakt)}
                     />
                     <Action
-                      title="Checkin Movie"
+                      icon={Icon.Checkmark}
+                      title="Check-in Movie"
                       shortcut={Keyboard.Shortcut.Common.Duplicate}
-                      onAction={() => onCheckInMovie(movie.id)}
+                      onAction={() => onCheckInMovie(movie.movie.ids.trakt)}
                     />
                   </ActionPanel.Section>
                   <ActionPanel.Section>

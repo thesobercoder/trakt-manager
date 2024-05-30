@@ -223,6 +223,22 @@ export type MovieDetails = {
   vote_count: number;
 };
 
+export type MovieSearchList = Array<{
+  type: string;
+  score: number;
+  movie: {
+    title: string;
+    year: number;
+    poster_path: string;
+    ids: {
+      trakt: number;
+      slug: string;
+      imdb: string;
+      tmdb: number;
+    };
+  };
+}> & { page: number; total_pages: number; total_results: number };
+
 export type MovieWatchlist = Array<{
   rank: number;
   id: number;

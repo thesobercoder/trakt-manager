@@ -43,17 +43,17 @@ const WatchlistCommand = () => {
           return (
             <Grid.Item
               key={movie.id}
-              title={`${movie.movie.title ?? "Unknown Movie"} (${movie.movie.year})`}
-              content={`${TMDB_IMG_URL}/${movie.movie.poster_path}`}
+              title={`${movie.movie.title ?? "Unknown Movie"} ${movie.movie.year ? `(${movie.movie.year})` : ""}`}
+              content={`${movie.movie.poster_path ? `${TMDB_IMG_URL}/${movie.movie.poster_path}` : "poster.png"}`}
               actions={
                 <ActionPanel>
-                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.trakt}`} />
+                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`} />
                   <ActionPanel.Section>
                     <Action
                       icon={Icon.DeleteDocument}
                       title="Remove from Watchlist"
                       shortcut={Keyboard.Shortcut.Common.Remove}
-                      onAction={() => onRemoveMovieFromWatchlist(movie.movie.ids.tmdb)}
+                      onAction={() => onRemoveMovieFromWatchlist(movie.movie.ids.trakt)}
                     />
                   </ActionPanel.Section>
                   <ActionPanel.Section>
