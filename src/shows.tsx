@@ -9,8 +9,6 @@ import { TraktShowList } from "./lib/types";
 import { addShowToWatchlist, searchShows } from "./services/shows";
 
 function SearchCommand() {
-  setMaxListeners(20);
-
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string | undefined>();
   const [shows, setMovies] = useState<TraktShowList | undefined>();
@@ -32,6 +30,7 @@ function SearchCommand() {
         abortable.current.abort();
       }
       abortable.current = new AbortController();
+      setMaxListeners(20, abortable.current?.signal);
       if (!searchText) {
         setMovies(undefined);
       } else {

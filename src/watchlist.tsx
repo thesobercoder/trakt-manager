@@ -10,8 +10,6 @@ import { checkInMovie, getWatchlistMovies, removeMovieFromWatchlist } from "./se
 import { getWatchlistShows } from "./services/shows";
 
 const WatchlistCommand = () => {
-  setMaxListeners(20);
-
   const abortable = useRef<AbortController>();
   const [movies, setMovies] = useState<TraktMovieList | undefined>();
   const [shows, setShows] = useState<TraktShowList | undefined>();
@@ -24,6 +22,7 @@ const WatchlistCommand = () => {
   useEffect(() => {
     (async () => {
       abortable.current = new AbortController();
+      setMaxListeners(20, abortable.current?.signal);
       setIsLoading(true);
       if (mediaType === "show") {
         const showWatchlist = await getWatchlistShows(page, abortable.current?.signal);
