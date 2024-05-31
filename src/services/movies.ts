@@ -149,7 +149,7 @@ export const removeMovieFromWatchlist = async (movieId: number, signal: AbortSig
 
 export const checkInMovie = async (movieId: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${TRAKT_API_URL}/sync/watchlist`, {
+  const response = await fetch(`${TRAKT_API_URL}/checkin`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -158,13 +158,11 @@ export const checkInMovie = async (movieId: number, signal: AbortSignal | undefi
       Authorization: `Bearer ${tokens?.accessToken}`,
     },
     body: JSON.stringify({
-      movies: [
-        {
-          ids: {
-            trakt: movieId,
-          },
+      movies: {
+        ids: {
+          trakt: movieId,
         },
-      ],
+      },
     }),
     signal,
   });

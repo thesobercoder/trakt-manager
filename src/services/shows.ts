@@ -210,7 +210,7 @@ export const addShowToWatchlist = async (showId: number, signal: AbortSignal | u
 
 export const checkInEpisode = async (episodeId: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${TRAKT_API_URL}/sync/watchlist`, {
+  const response = await fetch(`${TRAKT_API_URL}/checkin`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -219,13 +219,11 @@ export const checkInEpisode = async (episodeId: number, signal: AbortSignal | un
       Authorization: `Bearer ${tokens?.accessToken}`,
     },
     body: JSON.stringify({
-      episode: [
-        {
-          ids: {
-            trakt: episodeId,
-          },
+      episode: {
+        ids: {
+          trakt: episodeId,
         },
-      ],
+      },
     }),
     signal,
   });
