@@ -1,12 +1,12 @@
 import { Action, ActionPanel, Grid } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
 import { TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
-import { EpisodeDetails } from "../lib/types";
+import { TMDBEpisodeDetails } from "../lib/types";
 import { getSeasonEpisodes } from "../services/shows";
 
 export const Episodes = ({ showId, seasonNumber }: { showId: number; seasonNumber: number }) => {
   const abortable = useRef<AbortController>();
-  const [seasons, setSeasons] = useState<EpisodeDetails | undefined>();
+  const [seasons, setSeasons] = useState<TMDBEpisodeDetails | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {

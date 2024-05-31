@@ -1,47 +1,3 @@
-export type Movies = {
-  page: number;
-  results: Array<{
-    poster_path: string;
-    adult: boolean;
-    overview: string;
-    release_date: string;
-    genre_ids: Array<number>;
-    id: number;
-    original_title: string;
-    original_language: string;
-    title: string;
-    backdrop_path: string;
-    popularity: number;
-    vote_count: number;
-    video: boolean;
-    vote_average: number;
-  }>;
-  total_pages: number;
-  total_results: number;
-};
-
-export type Shows = {
-  page: number;
-  results: Array<{
-    adult: boolean;
-    backdrop_path: string;
-    genre_ids: Array<number>;
-    id: number;
-    origin_country: Array<string>;
-    original_language: string;
-    original_name: string;
-    overview: string;
-    popularity: number;
-    poster_path: string;
-    first_air_date: string;
-    name: string;
-    vote_average: number;
-    vote_count: number;
-  }>;
-  total_pages: number;
-  total_results: number;
-};
-
 export type TMDBShowDetails = {
   adult: boolean;
   backdrop_path: string;
@@ -127,7 +83,7 @@ export type TMDBShowDetails = {
   vote_count: number;
 };
 
-export type EpisodeDetails = {
+export type TMDBEpisodeDetails = {
   _id: string;
   air_date: string;
   episodes: Array<{
@@ -179,7 +135,7 @@ export type EpisodeDetails = {
   vote_average: number;
 };
 
-export type MovieDetails = {
+export type TMDBMovieDetails = {
   adult: boolean;
   backdrop_path: string;
   belongs_to_collection: any;
@@ -223,23 +179,7 @@ export type MovieDetails = {
   vote_count: number;
 };
 
-export type MovieSearchList = Array<{
-  type: string;
-  score: number;
-  movie: {
-    title: string;
-    year: number;
-    poster_path: string;
-    ids: {
-      trakt: number;
-      slug: string;
-      imdb: string;
-      tmdb: number;
-    };
-  };
-}> & { page: number; total_pages: number; total_results: number };
-
-export type MovieWatchlist = Array<{
+export type TraktMovieList = Array<{
   rank: number;
   id: number;
   listed_at: string;

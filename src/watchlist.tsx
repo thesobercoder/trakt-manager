@@ -3,12 +3,12 @@ import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
-import { MovieWatchlist } from "./lib/types";
+import { TraktMovieList } from "./lib/types";
 import { checkInMovie, getWatchlist, removeMovieFromWatchlist } from "./services/movies";
 
 const WatchlistCommand = () => {
   const abortable = useRef<AbortController>();
-  const [watchlist, setWatchlist] = useState<MovieWatchlist | undefined>();
+  const [watchlist, setWatchlist] = useState<TraktMovieList | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);

@@ -14,7 +14,7 @@ export const Seasons = ({ traktId, tmdbId }: { traktId: number; tmdbId: number }
     (async () => {
       abortable.current = new AbortController();
       setIsLoading(true);
-      const showDetails = await getSeasons(traktId, tmdbId, 1, abortable.current?.signal);
+      const showDetails = await getSeasons(traktId, tmdbId, abortable.current?.signal);
       setSeasons(showDetails);
       setIsLoading(false);
       return () => {
