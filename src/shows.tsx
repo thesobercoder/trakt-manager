@@ -119,12 +119,14 @@ function SearchCommand() {
                     />
                   </ActionPanel.Section>
                   <ActionPanel.Section>
-                    <Action
-                      icon={Icon.ArrowRight}
-                      title="Next Page"
-                      shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
-                      onAction={() => setPage((page) => (page + 1 > totalPages ? totalPages : page + 1))}
-                    />
+                    {page === totalPages ? null : (
+                      <Action
+                        icon={Icon.ArrowRight}
+                        title="Next Page"
+                        shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
+                        onAction={() => setPage((page) => (page + 1 > totalPages ? totalPages : page + 1))}
+                      />
+                    )}
                     {page > 1 ? (
                       <Action
                         icon={Icon.ArrowLeft}
