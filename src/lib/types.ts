@@ -42,7 +42,7 @@ export type Shows = {
   total_results: number;
 };
 
-export type ShowDetails = {
+export type TMDBShowDetails = {
   adult: boolean;
   backdrop_path: string;
   created_by: Array<{
@@ -255,5 +255,47 @@ export type MovieWatchlist = Array<{
       imdb: string;
       tmdb: number;
     };
+  };
+}> & { page: number; total_pages: number; total_results: number };
+
+export type TraktShowList = Array<{
+  type: string;
+  score: number;
+  show: {
+    title: string;
+    year: number;
+    poster_path: string;
+    ids: {
+      trakt: number;
+      slug: string;
+      tvdb: number;
+      imdb: string;
+      tmdb: number;
+    };
+  };
+}> & { page: number; total_pages: number; total_results: number };
+
+export type TraktSeasonList = Array<{
+  number: number;
+  poster_path: string;
+  name: string;
+  air_date: string;
+  ids: {
+    trakt: number;
+    tvdb: number;
+    tmdb: number;
+  };
+}> & { page: number; total_pages: number; total_results: number };
+
+export type TraktEpisodeList = Array<{
+  season: number;
+  number: number;
+  title: string;
+  poster_path: string;
+  ids: {
+    trakt: number;
+    tvdb: number;
+    imdb: string;
+    tmdb: number;
   };
 }> & { page: number; total_pages: number; total_results: number };

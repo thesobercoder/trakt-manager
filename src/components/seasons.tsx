@@ -1,20 +1,20 @@
 import { Action, ActionPanel, Grid, Keyboard } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
 import { TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
-import { ShowDetails } from "../lib/types";
-import { getShowSeasons } from "../services/shows";
+import { TraktSeasonList } from "../lib/types";
+import { getSeasons } from "../services/shows";
 import { Episodes } from "./episodes";
 
-export const Seasons = ({ showId }: { showId: number }) => {
+export const Seasons = ({ traktId, tmdbId }: { traktId: number; tmdbId: number }) => {
   const abortable = useRef<AbortController>();
-  const [seasons, setSeasons] = useState<ShowDetails | undefined>();
+  const [seasons, setSeasons] = useState<TraktSeasonList | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
       abortable.current = new AbortController();
       setIsLoading(true);
-      const showDetails = await getShowSeasons(showId, abortable.current?.signal);
+      const showDetails = await getSeasons(traktId, tmdbId, 1, abortable.current?.signal);
       setSeasons(showDetails);
       setIsLoading(false);
       return () => {
@@ -26,12 +26,12 @@ export const Seasons = ({ showId }: { showId: number }) => {
   }, []);
 
   return (
-    <Grid isLoading={isLoading} aspectRatio="9/16" fit={Grid.Fit.Fill} searchBarPlaceholder="Search for shows">
+    <Grid isLoading={isLoading} aspectRatio="9/16" fit={Grid.Fit.Fill} searchBarPlaceholder="Search for seasons">
       {seasons &&
-        seasons.seasons.map((season) => {
+        seasons.map((season) => {
           return (
             <Grid.Item
-              key={season.id}
+              key={season.ids.trakt}
               title={`${season.name ?? "Unknown Season"} (${new Date(season.air_date).getFullYear()})`}
               content={`${TMDB_IMG_URL}/${season.poster_path}`}
               actions={
@@ -39,9 +39,9 @@ export const Seasons = ({ showId }: { showId: number }) => {
                   <Action.Push
                     title="Episodes"
                     shortcut={Keyboard.Shortcut.Common.Open}
-                    target={<Episodes showId={showId} seasonNumber={season.season_number} />}
+                    target={<Episodes showId={season.ids.trakt} seasonNumber={season.number} />}
                   />
-                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/search/tmdb/${showId}?id_type=show`} />
+                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/shows/${season.ids.trakt}/seasons/${season.number}`} />
                 </ActionPanel>
               }
             />

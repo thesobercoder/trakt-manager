@@ -3,14 +3,14 @@ import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { Seasons } from "./components/seasons";
 import { View } from "./components/view";
-import { TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
-import { Shows } from "./lib/types";
+import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
+import { TraktShowList } from "./lib/types";
 import { addShowToWatchlist, searchShows } from "./services/shows";
 
 function SearchCommand() {
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string | undefined>();
-  const [shows, setMovies] = useState<Shows | undefined>();
+  const [shows, setMovies] = useState<TraktShowList | undefined>();
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -51,10 +51,10 @@ function SearchCommand() {
     })();
   }, [searchText, page]);
 
-  const onAddToWatchlist = async (id: number) => {
+  const onAddToWatchlist = async (showId: number) => {
     setIsLoading(true);
     try {
-      await addShowToWatchlist(id, abortable.current?.signal);
+      await addShowToWatchlist(showId, abortable.current?.signal);
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
@@ -85,30 +85,31 @@ function SearchCommand() {
     >
       <Grid.EmptyView title="Search for shows" />
       {shows &&
-        shows.results.map((show) => {
+        shows.map((show) => {
           return (
             <Grid.Item
-              key={show.id}
-              title={`${show.name ?? show.original_name ?? "Unknown Show"} (${new Date(show.first_air_date).getFullYear()})`}
-              content={`${TMDB_IMG_URL}/${show.poster_path}`}
+              key={show.show.ids.trakt}
+              title={`${show.show.title ?? "Unknown Movie"} ${show.show.year ? `(${show.show.year})` : ""}`}
+              content={`${show.show.poster_path ? `${TMDB_IMG_URL}/${show.show.poster_path}` : "poster.png"}`}
               actions={
                 <ActionPanel>
                   <Action.Push
                     title="Seasons"
                     shortcut={Keyboard.Shortcut.Common.Open}
-                    target={<Seasons showId={show.id} />}
+                    target={<Seasons traktId={show.show.ids.trakt} tmdbId={show.show.ids.tmdb} />}
                   />
-                  <Action.OpenInBrowser url={`${TRAKT_APP_URL}/search/tmdb/${show.id}?id_type=show`} />
-                  <Action
-                    title="Add To Watchlist"
-                    shortcut={Keyboard.Shortcut.Common.Edit}
-                    onAction={() => onAddToWatchlist(show.id)}
-                  />
-                  {/* <Action
-                    title="Show Seasons"
-                    shortcut={Keyboard.Shortcut.Common.Duplicate}
-                    onAction={() => onCheckInMovie(movie.id)}
-                  /> */}
+                  <ActionPanel.Section>
+                    <Action.OpenInBrowser title="Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
+                    <Action.OpenInBrowser title="IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
+                  </ActionPanel.Section>
+                  <ActionPanel.Section>
+                    <Action
+                      icon={Icon.Bookmark}
+                      title="Add To Watchlist"
+                      shortcut={Keyboard.Shortcut.Common.Edit}
+                      onAction={() => onAddToWatchlist(show.show.ids.trakt)}
+                    />
+                  </ActionPanel.Section>
                   <ActionPanel.Section>
                     <Action
                       icon={Icon.ArrowRight}
