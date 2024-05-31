@@ -7,7 +7,7 @@ import { TMDBSeasonDetails, TMDBShowDetails, TraktEpisodeList, TraktSeasonList, 
 const getShowCache = async (result: TraktShowList, signal: AbortSignal | undefined) => {
   const cachedShowNotFound = new Array<number>();
   for (const show of result) {
-    const tmdbMovieCache = await LocalStorage.getItem<string>(`movie_${show.show.ids.tmdb}`);
+    const tmdbMovieCache = await LocalStorage.getItem<string>(`show_${show.show.ids.tmdb}`);
     if (tmdbMovieCache) {
       const tmdbMovie = JSON.parse(tmdbMovieCache) as TMDBShowDetails;
       show.show.poster_path = tmdbMovie.poster_path;
