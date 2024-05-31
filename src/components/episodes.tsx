@@ -41,14 +41,14 @@ export const Episodes = ({
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
-          title: "Error checking in movie",
+          title: "Error checking in episode",
           style: Toast.Style.Failure,
         });
       }
     }
     setIsLoading(false);
     showToast({
-      title: "Movie checked in",
+      title: "Episode checked in",
       style: Toast.Style.Success,
     });
   };
