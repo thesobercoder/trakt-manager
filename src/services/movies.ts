@@ -69,7 +69,7 @@ export const searchMovies = async (query: string, page: number, signal: AbortSig
 
 export const getWatchlistMovies = async (page: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${TRAKT_API_URL}/sync/watchlist/movies/added?page=${page}&limit=10`, {
+  const response = await fetch(`${TRAKT_API_URL}/sync/watchlist/movies/added?page=${page}&limit=10&fields=title`, {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "trakt-api-version": "2",
