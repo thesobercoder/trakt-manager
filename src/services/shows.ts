@@ -51,13 +51,6 @@ export const searchShows = async (query: string, page: number, signal: AbortSign
         }
       }
     }
-  } else {
-    for (const show of result) {
-      const poster = await LocalStorage.getItem<string>(`${show.show.ids.tmdb}`);
-      if (poster) {
-        show.show.poster_path = poster;
-      }
-    }
   }
 
   return result;

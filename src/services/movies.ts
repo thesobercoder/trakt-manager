@@ -6,15 +6,18 @@ import { MovieDetails, MovieSearchList, MovieWatchlist } from "../lib/types";
 
 export const searchMovies = async (query: string, page: number = 1, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${TRAKT_API_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}`, {
-    headers: {
-      "Content-Type": "application/json",
-      "trakt-api-version": "2",
-      "trakt-api-key": TRAKT_CLIENT_ID,
-      Authorization: `Bearer ${tokens?.accessToken}`,
+  const response = await fetch(
+    `${TRAKT_API_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}&limit=10`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "trakt-api-version": "2",
+        "trakt-api-key": TRAKT_CLIENT_ID,
+        Authorization: `Bearer ${tokens?.accessToken}`,
+      },
+      signal,
     },
-    signal,
-  });
+  );
 
   const result = (await response.json()) as MovieSearchList;
   result.page = Number(response.headers.get("X-Pagination-Page")) ?? 1;
@@ -46,13 +49,6 @@ export const searchMovies = async (query: string, page: number = 1, signal: Abor
           traktMovie.movie.poster_path = poster.poster_path;
           await LocalStorage.setItem(`${traktMovie.movie.ids.tmdb}`, poster.poster_path);
         }
-      }
-    }
-  } else {
-    for (const movie of result) {
-      const poster = await LocalStorage.getItem<string>(`${movie.movie.ids.tmdb}`);
-      if (poster) {
-        movie.movie.poster_path = poster;
       }
     }
   }
@@ -187,13 +183,6 @@ export const getWatchlist = async (page: number = 1, signal: AbortSignal | undef
           traktMovie.movie.poster_path = poster.poster_path;
           await LocalStorage.setItem(`${traktMovie.movie.ids.tmdb}`, poster.poster_path);
         }
-      }
-    }
-  } else {
-    for (const movie of result) {
-      const poster = await LocalStorage.getItem<string>(`${movie.movie.ids.tmdb}`);
-      if (poster) {
-        movie.movie.poster_path = poster;
       }
     }
   }
