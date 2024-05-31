@@ -1,4 +1,5 @@
 import { Action, ActionPanel, Grid, Icon, Keyboard, showToast, Toast } from "@raycast/api";
+import { setMaxListeners } from "events";
 import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { Seasons } from "./components/seasons";
@@ -8,6 +9,8 @@ import { TraktShowList } from "./lib/types";
 import { addShowToWatchlist, searchShows } from "./services/shows";
 
 function SearchCommand() {
+  setMaxListeners(20);
+
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string | undefined>();
   const [shows, setMovies] = useState<TraktShowList | undefined>();
