@@ -13,15 +13,18 @@ const getCache = async (cacheId: string) => {
 
 export const searchShows = async (query: string, page: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${TRAKT_API_URL}/search/show?query=${encodeURIComponent(query)}&page=${page}&limit=5`, {
-    headers: {
-      "Content-Type": "application/json",
-      "trakt-api-version": "2",
-      "trakt-api-key": TRAKT_CLIENT_ID,
-      Authorization: `Bearer ${tokens?.accessToken}`,
+  const response = await fetch(
+    `${TRAKT_API_URL}/search/show?query=${encodeURIComponent(query)}&page=${page}&limit=5&fields=title`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "trakt-api-version": "2",
+        "trakt-api-key": TRAKT_CLIENT_ID,
+        Authorization: `Bearer ${tokens?.accessToken}`,
+      },
+      signal,
     },
-    signal,
-  });
+  );
 
   const result = (await response.json()) as TraktShowList;
   result.page = Number(response.headers.get("X-Pagination-Page") ?? 1);

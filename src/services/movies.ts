@@ -13,6 +13,7 @@ const checkCache = async (result: TraktMovieList, signal: AbortSignal | undefine
       movie.movie.poster_path = tmdbMovie.poster_path;
       continue;
     }
+    cachedMoviesNotFound.push(movie.movie.ids.tmdb);
   }
 
   const preferences = getPreferenceValues<ExtensionPreferences>();
@@ -44,7 +45,7 @@ const checkCache = async (result: TraktMovieList, signal: AbortSignal | undefine
 export const searchMovies = async (query: string, page: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(
-    `${TRAKT_API_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}&limit=5`,
+    `${TRAKT_API_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}&limit=5&fields=title`,
     {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
