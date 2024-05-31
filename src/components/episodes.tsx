@@ -1,8 +1,9 @@
-import { Action, ActionPanel, Grid } from "@raycast/api";
+import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
-import { TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
+import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
 import { TraktEpisodeList } from "../lib/types";
-import { getEpisodes } from "../services/shows";
+import { checkInEpisode, getEpisodes } from "../services/shows";
 
 export const Episodes = ({
   traktId,
@@ -33,6 +34,25 @@ export const Episodes = ({
     })();
   }, []);
 
+  const onCheckInEpisode = async (episodeId: number) => {
+    setIsLoading(true);
+    try {
+      await checkInEpisode(episodeId, abortable.current?.signal);
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        showToast({
+          title: "Error checking in movie",
+          style: Toast.Style.Failure,
+        });
+      }
+    }
+    setIsLoading(false);
+    showToast({
+      title: "Movie checked in",
+      style: Toast.Style.Success,
+    });
+  };
+
   return (
     <Grid
       isLoading={isLoading}
@@ -51,10 +71,19 @@ export const Episodes = ({
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
+                    <Action
+                      icon={Icon.Checkmark}
+                      title="Check-in Episode"
+                      shortcut={Keyboard.Shortcut.Common.Duplicate}
+                      onAction={() => onCheckInEpisode(episode.ids.trakt)}
+                    />
+                  </ActionPanel.Section>
+                  <ActionPanel.Section>
                     <Action.OpenInBrowser
                       title="Open in Trakt"
                       url={`${TRAKT_APP_URL}/shows/${slug}/seasons/${seasonNumber}/episodes/${episode.number}`}
                     />
+                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${episode.ids.imdb}`} />
                   </ActionPanel.Section>
                 </ActionPanel>
               }

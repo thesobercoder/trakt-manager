@@ -98,7 +98,12 @@ function SearchCommand() {
                     title="Seasons"
                     shortcut={Keyboard.Shortcut.Common.Open}
                     target={
-                      <Seasons traktId={show.show.ids.trakt} tmdbId={show.show.ids.tmdb} slug={show.show.ids.slug} />
+                      <Seasons
+                        traktId={show.show.ids.trakt}
+                        tmdbId={show.show.ids.tmdb}
+                        slug={show.show.ids.slug}
+                        imdbId={show.show.ids.imdb}
+                      />
                     }
                   />
                   <Action

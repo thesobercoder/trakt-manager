@@ -158,8 +158,6 @@ export const getEpisodes = async (
 
   const preferences = getPreferenceValues<ExtensionPreferences>();
   if (preferences.apiKey) {
-    console.log(`${TMDB_API_URL}/tv/${tmdbId}/season/${seasonNumber}?api_key=${preferences.apiKey}`);
-
     const tmdbResponse = await fetch(
       `${TMDB_API_URL}/tv/${tmdbId}/season/${seasonNumber}?api_key=${preferences.apiKey}`,
       {
@@ -198,6 +196,33 @@ export const addShowToWatchlist = async (showId: number, signal: AbortSignal | u
         {
           ids: {
             trakt: showId,
+          },
+        },
+      ],
+    }),
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+};
+
+export const checkInEpisode = async (episodeId: number, signal: AbortSignal | undefined) => {
+  const tokens = await oauthClient.getTokens();
+  const response = await fetch(`${TRAKT_API_URL}/sync/watchlist`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": TRAKT_CLIENT_ID,
+      Authorization: `Bearer ${tokens?.accessToken}`,
+    },
+    body: JSON.stringify({
+      episode: [
+        {
+          ids: {
+            trakt: episodeId,
           },
         },
       ],

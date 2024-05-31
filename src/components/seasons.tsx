@@ -1,11 +1,21 @@
 import { Action, ActionPanel, Grid, Icon, Keyboard } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
-import { TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
+import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
 import { TraktSeasonList } from "../lib/types";
 import { getSeasons } from "../services/shows";
 import { Episodes } from "./episodes";
 
-export const Seasons = ({ traktId, tmdbId, slug }: { traktId: number; tmdbId: number; slug: string }) => {
+export const Seasons = ({
+  traktId,
+  tmdbId,
+  slug,
+  imdbId,
+}: {
+  traktId: number;
+  tmdbId: number;
+  slug: string;
+  imdbId: string;
+}) => {
   const abortable = useRef<AbortController>();
   const [seasons, setSeasons] = useState<TraktSeasonList | undefined>();
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +57,10 @@ export const Seasons = ({ traktId, tmdbId, slug }: { traktId: number; tmdbId: nu
                     <Action.OpenInBrowser
                       title="Open in Trakt"
                       url={`${TRAKT_APP_URL}/shows/${slug}/seasons/${season.number}`}
+                    />
+                    <Action.OpenInBrowser
+                      title="Open in IMDb"
+                      url={`${IMDB_APP_URL}/${imdbId}/episodes?season=${season.number}`}
                     />
                   </ActionPanel.Section>
                 </ActionPanel>
