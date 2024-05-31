@@ -93,25 +93,27 @@ function SearchCommand() {
               content={`${show.show.poster_path ? `${TMDB_IMG_URL}/${show.show.poster_path}` : "poster.png"}`}
               actions={
                 <ActionPanel>
-                  <Action.Push
-                    icon={Icon.Switch}
-                    title="Seasons"
-                    shortcut={Keyboard.Shortcut.Common.Open}
-                    target={
-                      <Seasons
-                        traktId={show.show.ids.trakt}
-                        tmdbId={show.show.ids.tmdb}
-                        slug={show.show.ids.slug}
-                        imdbId={show.show.ids.imdb}
-                      />
-                    }
-                  />
-                  <Action
-                    icon={Icon.Bookmark}
-                    title="Add To Watchlist"
-                    shortcut={Keyboard.Shortcut.Common.Edit}
-                    onAction={() => onAddToWatchlist(show.show.ids.trakt)}
-                  />
+                  <ActionPanel.Section>
+                    <Action.Push
+                      icon={Icon.Switch}
+                      title="Seasons"
+                      shortcut={Keyboard.Shortcut.Common.Open}
+                      target={
+                        <Seasons
+                          traktId={show.show.ids.trakt}
+                          tmdbId={show.show.ids.tmdb}
+                          slug={show.show.ids.slug}
+                          imdbId={show.show.ids.imdb}
+                        />
+                      }
+                    />
+                    <Action
+                      icon={Icon.Bookmark}
+                      title="Add To Watchlist"
+                      shortcut={Keyboard.Shortcut.Common.Edit}
+                      onAction={() => onAddToWatchlist(show.show.ids.trakt)}
+                    />
+                  </ActionPanel.Section>
                   <ActionPanel.Section>
                     <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
                     <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />

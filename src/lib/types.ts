@@ -199,6 +199,10 @@ export type TraktMovieList = Array<{
 }> & { page: number; total_pages: number; total_results: number };
 
 export type TraktShowList = Array<{
+  rank: number;
+  id: number;
+  listed_at: string;
+  notes: string;
   type: string;
   score: number;
   show: {

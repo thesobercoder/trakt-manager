@@ -4,38 +4,13 @@ import { TMDB_API_URL, TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
 import { TMDBSeasonDetails, TMDBShowDetails, TraktEpisodeList, TraktSeasonList, TraktShowList } from "../lib/types";
 
-const getShowCache = async (cacheId: string) => {
-  const tmdbShowCache = await LocalStorage.getItem<string>(cacheId);
-  if (tmdbShowCache) {
-    return JSON.parse(tmdbShowCache) as TMDBShowDetails;
-  }
-};
-
-export const searchShows = async (query: string, page: number, signal: AbortSignal | undefined) => {
-  const tokens = await oauthClient.getTokens();
-  const response = await fetch(
-    `${TRAKT_API_URL}/search/show?query=${encodeURIComponent(query)}&page=${page}&limit=10&fields=title`,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "trakt-api-version": "2",
-        "trakt-api-key": TRAKT_CLIENT_ID,
-        Authorization: `Bearer ${tokens?.accessToken}`,
-      },
-      signal,
-    },
-  );
-
-  const result = (await response.json()) as TraktShowList;
-  result.page = Number(response.headers.get("X-Pagination-Page") ?? 1);
-  result.total_pages = Number(response.headers.get("X-Pagination-Page-Count") ?? 1);
-  result.total_results = Number(response.headers.get("X-Pagination-Item-Count") ?? result.length);
-
+const getShowCache = async (result: TraktShowList, signal: AbortSignal | undefined) => {
   const cachedShowNotFound = new Array<number>();
   for (const show of result) {
-    const tmdbShow = await getShowCache(`show_${show.show.ids.tmdb}`);
-    if (tmdbShow) {
-      show.show.poster_path = tmdbShow.poster_path;
+    const tmdbMovieCache = await LocalStorage.getItem<string>(`movie_${show.show.ids.tmdb}`);
+    if (tmdbMovieCache) {
+      const tmdbMovie = JSON.parse(tmdbMovieCache) as TMDBShowDetails;
+      show.show.poster_path = tmdbMovie.poster_path;
       continue;
     }
     cachedShowNotFound.push(show.show.ids.tmdb);
@@ -65,6 +40,51 @@ export const searchShows = async (query: string, page: number, signal: AbortSign
       }
     }
   }
+};
+
+export const searchShows = async (query: string, page: number, signal: AbortSignal | undefined) => {
+  const tokens = await oauthClient.getTokens();
+  const response = await fetch(
+    `${TRAKT_API_URL}/search/show?query=${encodeURIComponent(query)}&page=${page}&limit=10&fields=title`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "trakt-api-version": "2",
+        "trakt-api-key": TRAKT_CLIENT_ID,
+        Authorization: `Bearer ${tokens?.accessToken}`,
+      },
+      signal,
+    },
+  );
+
+  const result = (await response.json()) as TraktShowList;
+  result.page = Number(response.headers.get("X-Pagination-Page") ?? 1);
+  result.total_pages = Number(response.headers.get("X-Pagination-Page-Count") ?? 1);
+  result.total_results = Number(response.headers.get("X-Pagination-Item-Count") ?? result.length);
+
+  await getShowCache(result, signal);
+
+  return result;
+};
+
+export const getWatchlistShows = async (page: number, signal: AbortSignal | undefined) => {
+  const tokens = await oauthClient.getTokens();
+  const response = await fetch(`${TRAKT_API_URL}/sync/watchlist/shows/added?page=${page}&limit=10`, {
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "trakt-api-version": "2",
+      "trakt-api-key": TRAKT_CLIENT_ID,
+      Authorization: `Bearer ${tokens?.accessToken}`,
+    },
+    signal,
+  });
+
+  const result = (await response.json()) as TraktShowList;
+  result.page = Number(response.headers.get("X-Pagination-Page") ?? 1);
+  result.total_pages = Number(response.headers.get("X-Pagination-Page-Count") ?? 1);
+  result.total_results = Number(response.headers.get("X-Pagination-Item-Count") ?? result.length);
+
+  await getShowCache(result, signal);
 
   return result;
 };
@@ -82,10 +102,11 @@ export const getSeasons = async (traktId: number, tmdbId: number, signal: AbortS
   });
 
   const result = (await traktResponse.json()) as TraktSeasonList;
-  const tmdbShowCache = await getShowCache(`show_${tmdbId}`);
+  const tmdbShowCache = await LocalStorage.getItem<string>(`show_${tmdbId}`);
   if (tmdbShowCache) {
+    const tmdbShow = JSON.parse(tmdbShowCache) as TMDBShowDetails;
     for (const traktSeason of result) {
-      const tmdbSeason = tmdbShowCache.seasons.find((m) => m.season_number === traktSeason.number);
+      const tmdbSeason = tmdbShow.seasons.find((m) => m.season_number === traktSeason.number);
       if (tmdbSeason) {
         traktSeason.poster_path = tmdbSeason.poster_path;
         traktSeason.name = tmdbSeason.name;
