@@ -13,7 +13,7 @@
       "title": "TMDB API Key",
       "description": "Your TMDB API Key",
       "type": "password",
-      "required": true
+      "required": false
     }
   ],
   "commands": [
