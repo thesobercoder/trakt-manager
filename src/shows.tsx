@@ -89,26 +89,27 @@ function SearchCommand() {
           return (
             <Grid.Item
               key={show.show.ids.trakt}
-              title={`${show.show.title ?? "Unknown Movie"} ${show.show.year ? `(${show.show.year})` : ""}`}
+              title={`${show.show.title ?? "Unknown Show"} ${show.show.year ? `(${show.show.year})` : ""}`}
               content={`${show.show.poster_path ? `${TMDB_IMG_URL}/${show.show.poster_path}` : "poster.png"}`}
               actions={
                 <ActionPanel>
                   <Action.Push
+                    icon={Icon.Switch}
                     title="Seasons"
                     shortcut={Keyboard.Shortcut.Common.Open}
-                    target={<Seasons traktId={show.show.ids.trakt} tmdbId={show.show.ids.tmdb} />}
+                    target={
+                      <Seasons traktId={show.show.ids.trakt} tmdbId={show.show.ids.tmdb} slug={show.show.ids.slug} />
+                    }
+                  />
+                  <Action
+                    icon={Icon.Bookmark}
+                    title="Add To Watchlist"
+                    shortcut={Keyboard.Shortcut.Common.Edit}
+                    onAction={() => onAddToWatchlist(show.show.ids.trakt)}
                   />
                   <ActionPanel.Section>
-                    <Action.OpenInBrowser title="Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
-                    <Action.OpenInBrowser title="IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
-                  </ActionPanel.Section>
-                  <ActionPanel.Section>
-                    <Action
-                      icon={Icon.Bookmark}
-                      title="Add To Watchlist"
-                      shortcut={Keyboard.Shortcut.Common.Edit}
-                      onAction={() => onAddToWatchlist(show.show.ids.trakt)}
-                    />
+                    <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
+                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
                   </ActionPanel.Section>
                   <ActionPanel.Section>
                     <Action

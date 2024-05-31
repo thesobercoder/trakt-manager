@@ -83,7 +83,7 @@ export type TMDBShowDetails = {
   vote_count: number;
 };
 
-export type TMDBEpisodeDetails = {
+export type TMDBSeasonDetails = {
   _id: string;
   air_date: string;
   episodes: Array<{
@@ -225,7 +225,7 @@ export type TraktSeasonList = Array<{
     tvdb: number;
     tmdb: number;
   };
-}> & { page: number; total_pages: number; total_results: number };
+}>;
 
 export type TraktEpisodeList = Array<{
   season: number;
@@ -238,4 +238,4 @@ export type TraktEpisodeList = Array<{
     imdb: string;
     tmdb: number;
   };
-}> & { page: number; total_pages: number; total_results: number };
+}>;

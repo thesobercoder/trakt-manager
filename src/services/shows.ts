@@ -2,9 +2,9 @@ import { LocalStorage, getPreferenceValues } from "@raycast/api";
 import fetch, { type Response } from "node-fetch";
 import { TMDB_API_URL, TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
-import { TMDBShowDetails, TraktEpisodeList, TraktSeasonList, TraktShowList } from "../lib/types";
+import { TMDBSeasonDetails, TMDBShowDetails, TraktEpisodeList, TraktSeasonList, TraktShowList } from "../lib/types";
 
-const getCache = async (cacheId: string) => {
+const getShowCache = async (cacheId: string) => {
   const tmdbShowCache = await LocalStorage.getItem<string>(cacheId);
   if (tmdbShowCache) {
     return JSON.parse(tmdbShowCache) as TMDBShowDetails;
@@ -14,7 +14,7 @@ const getCache = async (cacheId: string) => {
 export const searchShows = async (query: string, page: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(
-    `${TRAKT_API_URL}/search/show?query=${encodeURIComponent(query)}&page=${page}&limit=5&fields=title`,
+    `${TRAKT_API_URL}/search/show?query=${encodeURIComponent(query)}&page=${page}&limit=10&fields=title`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -33,7 +33,7 @@ export const searchShows = async (query: string, page: number, signal: AbortSign
 
   const cachedShowNotFound = new Array<number>();
   for (const show of result) {
-    const tmdbShow = await getCache(`show_${show.show.ids.tmdb}`);
+    const tmdbShow = await getShowCache(`show_${show.show.ids.tmdb}`);
     if (tmdbShow) {
       show.show.poster_path = tmdbShow.poster_path;
       continue;
@@ -82,7 +82,7 @@ export const getSeasons = async (traktId: number, tmdbId: number, signal: AbortS
   });
 
   const result = (await traktResponse.json()) as TraktSeasonList;
-  const tmdbShowCache = await getCache(`show_${tmdbId}`);
+  const tmdbShowCache = await getShowCache(`show_${tmdbId}`);
   if (tmdbShowCache) {
     for (const traktSeason of result) {
       const tmdbSeason = tmdbShowCache.seasons.find((m) => m.season_number === traktSeason.number);
@@ -119,17 +119,68 @@ export const getSeasons = async (traktId: number, tmdbId: number, signal: AbortS
   return result;
 };
 
-export const getSeasonEpisodes = async (showId: number, seasonNumber: number, signal: AbortSignal | undefined) => {
-  const preferences = getPreferenceValues<ExtensionPreferences>();
-  const response = await fetch(`${TMDB_API_URL}/tv/${showId}/season/${seasonNumber}?api_key=${preferences.apiKey}`, {
+export const getEpisodes = async (
+  traktId: number,
+  tmdbId: number,
+  seasonNumber: number,
+  signal: AbortSignal | undefined,
+) => {
+  const tokens = await oauthClient.getTokens();
+  const traktResponse = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons/${seasonNumber}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": TRAKT_CLIENT_ID,
+      Authorization: `Bearer ${tokens?.accessToken}`,
+    },
     signal,
   });
 
-  if (!response.ok) {
-    throw new Error(response.statusText);
+  if (!traktResponse.ok) {
+    throw new Error(traktResponse.statusText);
   }
 
-  return (await response.json()) as TraktEpisodeList;
+  // Cache
+  const result = (await traktResponse.json()) as TraktEpisodeList;
+  const cachedSeason = await LocalStorage.getItem<string>(`season_${tmdbId}`);
+  if (cachedSeason) {
+    const tmdbSeason = JSON.parse(cachedSeason) as TMDBSeasonDetails;
+    if (tmdbSeason) {
+      for (const traktEpisode of result) {
+        const tmdbEpisode = tmdbSeason.episodes.find((m) => m.episode_number === traktEpisode.number);
+        if (tmdbEpisode) {
+          traktEpisode.poster_path = tmdbEpisode.still_path;
+        }
+      }
+    }
+    return result;
+  }
+
+  const preferences = getPreferenceValues<ExtensionPreferences>();
+  if (preferences.apiKey) {
+    console.log(`${TMDB_API_URL}/tv/${tmdbId}/season/${seasonNumber}?api_key=${preferences.apiKey}`);
+
+    const tmdbResponse = await fetch(
+      `${TMDB_API_URL}/tv/${tmdbId}/season/${seasonNumber}?api_key=${preferences.apiKey}`,
+      {
+        signal,
+      },
+    );
+    if (!tmdbResponse.ok) {
+      throw new Error(tmdbResponse.statusText);
+    }
+
+    const tmdbSeason = (await tmdbResponse.json()) as TMDBSeasonDetails;
+    for (const traktEpisode of result) {
+      const tmdbEpisode = tmdbSeason.episodes.find((m) => m.episode_number === traktEpisode.number);
+      if (tmdbEpisode) {
+        traktEpisode.poster_path = tmdbEpisode.still_path;
+      }
+    }
+    await LocalStorage.setItem(`season_${tmdbId}`, JSON.stringify(tmdbSeason));
+  }
+
+  return result;
 };
 
 export const addShowToWatchlist = async (showId: number, signal: AbortSignal | undefined) => {
