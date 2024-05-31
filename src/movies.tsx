@@ -112,6 +112,13 @@ function SearchCommand() {
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
+                    <Action.OpenInBrowser
+                      title="Open in Trakt"
+                      url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`}
+                    />
+                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${movie.movie.ids.imdb}`} />
+                  </ActionPanel.Section>
+                  <ActionPanel.Section>
                     <Action
                       icon={Icon.Bookmark}
                       title="Add To Watchlist"
@@ -124,13 +131,6 @@ function SearchCommand() {
                       shortcut={Keyboard.Shortcut.Common.Duplicate}
                       onAction={() => onCheckInMovie(movie.movie.ids.trakt)}
                     />
-                  </ActionPanel.Section>
-                  <ActionPanel.Section>
-                    <Action.OpenInBrowser
-                      title="Open in Trakt"
-                      url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`}
-                    />
-                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${movie.movie.ids.imdb}`} />
                   </ActionPanel.Section>
                   <ActionPanel.Section>
                     <Action

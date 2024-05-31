@@ -94,6 +94,10 @@ function SearchCommand() {
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
+                    <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
+                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
+                  </ActionPanel.Section>
+                  <ActionPanel.Section>
                     <Action.Push
                       icon={Icon.Switch}
                       title="Seasons"
@@ -113,10 +117,6 @@ function SearchCommand() {
                       shortcut={Keyboard.Shortcut.Common.Edit}
                       onAction={() => onAddToWatchlist(show.show.ids.trakt)}
                     />
-                  </ActionPanel.Section>
-                  <ActionPanel.Section>
-                    <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
-                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
                   </ActionPanel.Section>
                   <ActionPanel.Section>
                     <Action

@@ -164,10 +164,14 @@ const WatchlistCommand = () => {
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
+                    <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
+                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
+                  </ActionPanel.Section>
+                  <ActionPanel.Section>
                     <Action.Push
                       icon={Icon.Switch}
                       title="Seasons"
-                      shortcut={Keyboard.Shortcut.Common.Open}
+                      shortcut={Keyboard.Shortcut.Common.Edit}
                       target={
                         <Seasons
                           traktId={show.show.ids.trakt}
@@ -183,10 +187,6 @@ const WatchlistCommand = () => {
                       shortcut={Keyboard.Shortcut.Common.Remove}
                       onAction={() => onRemoveMovieFromWatchlist(show.show.ids.trakt)}
                     />
-                  </ActionPanel.Section>
-                  <ActionPanel.Section>
-                    <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
-                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
                   </ActionPanel.Section>
                   <ActionPanel.Section>
                     <Action

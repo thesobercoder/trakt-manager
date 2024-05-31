@@ -71,19 +71,19 @@ export const Episodes = ({
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
-                    <Action
-                      icon={Icon.Checkmark}
-                      title="Check-in Episode"
-                      shortcut={Keyboard.Shortcut.Common.Duplicate}
-                      onAction={() => onCheckInEpisode(episode.ids.trakt)}
-                    />
-                  </ActionPanel.Section>
-                  <ActionPanel.Section>
                     <Action.OpenInBrowser
                       title="Open in Trakt"
                       url={`${TRAKT_APP_URL}/shows/${slug}/seasons/${seasonNumber}/episodes/${episode.number}`}
                     />
                     <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${episode.ids.imdb}`} />
+                  </ActionPanel.Section>
+                  <ActionPanel.Section>
+                    <Action
+                      icon={Icon.Checkmark}
+                      title="Check-in Episode"
+                      shortcut={Keyboard.Shortcut.Common.Edit}
+                      onAction={() => onCheckInEpisode(episode.ids.trakt)}
+                    />
                   </ActionPanel.Section>
                 </ActionPanel>
               }

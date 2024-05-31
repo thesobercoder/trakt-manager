@@ -46,14 +46,6 @@ export const Seasons = ({
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
-                    <Action.Push
-                      icon={Icon.Switch}
-                      title="Episodes"
-                      shortcut={Keyboard.Shortcut.Common.Open}
-                      target={<Episodes traktId={traktId} tmdbId={tmdbId} seasonNumber={season.number} slug={slug} />}
-                    />
-                  </ActionPanel.Section>
-                  <ActionPanel.Section>
                     <Action.OpenInBrowser
                       title="Open in Trakt"
                       url={`${TRAKT_APP_URL}/shows/${slug}/seasons/${season.number}`}
@@ -61,6 +53,14 @@ export const Seasons = ({
                     <Action.OpenInBrowser
                       title="Open in IMDb"
                       url={`${IMDB_APP_URL}/${imdbId}/episodes?season=${season.number}`}
+                    />
+                  </ActionPanel.Section>
+                  <ActionPanel.Section>
+                    <Action.Push
+                      icon={Icon.Switch}
+                      title="Episodes"
+                      shortcut={Keyboard.Shortcut.Common.Open}
+                      target={<Episodes traktId={traktId} tmdbId={tmdbId} seasonNumber={season.number} slug={slug} />}
                     />
                   </ActionPanel.Section>
                 </ActionPanel>
