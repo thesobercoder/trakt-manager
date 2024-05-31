@@ -45,7 +45,7 @@ const checkCache = async (result: TraktMovieList, signal: AbortSignal | undefine
 export const searchMovies = async (query: string, page: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(
-    `${TRAKT_API_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}&limit=5&fields=title`,
+    `${TRAKT_API_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}&limit=10&fields=title`,
     {
       headers: {
         "Content-Type": "application/json; charset=utf-8",
