@@ -171,7 +171,7 @@ const WatchlistCommand = () => {
                     <Action.Push
                       icon={Icon.Switch}
                       title="Seasons"
-                      shortcut={Keyboard.Shortcut.Common.Edit}
+                      shortcut={Keyboard.Shortcut.Common.Open}
                       target={
                         <Seasons
                           traktId={show.show.ids.trakt}
