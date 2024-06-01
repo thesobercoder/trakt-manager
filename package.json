@@ -37,6 +37,13 @@
       "subtitle": "Trakt Manager",
       "description": "Search watchlist",
       "mode": "view"
+    },
+    {
+      "name": "on-deck",
+      "title": "On Deck",
+      "subtitle": "Trakt Manager",
+      "description": "Lists currently on deck",
+      "mode": "view"
     }
   ],
   "dependencies": {

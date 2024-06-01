@@ -1,0 +1,58 @@
+{
+  // Place your trakt-manager workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
+  // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
+  // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
+  // used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+  // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
+  // Placeholders with the same ids are connected.
+  // Example:
+  "Print to console": {
+    "scope": "typescript,typescriptreact",
+    "prefix": "clg",
+    "body": ["console.log('$1');", "$2"],
+    "description": "Log output to console",
+  },
+  "New Command": {
+    "scope": "typescriptreact",
+    "prefix": "cmd",
+    "body": [
+      "import { Grid } from \"@raycast/api\";",
+      "import { setMaxListeners } from \"events\";",
+      "import { useEffect, useRef, useState } from \"react\";",
+      "import { View } from \"./components/view\";",
+      "",
+      "const ${1:NewCommand} = () => {",
+      "\tconst abortable = useRef<AbortController>();",
+      "\tconst [isLoading, setIsLoading] = useState(false);",
+      "",
+      "\tuseEffect(() => {",
+      "\t\t(async () => {",
+      "\t\t\tabortable.current = new AbortController();",
+      "\t\t\tsetMaxListeners(20, abortable.current?.signal);",
+      "\t\t\tsetIsLoading(true);",
+      "",
+      "\t\t\t// Write logic here",
+      "",
+      "\t\t\tsetIsLoading(false);",
+      "\t\t\treturn () => {",
+      "\t\t\t\tif (abortable.current) {",
+      "\t\t\t\t\tabortable.current.abort();",
+      "\t\t\t\t}",
+      "\t\t\t};",
+      "\t\t})();",
+      "\t}, []);",
+      "",
+      "\treturn <Grid isLoading={isLoading} />;",
+      "};",
+      "",
+      "export default function Command() {",
+      "\treturn (",
+      "\t\t<View>",
+      "\t\t\t<${1:NewCommand} />",
+      "\t\t</View>",
+      "\t);",
+      "}",
+    ],
+    "description": "Add a new command",
+  },
+}
