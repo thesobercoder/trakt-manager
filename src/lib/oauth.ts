@@ -1,6 +1,7 @@
-import { OAuth } from "@raycast/api";
+import { LocalStorage, OAuth } from "@raycast/api";
 import fetch from "node-fetch";
-import { TRAKT_APP_URL, TRAKT_CLIENT_ID } from "./constants";
+import { TRAKT_API_URL, TRAKT_APP_URL, TRAKT_CLIENT_ID } from "./constants";
+import { TraktUser } from "./types";
 
 export const oauthClient = new OAuth.PKCEClient({
   redirectMethod: OAuth.RedirectMethod.Web,
@@ -12,6 +13,7 @@ export const oauthClient = new OAuth.PKCEClient({
 
 export const authorize = async () => {
   const existingTokens = await oauthClient.getTokens();
+  console.log("existingTokens", existingTokens);
   if (existingTokens?.accessToken) {
     if (existingTokens?.refreshToken && existingTokens.isExpired()) {
       await refreshTokens(existingTokens.refreshToken);
@@ -35,38 +37,32 @@ export const authorize = async () => {
   params.append("grant_type", "authorization_code");
   params.append("redirect_uri", authRequest.redirectURI);
 
-  const response = await fetch(`${TRAKT_APP_URL}/oauth/token`, {
+  const tokenResponse = await fetch(`${TRAKT_APP_URL}/oauth/token`, {
     method: "POST",
     body: params,
   });
-  if (!response.ok) {
-    console.error("Fetch tokens error:", await response.text());
-    throw new Error(response.statusText);
+
+  if (!tokenResponse.ok) {
+    throw new Error(tokenResponse.statusText);
   }
 
-  const tokens = (await response.json()) as OAuth.TokenResponse;
+  const tokens = (await tokenResponse.json()) as OAuth.TokenResponse;
   await oauthClient.setTokens(tokens);
-};
 
-export const fetchTokens = async (authRequest: OAuth.AuthorizationRequest, authCode: string) => {
-  const params = new URLSearchParams();
-  params.append("client_id", TRAKT_CLIENT_ID);
-  params.append("code", authCode);
-  params.append("verifier", authRequest.codeVerifier);
-  params.append("grant_type", "authorization_code");
-  params.append("redirect_uri", authRequest.redirectURI);
-
-  const response = await fetch(`${TRAKT_APP_URL}/oauth/token`, {
-    method: "POST",
-    body: params,
+  const userResponse = await fetch(`${TRAKT_API_URL}/users/settings`, {
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "trakt-api-version": "2",
+      "trakt-api-key": TRAKT_CLIENT_ID,
+      Authorization: `Bearer ${tokens.access_token}`,
+    },
   });
-  if (!response.ok) {
-    console.error("fetch tokens error:", await response.text());
-    throw new Error(response.statusText);
+  if (!userResponse.ok) {
+    throw new Error(userResponse.statusText);
   }
 
-  const tokens = (await response.json()) as OAuth.TokenResponse;
-  await oauthClient.setTokens(tokens);
+  const user = (await userResponse.json()) as TraktUser;
+  await LocalStorage.setItem("traktUser", JSON.stringify(user));
 };
 
 export const refreshTokens = async (refreshToken: string) => {
@@ -79,10 +75,11 @@ export const refreshTokens = async (refreshToken: string) => {
     method: "POST",
     body: params,
   });
+
   if (!response.ok) {
-    console.error("refresh tokens error:", await response.text());
     throw new Error(response.statusText);
   }
+
   const tokens = (await response.json()) as OAuth.TokenResponse;
   tokens.refresh_token = tokens.refresh_token ?? refreshToken;
   await oauthClient.setTokens(tokens);
