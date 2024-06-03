@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Grid, Icon, Image, Keyboard } from "@raycast/api";
+import { Action, ActionPanel, Grid, Icon, Image, Keyboard, openExtensionPreferences } from "@raycast/api";
 import { SetStateAction } from "react";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
 
@@ -51,6 +51,12 @@ export const MovieGrid = ({
                     title="Check-in Movie"
                     shortcut={Keyboard.Shortcut.Common.Duplicate}
                     onAction={() => checkinAction(movie.movie.ids.trakt)}
+                  />
+                  <Action
+                    icon={Icon.Cog}
+                    title="Open Extension Preferences"
+                    onAction={openExtensionPreferences}
+                    shortcut={Keyboard.Shortcut.Common.Pin}
                   />
                 </ActionPanel.Section>
                 <ActionPanel.Section>
