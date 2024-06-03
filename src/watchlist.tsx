@@ -6,7 +6,7 @@ import { MovieGrid } from "./components/movie-grid";
 import { ShowGrid } from "./components/show-grid";
 import { View } from "./components/view";
 import { checkInMovie, getWatchlistMovies, removeMovieFromWatchlist } from "./services/movies";
-import { getWatchlistShows } from "./services/shows";
+import { getWatchlistShows, removeShowFromWatchlist } from "./services/shows";
 import { getTMDBMovieDetails, getTMDBShowDetails } from "./services/tmdb";
 
 const WatchlistCommand = () => {
@@ -82,6 +82,26 @@ const WatchlistCommand = () => {
     forceRerender((value) => value + 1);
   };
 
+  const onRemoveShowFromWatchlist = async (showId: number) => {
+    setIsLoading(true);
+    try {
+      await removeShowFromWatchlist(showId, abortable.current?.signal);
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        showToast({
+          title: "Error checking in show",
+          style: Toast.Style.Failure,
+        });
+      }
+    }
+    setIsLoading(false);
+    showToast({
+      title: "Show removed from watchlist",
+      style: Toast.Style.Success,
+    });
+    forceRerender((value) => value + 1);
+  };
+
   const onCheckInMovie = async (movieId: number) => {
     setIsLoading(true);
     try {
@@ -146,7 +166,7 @@ const WatchlistCommand = () => {
             totalPages={totalPages}
             setPage={setPage}
             watchlistActionTitle="Remove from Watchlist"
-            watchlistAction={onRemoveMovieFromWatchlist}
+            watchlistAction={onRemoveShowFromWatchlist}
             watchlistIcon={Icon.Trash}
             watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
           />
