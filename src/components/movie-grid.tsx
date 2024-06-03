@@ -30,7 +30,7 @@ export const MovieGrid = ({
       <Grid.Section title={`Page ${page}`}>
         {movies.map((movie) => (
           <Grid.Item
-            key={movie.id}
+            key={movie.movie.ids.trakt}
             title={`${movie.movie.title} ${movie.movie.year ? `(${movie.movie.year})` : ""}`}
             content={`${movie.movie.details?.poster_path ? `${TMDB_IMG_URL}/${movie.movie.details.poster_path}` : "poster.png"}`}
             actions={

@@ -51,6 +51,7 @@ declare type TraktSeasonList = Array<{
   poster_path: string;
   name: string;
   air_date: string;
+  details: TMDBSeasonDetails;
   ids: {
     trakt: number;
     tvdb: number;

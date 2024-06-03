@@ -29,7 +29,7 @@ export const ShowGrid = ({
       <Grid.Section title={`Page ${page}`}>
         {shows.map((show) => (
           <Grid.Item
-            key={show.id}
+            key={show.show.ids.trakt}
             title={`${show.show.title} ${show.show.year ? `(${show.show.year})` : ""}`}
             content={`${show.show.details?.poster_path ? `${TMDB_IMG_URL}/${show.show.details.poster_path}` : "poster.png"}`}
             actions={
