@@ -115,20 +115,17 @@ function SearchCommand() {
       throttle={true}
     >
       <Grid.EmptyView title="Search for movies" />
-      {movies && (
-        <MovieGrid
-          movies={movies}
-          page={page}
-          totalPages={totalPages}
-          setPage={setPage}
-          checkInActionTitle="Check-in Movie"
-          checkinAction={onCheckInMovie}
-          watchlistActionTitle={"Add to Watchlist"}
-          watchlistAction={onAddToWatchlist}
-          watchlistIcon={Icon.Bookmark}
-          watchlistActionShortcut={Keyboard.Shortcut.Common.Edit}
-        />
-      )}
+      <MovieGrid
+        movies={movies}
+        page={page}
+        totalPages={totalPages}
+        setPage={setPage}
+        checkinAction={onCheckInMovie}
+        watchlistActionTitle={"Add to Watchlist"}
+        watchlistAction={onAddToWatchlist}
+        watchlistIcon={Icon.Bookmark}
+        watchlistActionShortcut={Keyboard.Shortcut.Common.Edit}
+      />
     </Grid>
   );
 }

@@ -1,56 +1,62 @@
 import { Action, ActionPanel, Grid, Icon, Image, Keyboard } from "@raycast/api";
 import { SetStateAction } from "react";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
+import { Seasons } from "./seasons";
 
-export const MovieGrid = ({
-  movies,
+export const ShowGrid = ({
+  shows,
   watchlistActionTitle,
   watchlistIcon,
   watchlistActionShortcut,
   watchlistAction,
-  checkinAction,
   page,
   totalPages,
   setPage,
 }: {
-  movies: TraktMovieList | undefined;
+  shows: TraktShowList | undefined;
   watchlistActionTitle: string;
   watchlistIcon: Image.ImageLike;
   watchlistActionShortcut: Keyboard.Shortcut;
   watchlistAction: (traktId: number) => void;
-  checkinAction: (traktId: number) => void;
   page: number;
   totalPages: number;
   setPage: (value: SetStateAction<number>) => void;
 }) => {
-  if (!movies) return null;
+  if (!shows) return null;
 
   return (
     <>
       <Grid.Section title={`Page ${page}`}>
-        {movies.map((movie) => (
+        {shows.map((show) => (
           <Grid.Item
-            key={movie.id}
-            title={`${movie.movie.title} ${movie.movie.year ? `(${movie.movie.year})` : ""}`}
-            content={`${movie.movie.details?.poster_path ? `${TMDB_IMG_URL}/${movie.movie.details.poster_path}` : "poster.png"}`}
+            key={show.id}
+            title={`${show.show.title} ${show.show.year ? `(${show.show.year})` : ""}`}
+            content={`${show.show.details?.poster_path ? `${TMDB_IMG_URL}/${show.show.details.poster_path}` : "poster.png"}`}
             actions={
               <ActionPanel>
                 <ActionPanel.Section>
-                  <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`} />
-                  <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${movie.movie.ids.imdb}`} />
+                  <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/movies/${show.show.ids.slug}`} />
+                  <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
                 </ActionPanel.Section>
                 <ActionPanel.Section>
+                  <Action.Push
+                    icon={Icon.Switch}
+                    title="Seasons"
+                    shortcut={Keyboard.Shortcut.Common.Open}
+                    target={
+                      <Seasons
+                        traktId={show.show.ids.trakt}
+                        tmdbId={show.show.ids.tmdb}
+                        slug={show.show.ids.slug}
+                        imdbId={show.show.ids.imdb}
+                      />
+                    }
+                  />
                   <Action
                     icon={watchlistIcon}
                     title={watchlistActionTitle}
                     shortcut={watchlistActionShortcut}
-                    onAction={() => watchlistAction(movie.movie.ids.trakt)}
-                  />
-                  <Action
-                    icon={Icon.Checkmark}
-                    title="Check-in Movie"
-                    shortcut={Keyboard.Shortcut.Common.Duplicate}
-                    onAction={() => checkinAction(movie.movie.ids.trakt)}
+                    onAction={() => watchlistAction(show.show.ids.trakt)}
                   />
                 </ActionPanel.Section>
                 <ActionPanel.Section>

@@ -1,11 +1,10 @@
-import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
 import { setMaxListeners } from "events";
 import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { MovieGrid } from "./components/movie-grid";
-import { Seasons } from "./components/seasons";
+import { ShowGrid } from "./components/show-grid";
 import { View } from "./components/view";
-import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
 import { checkInMovie, getWatchlistMovies, removeMovieFromWatchlist } from "./services/movies";
 import { getWatchlistShows } from "./services/shows";
 import { getTMDBMovieDetails, getTMDBShowDetails } from "./services/tmdb";
@@ -130,73 +129,29 @@ const WatchlistCommand = () => {
             page={page}
             totalPages={totalPages}
             setPage={setPage}
-            checkInActionTitle="Check-in Movie"
             checkinAction={onCheckInMovie}
-            watchlistActionTitle={"Remove from Watchlist"}
+            watchlistActionTitle="Remove from Watchlist"
             watchlistAction={onRemoveMovieFromWatchlist}
             watchlistIcon={Icon.Trash}
             watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
           />
         </>
       )}
-      {mediaType === "show" &&
-        shows &&
-        shows.map((show) => {
-          return (
-            <Grid.Item
-              key={show.id}
-              title={`${show.show.title ?? "Unknown Show"} ${show.show.year ? `(${show.show.year})` : ""}`}
-              content={`${show.show.details?.poster_path ? `${TMDB_IMG_URL}/${show.show.details.poster_path}` : "poster.png"}`}
-              actions={
-                <ActionPanel>
-                  <ActionPanel.Section>
-                    <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
-                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
-                  </ActionPanel.Section>
-                  <ActionPanel.Section>
-                    <Action.Push
-                      icon={Icon.Switch}
-                      title="Seasons"
-                      shortcut={Keyboard.Shortcut.Common.Open}
-                      target={
-                        <Seasons
-                          traktId={show.show.ids.trakt}
-                          tmdbId={show.show.ids.tmdb}
-                          slug={show.show.ids.slug}
-                          imdbId={show.show.ids.imdb}
-                        />
-                      }
-                    />
-                    <Action
-                      icon={Icon.Trash}
-                      title="Remove from Watchlist"
-                      shortcut={Keyboard.Shortcut.Common.Remove}
-                      onAction={() => onRemoveMovieFromWatchlist(show.show.ids.trakt)}
-                    />
-                  </ActionPanel.Section>
-                  <ActionPanel.Section>
-                    {page === totalPages ? null : (
-                      <Action
-                        icon={Icon.ArrowRight}
-                        title="Next Page"
-                        shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
-                        onAction={() => setPage((page) => (page + 1 > totalPages ? totalPages : page + 1))}
-                      />
-                    )}
-                    {page > 1 ? (
-                      <Action
-                        icon={Icon.ArrowLeft}
-                        title="Previous Page"
-                        shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
-                        onAction={() => setPage((page) => (page - 1 < 1 ? 1 : page - 1))}
-                      />
-                    ) : null}
-                  </ActionPanel.Section>
-                </ActionPanel>
-              }
-            />
-          );
-        })}
+      {mediaType === "show" && (
+        <>
+          <Grid.EmptyView title="No shows in your watchlist" />
+          <ShowGrid
+            shows={shows}
+            page={page}
+            totalPages={totalPages}
+            setPage={setPage}
+            watchlistActionTitle="Remove from Watchlist"
+            watchlistAction={onRemoveMovieFromWatchlist}
+            watchlistIcon={Icon.Trash}
+            watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
+          />
+        </>
+      )}
     </Grid>
   );
 };
