@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
 import { addMovieToWatchlist, checkInMovie, searchMovies } from "./services/movies";
-import { getTMDBMovie } from "./services/tmdb";
+import { getTMDBMovieDetails } from "./services/tmdb";
 
 function SearchCommand() {
   const abortable = useRef<AbortController>();
@@ -42,7 +42,7 @@ function SearchCommand() {
 
           const moviesWithImages = (await Promise.all(
             movies.map(async (movie) => {
-              movie.movie.details = await getTMDBMovie(movie.movie.ids.tmdb, abortable.current?.signal);
+              movie.movie.details = await getTMDBMovieDetails(movie.movie.ids.tmdb, abortable.current?.signal);
               return movie;
             }),
           )) as TraktMovieList;

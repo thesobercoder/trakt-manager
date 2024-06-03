@@ -33,7 +33,7 @@ export const getOnDeckItems = async (signal: AbortSignal | undefined) => {
   return [];
 };
 
-export const getTMDBMovie = async (tmdbId: number, signal: AbortSignal | undefined) => {
+export const getTMDBMovieDetails = async (tmdbId: number, signal: AbortSignal | undefined) => {
   const tmdbMovieCache = await LocalStorage.getItem<string>(`movie_${tmdbId}`);
   if (tmdbMovieCache) {
     const tmdbMovie = JSON.parse(tmdbMovieCache) as TMDBMovieDetails;
@@ -51,7 +51,30 @@ export const getTMDBMovie = async (tmdbId: number, signal: AbortSignal | undefin
     }
 
     const tmdbMovie = (await tmdbResponse.json()) as TMDBMovieDetails;
-    await LocalStorage.setItem(`movie_${tmdbMovie.id}`, JSON.stringify(tmdbMovie));
+    await LocalStorage.setItem(`movie_${tmdbId}`, JSON.stringify(tmdbMovie));
+    return tmdbMovie;
+  }
+};
+
+export const getTMDBShowDetails = async (tmdbId: number, signal: AbortSignal | undefined) => {
+  const tmdbMovieCache = await LocalStorage.getItem<string>(`show_${tmdbId}`);
+  if (tmdbMovieCache) {
+    const tmdbMovie = JSON.parse(tmdbMovieCache) as TMDBShowDetails;
+    return tmdbMovie;
+  }
+
+  const preferences = getPreferenceValues<ExtensionPreferences>();
+  if (preferences.apiKey) {
+    const tmdbResponse = await fetch(`${TMDB_API_URL}/tv/${tmdbId}?api_key=${preferences.apiKey}`, {
+      signal,
+    });
+
+    if (!tmdbResponse.ok) {
+      return;
+    }
+
+    const tmdbMovie = (await tmdbResponse.json()) as TMDBShowDetails;
+    await LocalStorage.setItem(`show_${tmdbId}`, JSON.stringify(tmdbMovie));
     return tmdbMovie;
   }
 };

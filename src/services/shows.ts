@@ -61,7 +61,7 @@ export const searchShows = async (query: string, page: number, signal: AbortSign
   result.total_pages = Number(response.headers.get("X-Pagination-Page-Count") ?? 1);
   result.total_results = Number(response.headers.get("X-Pagination-Item-Count") ?? result.length);
 
-  await getShowCache(result, signal);
+  // await getShowCache(result, signal);
 
   return result;
 };

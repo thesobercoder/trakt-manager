@@ -6,11 +6,12 @@ import { Seasons } from "./components/seasons";
 import { View } from "./components/view";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
 import { addShowToWatchlist, searchShows } from "./services/shows";
+import { getTMDBShowDetails } from "./services/tmdb";
 
 function SearchCommand() {
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string | undefined>();
-  const [shows, setMovies] = useState<TraktShowList | undefined>();
+  const [shows, setShows] = useState<TraktShowList | undefined>();
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,14 +32,23 @@ function SearchCommand() {
       abortable.current = new AbortController();
       setMaxListeners(20, abortable.current?.signal);
       if (!searchText) {
-        setMovies(undefined);
+        setShows(undefined);
       } else {
         setIsLoading(true);
         try {
           const shows = await searchShows(searchText, page, abortable.current.signal);
-          setMovies(shows);
+          setShows(shows);
           setPage(shows.page);
           setTotalPages(shows.total_pages);
+
+          const showsWithImages = (await Promise.all(
+            shows.map(async (movie) => {
+              movie.show.details = await getTMDBShowDetails(movie.show.ids.tmdb, abortable.current?.signal);
+              return movie;
+            }),
+          )) as TraktShowList;
+
+          setShows(showsWithImages);
         } catch (e) {
           if (!(e instanceof AbortError)) {
             showToast({
@@ -91,7 +101,7 @@ function SearchCommand() {
             <Grid.Item
               key={show.show.ids.trakt}
               title={`${show.show.title ?? "Unknown Show"} ${show.show.year ? `(${show.show.year})` : ""}`}
-              content={`${show.show.poster_path ? `${TMDB_IMG_URL}/${show.show.poster_path}` : "poster.png"}`}
+              content={`${show.show.details?.poster_path ? `${TMDB_IMG_URL}/${show.show.details.poster_path}` : "poster.png"}`}
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
