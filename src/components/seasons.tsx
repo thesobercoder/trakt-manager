@@ -1,8 +1,8 @@
 import { Action, ActionPanel, Grid, Icon, Keyboard } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
-import { TraktSeasonList } from "../lib/types";
 import { getSeasons } from "../services/shows";
+import { TraktSeasonList } from "../types/raycastTraktManager";
 import { Episodes } from "./episodes";
 
 export const Seasons = ({

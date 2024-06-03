@@ -2,8 +2,9 @@ import { Grid } from "@raycast/api";
 import { setMaxListeners } from "events";
 import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
+import { getOnDeckItems } from "./services/common";
 
-const NewCommand = () => {
+const OnDeckCommand = () => {
   const abortable = useRef<AbortController>();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -14,6 +15,8 @@ const NewCommand = () => {
       setIsLoading(true);
 
       // Write logic here
+      const episodes = await getOnDeckItems(abortable.current?.signal);
+      console.log(JSON.stringify(episodes, null, 2));
 
       setIsLoading(false);
       return () => {
@@ -30,7 +33,7 @@ const NewCommand = () => {
 export default function Command() {
   return (
     <View>
-      <NewCommand />
+      <OnDeckCommand />
     </View>
   );
 }

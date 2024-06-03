@@ -2,7 +2,6 @@ import { LocalStorage, getPreferenceValues } from "@raycast/api";
 import fetch, { type Response } from "node-fetch";
 import { TMDB_API_URL, TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
-import { TMDBMovieDetails, TraktMovieList } from "../lib/types";
 
 const checkCache = async (result: TraktMovieList, signal: AbortSignal | undefined) => {
   const cachedMoviesNotFound = new Array<number>();

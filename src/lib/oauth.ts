@@ -1,7 +1,7 @@
 import { LocalStorage, OAuth } from "@raycast/api";
 import fetch from "node-fetch";
+import { TraktUser } from "../types/raycastTraktManager";
 import { TRAKT_API_URL, TRAKT_APP_URL, TRAKT_CLIENT_ID } from "./constants";
-import { TraktUser } from "./types";
 
 export const oauthClient = new OAuth.PKCEClient({
   redirectMethod: OAuth.RedirectMethod.Web,

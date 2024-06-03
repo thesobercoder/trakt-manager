@@ -2,7 +2,6 @@ import { LocalStorage, getPreferenceValues } from "@raycast/api";
 import fetch, { type Response } from "node-fetch";
 import { TMDB_API_URL, TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
-import { TMDBSeasonDetails, TMDBShowDetails, TraktEpisodeList, TraktSeasonList, TraktShowList } from "../lib/types";
 
 const getShowCache = async (result: TraktShowList, signal: AbortSignal | undefined) => {
   const cachedShowNotFound = new Array<number>();

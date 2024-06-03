@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 import { Seasons } from "./components/seasons";
 import { View } from "./components/view";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
-import { TraktMovieList, TraktShowList } from "./lib/types";
 import { checkInMovie, getWatchlistMovies, removeMovieFromWatchlist } from "./services/movies";
 import { getWatchlistShows } from "./services/shows";
 

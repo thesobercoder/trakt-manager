@@ -1,4 +1,4 @@
-export type TMDBShowDetails = {
+declare type TMDBShowDetails = {
   adult: boolean;
   backdrop_path: string;
   created_by: Array<{
@@ -83,7 +83,7 @@ export type TMDBShowDetails = {
   vote_count: number;
 };
 
-export type TMDBSeasonDetails = {
+declare type TMDBSeasonDetails = {
   _id: string;
   air_date: string;
   episodes: Array<{
@@ -135,7 +135,7 @@ export type TMDBSeasonDetails = {
   vote_average: number;
 };
 
-export type TMDBMovieDetails = {
+declare type TMDBMovieDetails = {
   adult: boolean;
   backdrop_path: string;
   belongs_to_collection: any;
@@ -179,7 +179,7 @@ export type TMDBMovieDetails = {
   vote_count: number;
 };
 
-export type TraktMovieList = Array<{
+declare type TraktMovieList = Array<{
   rank: number;
   id: number;
   listed_at: string;
@@ -198,7 +198,7 @@ export type TraktMovieList = Array<{
   };
 }> & { page: number; total_pages: number; total_results: number };
 
-export type TraktShowList = Array<{
+declare type TraktShowList = Array<{
   rank: number;
   id: number;
   listed_at: string;
@@ -219,7 +219,7 @@ export type TraktShowList = Array<{
   };
 }> & { page: number; total_pages: number; total_results: number };
 
-export type TraktSeasonList = Array<{
+declare type TraktSeasonList = Array<{
   number: number;
   poster_path: string;
   name: string;
@@ -231,7 +231,7 @@ export type TraktSeasonList = Array<{
   };
 }>;
 
-export type TraktEpisodeList = Array<{
+declare type TraktEpisodeList = Array<{
   season: number;
   number: number;
   title: string;
@@ -244,7 +244,7 @@ export type TraktEpisodeList = Array<{
   };
 }>;
 
-export type TraktUser = {
+declare type TraktUser = {
   user: {
     username: string;
     private: boolean;
@@ -304,3 +304,42 @@ export type TraktUser = {
     };
   };
 };
+
+declare type TraktOnDeckList = Array<{
+  progress: number;
+  paused_at: string;
+  id: number;
+  type: string;
+  movie?: {
+    title: string;
+    year: number;
+    ids: {
+      trakt: number;
+      slug: string;
+      imdb: string;
+      tmdb: number;
+    };
+  };
+  episode?: {
+    season: number;
+    number: number;
+    title: string;
+    ids: {
+      trakt: number;
+      tvdb: number;
+      imdb: string;
+      tmdb: number;
+    };
+  };
+  show?: {
+    title: string;
+    year: number;
+    ids: {
+      trakt: number;
+      slug: string;
+      tvdb: number;
+      imdb: string;
+      tmdb: number;
+    };
+  };
+}>;
