@@ -123,18 +123,21 @@ const WatchlistCommand = () => {
       }
     >
       {mediaType === "movie" && (
-        <MovieGrid
-          movies={movies}
-          page={page}
-          totalPages={totalPages}
-          setPage={setPage}
-          checkInActionTitle="Check-in Movie"
-          checkinAction={onCheckInMovie}
-          watchlistActionTitle={"Remove from Watchlist"}
-          watchlistAction={onRemoveMovieFromWatchlist}
-          watchlistIcon={Icon.Trash}
-          watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
-        />
+        <>
+          <Grid.EmptyView title="No movies in your watchlist" />
+          <MovieGrid
+            movies={movies}
+            page={page}
+            totalPages={totalPages}
+            setPage={setPage}
+            checkInActionTitle="Check-in Movie"
+            checkinAction={onCheckInMovie}
+            watchlistActionTitle={"Remove from Watchlist"}
+            watchlistAction={onRemoveMovieFromWatchlist}
+            watchlistIcon={Icon.Trash}
+            watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
+          />
+        </>
       )}
       {mediaType === "show" &&
         shows &&
