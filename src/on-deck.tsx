@@ -2,7 +2,7 @@ import { Grid } from "@raycast/api";
 import { setMaxListeners } from "events";
 import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
-import { getOnDeckItems } from "./services/common";
+import { getOnDeckItems } from "./services/tmdb";
 
 const OnDeckCommand = () => {
   const abortable = useRef<AbortController>();

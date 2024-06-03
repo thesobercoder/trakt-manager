@@ -1,45 +1,44 @@
-import { LocalStorage, getPreferenceValues } from "@raycast/api";
-import fetch, { type Response } from "node-fetch";
-import { TMDB_API_URL, TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
+import fetch from "node-fetch";
+import { TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
 
-const checkCache = async (result: TraktMovieList, signal: AbortSignal | undefined) => {
-  const cachedMoviesNotFound = new Array<number>();
-  for (const movie of result) {
-    const tmdbMovieCache = await LocalStorage.getItem<string>(`movie_${movie.movie.ids.tmdb}`);
-    if (tmdbMovieCache) {
-      const tmdbMovie = JSON.parse(tmdbMovieCache) as TMDBMovieDetails;
-      movie.movie.poster_path = tmdbMovie.poster_path;
-      continue;
-    }
-    cachedMoviesNotFound.push(movie.movie.ids.tmdb);
-  }
+// const checkCache = async (result: TraktMovieList, signal: AbortSignal | undefined) => {
+//   const cachedMoviesNotFound = new Array<number>();
+//   for (const movie of result) {
+//     const tmdbMovieCache = await LocalStorage.getItem<string>(`movie_${movie.movie.ids.tmdb}`);
+//     if (tmdbMovieCache) {
+//       const tmdbMovie = JSON.parse(tmdbMovieCache) as TMDBMovieDetails;
+//       movie.movie.poster_path = tmdbMovie.poster_path;
+//       continue;
+//     }
+//     cachedMoviesNotFound.push(movie.movie.ids.tmdb);
+//   }
 
-  const preferences = getPreferenceValues<ExtensionPreferences>();
-  if (preferences.apiKey) {
-    const moviePromises = new Array<Promise<Response>>();
+//   const preferences = getPreferenceValues<ExtensionPreferences>();
+//   if (preferences.apiKey) {
+//     const moviePromises = new Array<Promise<Response>>();
 
-    for (const movie of cachedMoviesNotFound) {
-      moviePromises.push(
-        fetch(`${TMDB_API_URL}/movie/${movie}?api_key=${preferences.apiKey}`, {
-          signal,
-        }),
-      );
-    }
+//     for (const movie of cachedMoviesNotFound) {
+//       moviePromises.push(
+//         fetch(`${TMDB_API_URL}/movie/${movie}?api_key=${preferences.apiKey}`, {
+//           signal,
+//         }),
+//       );
+//     }
 
-    if (moviePromises && moviePromises.length > 0) {
-      const allMovies = await Promise.all(moviePromises);
-      for (const movie of allMovies) {
-        const tmdbMovie = (await movie.json()) as TMDBMovieDetails;
-        await LocalStorage.setItem(`movie_${tmdbMovie.id}`, JSON.stringify(tmdbMovie));
-        const traktShow = result.find((m) => m.movie.ids.tmdb === tmdbMovie.id);
-        if (traktShow) {
-          traktShow.movie.poster_path = tmdbMovie.poster_path;
-        }
-      }
-    }
-  }
-};
+//     if (moviePromises && moviePromises.length > 0) {
+//       const allMovies = await Promise.all(moviePromises);
+//       for (const movie of allMovies) {
+//         const tmdbMovie = (await movie.json()) as TMDBMovieDetails;
+//         await LocalStorage.setItem(`movie_${tmdbMovie.id}`, JSON.stringify(tmdbMovie));
+//         const traktShow = result.find((m) => m.movie.ids.tmdb === tmdbMovie.id);
+//         if (traktShow) {
+//           traktShow.movie.poster_path = tmdbMovie.poster_path;
+//         }
+//       }
+//     }
+//   }
+// };
 
 export const searchMovies = async (query: string, page: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
@@ -61,7 +60,7 @@ export const searchMovies = async (query: string, page: number, signal: AbortSig
   result.total_pages = Number(response.headers.get("X-Pagination-Page-Count")) ?? 1;
   result.total_results = Number(response.headers.get("X-Pagination-Item-Count")) ?? result.length;
 
-  await checkCache(result, signal);
+  // await checkCache(result, signal);
 
   return result;
 };
@@ -87,7 +86,7 @@ export const getWatchlistMovies = async (page: number, signal: AbortSignal | und
   result.total_pages = Number(response.headers.get("X-Pagination-Page-Count")) ?? 1;
   result.total_results = Number(response.headers.get("X-Pagination-Item-Count")) ?? result.length;
 
-  await checkCache(result, signal);
+  // await checkCache(result, signal);
 
   return result;
 };

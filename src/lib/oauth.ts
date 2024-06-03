@@ -1,7 +1,6 @@
-import { LocalStorage, OAuth } from "@raycast/api";
+import { OAuth } from "@raycast/api";
 import fetch from "node-fetch";
-import { TraktUser } from "../types/raycastTraktManager";
-import { TRAKT_API_URL, TRAKT_APP_URL, TRAKT_CLIENT_ID } from "./constants";
+import { TRAKT_APP_URL, TRAKT_CLIENT_ID } from "./constants";
 
 export const oauthClient = new OAuth.PKCEClient({
   redirectMethod: OAuth.RedirectMethod.Web,
@@ -47,21 +46,6 @@ export const authorize = async () => {
 
   const tokens = (await tokenResponse.json()) as OAuth.TokenResponse;
   await oauthClient.setTokens(tokens);
-
-  const userResponse = await fetch(`${TRAKT_API_URL}/users/settings`, {
-    headers: {
-      "Content-Type": "application/json; charset=utf-8",
-      "trakt-api-version": "2",
-      "trakt-api-key": TRAKT_CLIENT_ID,
-      Authorization: `Bearer ${tokens.access_token}`,
-    },
-  });
-  if (!userResponse.ok) {
-    throw new Error(userResponse.statusText);
-  }
-
-  const user = (await userResponse.json()) as TraktUser;
-  await LocalStorage.setItem("traktUser", JSON.stringify(user));
 };
 
 export const refreshTokens = async (refreshToken: string) => {

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { View } from "./components/view";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
 import { addMovieToWatchlist, checkInMovie, searchMovies } from "./services/movies";
+import { getTMDBMovie } from "./services/tmdb";
 
 function SearchCommand() {
   const abortable = useRef<AbortController>();
@@ -38,6 +39,15 @@ function SearchCommand() {
           setMovies(movies);
           setPage(movies.page);
           setTotalPages(movies.total_pages);
+
+          const moviesWithImages = (await Promise.all(
+            movies.map(async (movie) => {
+              movie.movie.details = await getTMDBMovie(movie.movie.ids.tmdb, abortable.current?.signal);
+              return movie;
+            }),
+          )) as TraktMovieList;
+
+          setMovies(moviesWithImages);
         } catch (e) {
           if (!(e instanceof AbortError)) {
             showToast({
@@ -89,17 +99,19 @@ function SearchCommand() {
     });
   };
 
+  const onSearchTextChange = (text: string): void => {
+    setSearchText(text);
+    setPage(1);
+    setTotalPages(1);
+  };
+
   return (
     <Grid
       isLoading={isLoading}
       aspectRatio="9/16"
       fit={Grid.Fit.Fill}
       searchBarPlaceholder="Search for movies"
-      onSearchTextChange={(text) => {
-        setSearchText(text);
-        setPage(1);
-        setTotalPages(1);
-      }}
+      onSearchTextChange={onSearchTextChange}
       throttle={true}
     >
       <Grid.EmptyView title="Search for movies" />
@@ -110,7 +122,7 @@ function SearchCommand() {
               <Grid.Item
                 key={movie.movie.ids.trakt}
                 title={`${movie.movie.title ?? "Unknown Movie"} ${movie.movie.year ? `(${movie.movie.year})` : ""}`}
-                content={`${movie.movie.poster_path ? `${TMDB_IMG_URL}/${movie.movie.poster_path}` : "poster.png"}`}
+                content={`${movie.movie.details?.poster_path ? `${TMDB_IMG_URL}/${movie.movie.details.poster_path}` : "poster.png"}`}
                 actions={
                   <ActionPanel>
                     <ActionPanel.Section>

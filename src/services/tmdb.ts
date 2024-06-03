@@ -1,7 +1,7 @@
-import { environment } from "@raycast/api";
+import { LocalStorage, environment, getPreferenceValues } from "@raycast/api";
 import { writeFile } from "fs/promises";
 import fetch from "node-fetch";
-import { TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
+import { TMDB_API_URL, TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
 
 export const getOnDeckItems = async (signal: AbortSignal | undefined) => {
@@ -31,4 +31,27 @@ export const getOnDeckItems = async (signal: AbortSignal | undefined) => {
   // const result = (await response.json()) as TraktOnDeckList;
 
   return [];
+};
+
+export const getTMDBMovie = async (tmdbId: number, signal: AbortSignal | undefined) => {
+  const tmdbMovieCache = await LocalStorage.getItem<string>(`movie_${tmdbId}`);
+  if (tmdbMovieCache) {
+    const tmdbMovie = JSON.parse(tmdbMovieCache) as TMDBMovieDetails;
+    return tmdbMovie;
+  }
+
+  const preferences = getPreferenceValues<ExtensionPreferences>();
+  if (preferences.apiKey) {
+    const tmdbResponse = await fetch(`${TMDB_API_URL}/movie/${tmdbId}?api_key=${preferences.apiKey}`, {
+      signal,
+    });
+
+    if (!tmdbResponse.ok) {
+      return;
+    }
+
+    const tmdbMovie = (await tmdbResponse.json()) as TMDBMovieDetails;
+    await LocalStorage.setItem(`movie_${tmdbMovie.id}`, JSON.stringify(tmdbMovie));
+    return tmdbMovie;
+  }
 };
