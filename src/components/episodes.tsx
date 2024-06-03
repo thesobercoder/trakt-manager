@@ -3,7 +3,6 @@ import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
 import { checkInEpisode, getEpisodes } from "../services/shows";
-import { TraktEpisodeList } from "../types/raycastTraktManager";
 
 export const Episodes = ({
   traktId,

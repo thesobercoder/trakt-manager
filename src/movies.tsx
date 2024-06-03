@@ -1,9 +1,9 @@
-import { Action, ActionPanel, Grid, Icon, Keyboard, showToast, Toast } from "@raycast/api";
+import { Grid, Icon, Keyboard, showToast, Toast } from "@raycast/api";
 import { setMaxListeners } from "events";
 import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
+import { MovieGrid } from "./components/movie-grid";
 import { View } from "./components/view";
-import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
 import { addMovieToWatchlist, checkInMovie, searchMovies } from "./services/movies";
 import { getTMDBMovieDetails } from "./services/tmdb";
 
@@ -115,61 +115,20 @@ function SearchCommand() {
       throttle={true}
     >
       <Grid.EmptyView title="Search for movies" />
-      <Grid.Section title={`Page ${page}`}>
-        {movies &&
-          movies.map((movie) => {
-            return (
-              <Grid.Item
-                key={movie.movie.ids.trakt}
-                title={`${movie.movie.title ?? "Unknown Movie"} ${movie.movie.year ? `(${movie.movie.year})` : ""}`}
-                content={`${movie.movie.details?.poster_path ? `${TMDB_IMG_URL}/${movie.movie.details.poster_path}` : "poster.png"}`}
-                actions={
-                  <ActionPanel>
-                    <ActionPanel.Section>
-                      <Action.OpenInBrowser
-                        title="Open in Trakt"
-                        url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`}
-                      />
-                      <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${movie.movie.ids.imdb}`} />
-                    </ActionPanel.Section>
-                    <ActionPanel.Section>
-                      <Action
-                        icon={Icon.Bookmark}
-                        title="Add To Watchlist"
-                        shortcut={Keyboard.Shortcut.Common.Edit}
-                        onAction={() => onAddToWatchlist(movie.movie.ids.trakt)}
-                      />
-                      <Action
-                        icon={Icon.Checkmark}
-                        title="Check-in Movie"
-                        shortcut={Keyboard.Shortcut.Common.Duplicate}
-                        onAction={() => onCheckInMovie(movie.movie.ids.trakt)}
-                      />
-                    </ActionPanel.Section>
-                    <ActionPanel.Section>
-                      {page === totalPages ? null : (
-                        <Action
-                          icon={Icon.ArrowRight}
-                          title="Next Page"
-                          shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
-                          onAction={() => setPage((page) => (page + 1 > totalPages ? totalPages : page + 1))}
-                        />
-                      )}
-                      {page > 1 ? (
-                        <Action
-                          icon={Icon.ArrowLeft}
-                          title="Previous Page"
-                          shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
-                          onAction={() => setPage((page) => (page - 1 < 1 ? 1 : page - 1))}
-                        />
-                      ) : null}
-                    </ActionPanel.Section>
-                  </ActionPanel>
-                }
-              />
-            );
-          })}
-      </Grid.Section>
+      {movies && (
+        <MovieGrid
+          movies={movies}
+          page={page}
+          totalPages={totalPages}
+          setPage={setPage}
+          checkInActionTitle="Check-in Movie"
+          checkinAction={onCheckInMovie}
+          watchlistActionTitle={"Add to Watchlist"}
+          watchlistAction={onAddToWatchlist}
+          watchlistIcon={Icon.Bookmark}
+          watchlistActionShortcut={Keyboard.Shortcut.Common.Edit}
+        />
+      )}
     </Grid>
   );
 }

@@ -31,7 +31,6 @@ declare type TraktShowList = Array<{
   show: {
     title: string;
     year: number;
-    poster_path: string;
     details?: TMDBShowDetails;
     ids: {
       trakt: number;

@@ -2,11 +2,13 @@ import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@ra
 import { setMaxListeners } from "events";
 import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
+import { MovieGrid } from "./components/movie-grid";
 import { Seasons } from "./components/seasons";
 import { View } from "./components/view";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
 import { checkInMovie, getWatchlistMovies, removeMovieFromWatchlist } from "./services/movies";
 import { getWatchlistShows } from "./services/shows";
+import { getTMDBMovieDetails, getTMDBShowDetails } from "./services/tmdb";
 
 const WatchlistCommand = () => {
   const abortable = useRef<AbortController>();
@@ -28,11 +30,29 @@ const WatchlistCommand = () => {
         setShows(showWatchlist);
         setPage(showWatchlist.page);
         setTotalPages(showWatchlist.total_pages);
+
+        const showsWithImages = (await Promise.all(
+          showWatchlist.map(async (movie) => {
+            movie.show.details = await getTMDBShowDetails(movie.show.ids.tmdb, abortable.current?.signal);
+            return movie;
+          }),
+        )) as TraktShowList;
+
+        setShows(showsWithImages);
       } else {
         const movieWatchlist = await getWatchlistMovies(page, abortable.current?.signal);
         setMovies(movieWatchlist);
         setPage(movieWatchlist.page);
         setTotalPages(movieWatchlist.total_pages);
+
+        const moviesWithImages = (await Promise.all(
+          movieWatchlist.map(async (movie) => {
+            movie.movie.details = await getTMDBMovieDetails(movie.movie.ids.tmdb, abortable.current?.signal);
+            return movie;
+          }),
+        )) as TraktMovieList;
+
+        setMovies(moviesWithImages);
       }
       setIsLoading(false);
       return () => {
@@ -102,60 +122,20 @@ const WatchlistCommand = () => {
         </Grid.Dropdown>
       }
     >
-      {mediaType === "movie" &&
-        movies &&
-        movies.map((movie) => {
-          return (
-            <Grid.Item
-              key={movie.id}
-              title={`${movie.movie.title ?? "Unknown Movie"} ${movie.movie.year ? `(${movie.movie.year})` : ""}`}
-              content={`${movie.movie.poster_path ? `${TMDB_IMG_URL}/${movie.movie.poster_path}` : "poster.png"}`}
-              actions={
-                <ActionPanel>
-                  <ActionPanel.Section>
-                    <Action.OpenInBrowser
-                      title="Open in Trakt"
-                      url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`}
-                    />
-                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${movie.movie.ids.imdb}`} />
-                  </ActionPanel.Section>
-                  <ActionPanel.Section>
-                    <Action
-                      icon={Icon.Trash}
-                      title="Remove from Watchlist"
-                      shortcut={Keyboard.Shortcut.Common.Remove}
-                      onAction={() => onRemoveMovieFromWatchlist(movie.movie.ids.trakt)}
-                    />
-                    <Action
-                      icon={Icon.Checkmark}
-                      title="Check-in Movie"
-                      shortcut={Keyboard.Shortcut.Common.Duplicate}
-                      onAction={() => onCheckInMovie(movie.movie.ids.trakt)}
-                    />
-                  </ActionPanel.Section>
-                  <ActionPanel.Section>
-                    {page === totalPages ? null : (
-                      <Action
-                        icon={Icon.ArrowRight}
-                        title="Next Page"
-                        shortcut={{ modifiers: ["cmd"], key: "arrowRight" }}
-                        onAction={() => setPage((page) => (page + 1 > totalPages ? totalPages : page + 1))}
-                      />
-                    )}
-                    {page > 1 ? (
-                      <Action
-                        icon={Icon.ArrowLeft}
-                        title="Previous Page"
-                        shortcut={{ modifiers: ["cmd"], key: "arrowLeft" }}
-                        onAction={() => setPage((page) => (page - 1 < 1 ? 1 : page - 1))}
-                      />
-                    ) : null}
-                  </ActionPanel.Section>
-                </ActionPanel>
-              }
-            />
-          );
-        })}
+      {mediaType === "movie" && (
+        <MovieGrid
+          movies={movies}
+          page={page}
+          totalPages={totalPages}
+          setPage={setPage}
+          checkInActionTitle="Check-in Movie"
+          checkinAction={onCheckInMovie}
+          watchlistActionTitle={"Remove from Watchlist"}
+          watchlistAction={onRemoveMovieFromWatchlist}
+          watchlistIcon={Icon.Trash}
+          watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
+        />
+      )}
       {mediaType === "show" &&
         shows &&
         shows.map((show) => {
@@ -163,7 +143,7 @@ const WatchlistCommand = () => {
             <Grid.Item
               key={show.id}
               title={`${show.show.title ?? "Unknown Show"} ${show.show.year ? `(${show.show.year})` : ""}`}
-              content={`${show.show.poster_path ? `${TMDB_IMG_URL}/${show.show.poster_path}` : "poster.png"}`}
+              content={`${show.show.details?.poster_path ? `${TMDB_IMG_URL}/${show.show.details.poster_path}` : "poster.png"}`}
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
