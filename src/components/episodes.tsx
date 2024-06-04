@@ -96,7 +96,7 @@ export const Episodes = ({
               key={episode.ids.trakt}
               title={`${episode.number}. ${episode.title}`}
               subtitle={episode.details?.air_date ? formatter.format(new Date(episode.details?.air_date)) : ""}
-              content={`${episode.details?.still_path ? `${TMDB_IMG_URL}/${episode.details.still_path}` : "episode.png"}`}
+              content={episode.details?.still_path ? `${TMDB_IMG_URL}/${episode.details.still_path}` : "episode.png"}
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>

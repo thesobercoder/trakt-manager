@@ -65,7 +65,7 @@ export const Seasons = ({
               key={season.ids.trakt}
               title={season.title}
               subtitle={season.details?.air_date ? new Date(season.details?.air_date).getFullYear().toString() : ""}
-              content={`${season.details?.poster_path ? `${TMDB_IMG_URL}/${season.details.poster_path}` : "poster.png"}`}
+              content={season.details?.poster_path ? `${TMDB_IMG_URL}/${season.details.poster_path}` : "poster.png"}
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>

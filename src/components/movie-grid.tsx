@@ -32,7 +32,9 @@ export const MovieGrid = ({
           key={movie.movie.ids.trakt}
           title={movie.movie.title}
           subtitle={movie.movie.year.toString()}
-          content={`${movie.movie.details?.poster_path ? `${TMDB_IMG_URL}/${movie.movie.details.poster_path}` : "poster.png"}`}
+          content={
+            movie.movie.details?.poster_path ? `${TMDB_IMG_URL}/${movie.movie.details.poster_path}` : "poster.png"
+          }
           actions={
             <ActionPanel>
               <ActionPanel.Section>
