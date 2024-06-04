@@ -54,6 +54,10 @@ const OnDeckCommand = () => {
       setIsLoading(true);
       try {
         await checkInEpisode(episodeId, abortable.current?.signal);
+        showToast({
+          title: "Episode checked in",
+          style: Toast.Style.Success,
+        });
       } catch (e) {
         if (!(e instanceof AbortError)) {
           showToast({
@@ -63,10 +67,6 @@ const OnDeckCommand = () => {
         }
       }
       setIsLoading(false);
-      showToast({
-        title: "Episode checked in",
-        style: Toast.Style.Success,
-      });
       forceRerender((value) => value + 1);
     } else {
       showToast({

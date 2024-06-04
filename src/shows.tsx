@@ -65,6 +65,10 @@ function SearchCommand() {
     setIsLoading(true);
     try {
       await addShowToWatchlist(showId, abortable.current?.signal);
+      showToast({
+        title: "Show added to watchlist",
+        style: Toast.Style.Success,
+      });
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
@@ -74,10 +78,6 @@ function SearchCommand() {
       }
     }
     setIsLoading(false);
-    showToast({
-      title: "Show added to watchlist",
-      style: Toast.Style.Success,
-    });
   };
 
   const onSearchTextChange = (text: string): void => {

@@ -25,33 +25,51 @@ const WatchlistCommand = () => {
       setMaxListeners(20, abortable.current?.signal);
       setIsLoading(true);
       if (mediaType === "show") {
-        const showWatchlist = await getWatchlistShows(page, abortable.current?.signal);
-        setShows(showWatchlist);
-        setPage(showWatchlist.page);
-        setTotalPages(showWatchlist.total_pages);
+        try {
+          const showWatchlist = await getWatchlistShows(page, abortable.current?.signal);
+          setShows(showWatchlist);
+          setPage(showWatchlist.page);
+          setTotalPages(showWatchlist.total_pages);
 
-        const showsWithImages = (await Promise.all(
-          showWatchlist.map(async (movie) => {
-            movie.show.details = await getTMDBShowDetails(movie.show.ids.tmdb, abortable.current?.signal);
-            return movie;
-          }),
-        )) as TraktShowList;
+          const showsWithImages = (await Promise.all(
+            showWatchlist.map(async (movie) => {
+              movie.show.details = await getTMDBShowDetails(movie.show.ids.tmdb, abortable.current?.signal);
+              return movie;
+            }),
+          )) as TraktShowList;
 
-        setShows(showsWithImages);
+          setShows(showsWithImages);
+        } catch (e) {
+          if (!(e instanceof AbortError)) {
+            showToast({
+              title: "Error searching shows",
+              style: Toast.Style.Failure,
+            });
+          }
+        }
       } else {
-        const movieWatchlist = await getWatchlistMovies(page, abortable.current?.signal);
-        setMovies(movieWatchlist);
-        setPage(movieWatchlist.page);
-        setTotalPages(movieWatchlist.total_pages);
+        try {
+          const movieWatchlist = await getWatchlistMovies(page, abortable.current?.signal);
+          setMovies(movieWatchlist);
+          setPage(movieWatchlist.page);
+          setTotalPages(movieWatchlist.total_pages);
 
-        const moviesWithImages = (await Promise.all(
-          movieWatchlist.map(async (movie) => {
-            movie.movie.details = await getTMDBMovieDetails(movie.movie.ids.tmdb, abortable.current?.signal);
-            return movie;
-          }),
-        )) as TraktMovieList;
+          const moviesWithImages = (await Promise.all(
+            movieWatchlist.map(async (movie) => {
+              movie.movie.details = await getTMDBMovieDetails(movie.movie.ids.tmdb, abortable.current?.signal);
+              return movie;
+            }),
+          )) as TraktMovieList;
 
-        setMovies(moviesWithImages);
+          setMovies(moviesWithImages);
+        } catch (e) {
+          if (!(e instanceof AbortError)) {
+            showToast({
+              title: "Error searching shows",
+              style: Toast.Style.Failure,
+            });
+          }
+        }
       }
       setIsLoading(false);
       return () => {
@@ -66,6 +84,10 @@ const WatchlistCommand = () => {
     setIsLoading(true);
     try {
       await removeMovieFromWatchlist(movieId, abortable.current?.signal);
+      showToast({
+        title: "Movie removed from watchlist",
+        style: Toast.Style.Success,
+      });
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
@@ -75,10 +97,6 @@ const WatchlistCommand = () => {
       }
     }
     setIsLoading(false);
-    showToast({
-      title: "Movie removed from watchlist",
-      style: Toast.Style.Success,
-    });
     forceRerender((value) => value + 1);
   };
 
@@ -86,6 +104,10 @@ const WatchlistCommand = () => {
     setIsLoading(true);
     try {
       await removeShowFromWatchlist(showId, abortable.current?.signal);
+      showToast({
+        title: "Show removed from watchlist",
+        style: Toast.Style.Success,
+      });
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
@@ -95,10 +117,6 @@ const WatchlistCommand = () => {
       }
     }
     setIsLoading(false);
-    showToast({
-      title: "Show removed from watchlist",
-      style: Toast.Style.Success,
-    });
     forceRerender((value) => value + 1);
   };
 
@@ -106,6 +124,10 @@ const WatchlistCommand = () => {
     setIsLoading(true);
     try {
       await checkInMovie(movieId, abortable.current?.signal);
+      showToast({
+        title: "Movie checked in",
+        style: Toast.Style.Success,
+      });
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
@@ -115,10 +137,6 @@ const WatchlistCommand = () => {
       }
     }
     setIsLoading(false);
-    showToast({
-      title: "Movie checked in",
-      style: Toast.Style.Success,
-    });
     forceRerender((value) => value + 1);
   };
 

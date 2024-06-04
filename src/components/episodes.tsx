@@ -64,6 +64,10 @@ export const Episodes = ({
     setIsLoading(true);
     try {
       await checkInEpisode(episodeId, abortable.current?.signal);
+      showToast({
+        title: "Episode checked in",
+        style: Toast.Style.Success,
+      });
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
@@ -73,10 +77,6 @@ export const Episodes = ({
       }
     }
     setIsLoading(false);
-    showToast({
-      title: "Episode checked in",
-      style: Toast.Style.Success,
-    });
   };
 
   return (

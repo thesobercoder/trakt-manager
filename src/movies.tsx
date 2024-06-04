@@ -65,6 +65,10 @@ function SearchCommand() {
     setIsLoading(true);
     try {
       await addMovieToWatchlist(movieId, abortable.current?.signal);
+      showToast({
+        title: "Movie added to watchlist",
+        style: Toast.Style.Success,
+      });
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
@@ -74,16 +78,16 @@ function SearchCommand() {
       }
     }
     setIsLoading(false);
-    showToast({
-      title: "Movie added to watchlist",
-      style: Toast.Style.Success,
-    });
   };
 
   const onCheckInMovie = async (movieId: number) => {
     setIsLoading(true);
     try {
       await checkInMovie(movieId, abortable.current?.signal);
+      showToast({
+        title: "Movie checked in",
+        style: Toast.Style.Success,
+      });
     } catch (e) {
       if (!(e instanceof AbortError)) {
         showToast({
@@ -93,10 +97,6 @@ function SearchCommand() {
       }
     }
     setIsLoading(false);
-    showToast({
-      title: "Movie checked in",
-      style: Toast.Style.Success,
-    });
   };
 
   const onSearchTextChange = (text: string): void => {
