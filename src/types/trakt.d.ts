@@ -6,7 +6,7 @@ declare type TraktMovieList = Array<{
   type: string;
   movie: {
     title: string;
-    year: number;
+    year?: number;
     details?: TMDBMovieDetails;
     ids: {
       trakt: number;
@@ -30,7 +30,7 @@ declare type TraktShowList = Array<{
   score: number;
   show: {
     title: string;
-    year: number;
+    year?: number;
     details?: TMDBShowDetails;
     ids: {
       trakt: number;

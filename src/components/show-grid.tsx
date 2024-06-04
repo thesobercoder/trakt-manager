@@ -30,7 +30,7 @@ export const ShowGrid = ({
         <Grid.Item
           key={show.show.ids.trakt}
           title={show.show.title}
-          subtitle={show.show.year.toString()}
+          subtitle={show.show.year?.toString() || ""}
           content={show.show.details?.poster_path ? `${TMDB_IMG_URL}/${show.show.details.poster_path}` : "poster.png"}
           actions={
             <ActionPanel>
