@@ -69,13 +69,24 @@ declare type TraktEpisodeList = Array<{
   season: number;
   number: number;
   title: string;
-  details?: TMDBEpisodeDetails;
   ids: {
     trakt: number;
     tvdb: number;
     imdb: string;
     tmdb: number;
+    tvrage: any;
   };
+  number_abs?: number;
+  overview?: string;
+  rating: number;
+  votes: number;
+  comment_count: number;
+  first_aired: string;
+  updated_at: string;
+  available_translations: Array<string>;
+  runtime: number;
+  episode_type: string;
+  details?: TMDBEpisodeDetails;
 }>;
 
 declare type TraktOnDeckList = Array<{

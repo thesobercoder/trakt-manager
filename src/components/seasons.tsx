@@ -64,7 +64,7 @@ export const Seasons = ({
             <Grid.Item
               key={season.ids.trakt}
               title={season.title}
-              subtitle={season.details?.air_date ? new Date(season.details?.air_date).getFullYear().toString() : ""}
+              subtitle={new Date(season.first_aired).getFullYear().toString()}
               content={season.details?.poster_path ? `${TMDB_IMG_URL}/${season.details.poster_path}` : "poster.png"}
               actions={
                 <ActionPanel>

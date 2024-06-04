@@ -95,7 +95,7 @@ export const Episodes = ({
             <Grid.Item
               key={episode.ids.trakt}
               title={`${episode.number}. ${episode.title}`}
-              subtitle={episode.details?.air_date ? formatter.format(new Date(episode.details?.air_date)) : ""}
+              subtitle={formatter.format(new Date(episode.first_aired))}
               content={episode.details?.still_path ? `${TMDB_IMG_URL}/${episode.details.still_path}` : "episode.png"}
               actions={
                 <ActionPanel>
