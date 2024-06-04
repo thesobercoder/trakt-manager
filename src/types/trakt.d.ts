@@ -130,8 +130,8 @@ declare type TraktShowProgress = {
     ids: {
       trakt: number;
       tvdb: number;
-      imdb: {};
-      tmdb: {};
+      imdb: number;
+      tmdb: number;
     };
   };
   last_episode?: {
@@ -141,8 +141,8 @@ declare type TraktShowProgress = {
     ids: {
       trakt: number;
       tvdb: number;
-      imdb: {};
-      tmdb: {};
+      imdb: number;
+      tmdb: number;
     };
   };
 };
