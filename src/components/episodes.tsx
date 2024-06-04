@@ -1,8 +1,10 @@
 import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { setMaxListeners } from "events";
 import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
 import { checkInEpisode, getEpisodes } from "../services/shows";
+import { getTMDBEpisodeDetails } from "../services/tmdb";
 
 export const Episodes = ({
   traktId,
@@ -16,14 +18,39 @@ export const Episodes = ({
   slug: string;
 }) => {
   const abortable = useRef<AbortController>();
-  const [episodes, setSeasons] = useState<TraktEpisodeList | undefined>();
+  const [episodes, setEpisodes] = useState<TraktEpisodeList | undefined>();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
       abortable.current = new AbortController();
+      setMaxListeners(20, abortable.current?.signal);
       setIsLoading(true);
-      setSeasons(await getEpisodes(traktId, tmdbId, seasonNumber, abortable.current?.signal));
+      try {
+        const episodes = await getEpisodes(traktId, seasonNumber, abortable.current?.signal);
+        setEpisodes(episodes);
+
+        const showsWithImages = (await Promise.all(
+          episodes.map(async (episode) => {
+            episode.details = await getTMDBEpisodeDetails(
+              tmdbId,
+              seasonNumber,
+              episode.number,
+              abortable.current?.signal,
+            );
+            return episode;
+          }),
+        )) as TraktEpisodeList;
+
+        setEpisodes(showsWithImages);
+      } catch (e) {
+        if (!(e instanceof AbortError)) {
+          showToast({
+            title: "Error getting episodes",
+            style: Toast.Style.Failure,
+          });
+        }
+      }
       setIsLoading(false);
       return () => {
         if (abortable.current) {
@@ -65,8 +92,8 @@ export const Episodes = ({
           return (
             <Grid.Item
               key={episode.ids.trakt}
-              title={`${episode.title ?? "Unknown Episode"}`}
-              content={`${episode.poster_path ? `${TMDB_IMG_URL}/${episode.poster_path}` : "poster.png"}`}
+              title={episode.title}
+              content={`${episode.details?.still_path ? `${TMDB_IMG_URL}/${episode.details.still_path}` : "episode.png"}`}
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>

@@ -1,37 +1,6 @@
-import { LocalStorage, environment, getPreferenceValues } from "@raycast/api";
-import { writeFile } from "fs/promises";
+import { LocalStorage, getPreferenceValues } from "@raycast/api";
 import fetch from "node-fetch";
-import { TMDB_API_URL, TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
-import { oauthClient } from "../lib/oauth";
-
-export const getOnDeckItems = async (signal: AbortSignal | undefined) => {
-  const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${TRAKT_API_URL}/sync/watched/shows?extended=noseasons`, {
-    headers: {
-      "Content-Type": "application/json",
-      "trakt-api-version": "2",
-      "trakt-api-key": TRAKT_CLIENT_ID,
-      Authorization: `Bearer ${tokens?.accessToken}`,
-    },
-    signal,
-  });
-
-  if (!response.ok) {
-    throw new Error(response.statusText);
-  }
-
-  console.log("Status:", response.statusText);
-  const res = await response.json();
-  console.log("Tokens:", tokens);
-  writeFile(environment.supportPath + "/test.json", JSON.stringify(res, null, 2), "utf8");
-
-  // TODO call https://api.trakt.tv/shows/{slug}/progress/watched?hidden=false&specials=false
-  // to get the progress of each show
-
-  // const result = (await response.json()) as TraktOnDeckList;
-
-  return [];
-};
+import { TMDB_API_URL } from "../lib/constants";
 
 export const getTMDBMovieDetails = async (tmdbId: number, signal: AbortSignal | undefined) => {
   const tmdbMovieCache = await LocalStorage.getItem<string>(`movie_${tmdbId}`);
@@ -75,6 +44,63 @@ export const getTMDBShowDetails = async (tmdbId: number, signal: AbortSignal | u
 
     const tmdbMovie = (await tmdbResponse.json()) as TMDBShowDetails;
     await LocalStorage.setItem(`show_${tmdbId}`, JSON.stringify(tmdbMovie));
+    return tmdbMovie;
+  }
+};
+
+export const getTMDBSeasonDetails = async (tmdbId: number, seasonNumber: number, signal: AbortSignal | undefined) => {
+  const tmdbMovieCache = await LocalStorage.getItem<string>(`season_${tmdbId}_${seasonNumber}`);
+  if (tmdbMovieCache) {
+    const tmdbMovie = JSON.parse(tmdbMovieCache) as TMDBSeasonDetails;
+    return tmdbMovie;
+  }
+
+  const preferences = getPreferenceValues<ExtensionPreferences>();
+  if (preferences.apiKey) {
+    const tmdbResponse = await fetch(
+      `${TMDB_API_URL}/tv/${tmdbId}/season/${seasonNumber}?api_key=${preferences.apiKey}`,
+      {
+        signal,
+      },
+    );
+
+    if (!tmdbResponse.ok) {
+      return;
+    }
+
+    const tmdbMovie = (await tmdbResponse.json()) as TMDBSeasonDetails;
+    await LocalStorage.setItem(`season_${tmdbId}_${seasonNumber}`, JSON.stringify(tmdbMovie));
+    return tmdbMovie;
+  }
+};
+
+export const getTMDBEpisodeDetails = async (
+  tmdbId: number,
+  seasonNumber: number,
+  episodeNumber: number,
+  signal: AbortSignal | undefined,
+) => {
+  const tmdbMovieCache = await LocalStorage.getItem<string>(`episode_${tmdbId}_${seasonNumber}_${episodeNumber}`);
+  if (tmdbMovieCache) {
+    const tmdbMovie = JSON.parse(tmdbMovieCache) as TMDBEpisodeDetails;
+    return tmdbMovie;
+  }
+
+  const preferences = getPreferenceValues<ExtensionPreferences>();
+  if (preferences.apiKey) {
+    const tmdbResponse = await fetch(
+      `${TMDB_API_URL}/tv/${tmdbId}/season/${seasonNumber}/episode/${episodeNumber}?api_key=${preferences.apiKey}`,
+      {
+        signal,
+      },
+    );
+
+    if (!tmdbResponse.ok) {
+      return;
+    }
+
+    const tmdbMovie = (await tmdbResponse.json()) as TMDBEpisodeDetails;
+    await LocalStorage.setItem(`episode_${tmdbId}_${seasonNumber}_${episodeNumber}`, JSON.stringify(tmdbMovie));
     return tmdbMovie;
   }
 };

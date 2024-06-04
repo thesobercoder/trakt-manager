@@ -48,22 +48,28 @@ declare type TraktShowList = Array<{
 
 declare type TraktSeasonList = Array<{
   number: number;
-  poster_path: string;
-  name: string;
-  air_date: string;
-  details: TMDBSeasonDetails;
   ids: {
     trakt: number;
     tvdb: number;
     tmdb: number;
   };
+  rating: number;
+  votes: number;
+  episode_count: number;
+  aired_episodes: number;
+  title: string;
+  overview?: string;
+  first_aired: string;
+  udpated_at: string;
+  network: string;
+  details?: TMDBSeasonDetails;
 }>;
 
 declare type TraktEpisodeList = Array<{
   season: number;
   number: number;
   title: string;
-  poster_path: string;
+  details?: TMDBEpisodeDetails;
   ids: {
     trakt: number;
     tvdb: number;
@@ -81,6 +87,7 @@ declare type TraktOnDeckList = Array<{
     title: string;
     year: number;
     details?: TMDBShowDetails;
+    progress?: TraktShowProgress;
     ids: {
       trakt: number;
       slug: string;
@@ -91,3 +98,51 @@ declare type TraktOnDeckList = Array<{
     };
   };
 }>;
+
+declare type TraktShowProgress = {
+  aired: number;
+  completed: number;
+  last_watched_at: string;
+  reset_at: {};
+  seasons: Array<{
+    number: number;
+    title: string;
+    aired: number;
+    completed: number;
+    episodes: Array<{
+      number: number;
+      completed: boolean;
+      last_watched_at: any;
+    }>;
+  }>;
+  hidden_seasons: Array<{
+    number: number;
+    ids: {
+      trakt: number;
+      tvdb: number;
+      tmdb: number;
+    };
+  }>;
+  next_episode?: {
+    season: number;
+    number: number;
+    title: string;
+    ids: {
+      trakt: number;
+      tvdb: number;
+      imdb: {};
+      tmdb: {};
+    };
+  };
+  last_episode?: {
+    season: number;
+    number: number;
+    title: string;
+    ids: {
+      trakt: number;
+      tvdb: number;
+      imdb: {};
+      tmdb: {};
+    };
+  };
+};

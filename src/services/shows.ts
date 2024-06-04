@@ -53,9 +53,9 @@ export const getWatchlistShows = async (page: number, signal: AbortSignal | unde
   return result;
 };
 
-export const getSeasons = async (traktId: number, tmdbId: number, signal: AbortSignal | undefined) => {
+export const getSeasons = async (traktId: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
-  const traktResponse = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons`, {
+  const traktResponse = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons?extended=full`, {
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
@@ -72,14 +72,9 @@ export const getSeasons = async (traktId: number, tmdbId: number, signal: AbortS
   return (await traktResponse.json()) as TraktSeasonList;
 };
 
-export const getEpisodes = async (
-  traktId: number,
-  tmdbId: number,
-  seasonNumber: number,
-  signal: AbortSignal | undefined,
-) => {
+export const getEpisodes = async (traktId: number, seasonNumber: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
-  const traktResponse = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons/${seasonNumber}`, {
+  const traktResponse = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons/${seasonNumber}?extended=full`, {
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
@@ -173,4 +168,54 @@ export const checkInEpisode = async (episodeId: number, signal: AbortSignal | un
   if (!response.ok) {
     throw new Error(response.statusText);
   }
+};
+
+export const getOnDeckItems = async (signal: AbortSignal | undefined): Promise<TraktOnDeckList> => {
+  const tokens = await oauthClient.getTokens();
+  const response = await fetch(`${TRAKT_API_URL}/sync/watched/shows?extended=noseasons`, {
+    headers: {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": TRAKT_CLIENT_ID,
+      Authorization: `Bearer ${tokens?.accessToken}`,
+    },
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+
+  const result = (await response.json()) as TraktOnDeckList;
+  const showPromises = result.map((show) =>
+    fetch(
+      `${TRAKT_API_URL}/shows/${show.show.ids.trakt}/progress/watched?hidden=false&specials=false&count_specials=false`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "trakt-api-version": "2",
+          "trakt-api-key": TRAKT_CLIENT_ID,
+          Authorization: `Bearer ${tokens?.accessToken}`,
+        },
+        signal,
+      },
+    ).then((res) => ({ res, traktId: show.show.ids.trakt })),
+  );
+
+  const showResponses = await Promise.all(showPromises);
+  for (const { res, traktId } of showResponses) {
+    if (!res.ok) {
+      throw new Error(res.statusText);
+    }
+
+    const showProgress = (await res.json()) as TraktShowProgress;
+    if (showProgress.aired !== showProgress.completed) {
+      const show = result.find((s) => s.show.ids.trakt === traktId);
+      if (show) {
+        show.show.progress = showProgress;
+      }
+    }
+  }
+
+  return result.filter((show) => show.show.progress);
 };

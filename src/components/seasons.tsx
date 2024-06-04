@@ -1,7 +1,10 @@
-import { Action, ActionPanel, Grid, Icon, Keyboard } from "@raycast/api";
+import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { setMaxListeners } from "events";
+import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
 import { getSeasons } from "../services/shows";
+import { getTMDBSeasonDetails } from "../services/tmdb";
 import { Episodes } from "./episodes";
 
 export const Seasons = ({
@@ -22,8 +25,28 @@ export const Seasons = ({
   useEffect(() => {
     (async () => {
       abortable.current = new AbortController();
+      setMaxListeners(20, abortable.current?.signal);
       setIsLoading(true);
-      setSeasons(await getSeasons(traktId, tmdbId, abortable.current?.signal));
+      try {
+        const seasons = await getSeasons(traktId, abortable.current?.signal);
+        setSeasons(seasons);
+
+        const showsWithImages = (await Promise.all(
+          seasons.map(async (season) => {
+            season.details = await getTMDBSeasonDetails(tmdbId, season.number, abortable.current?.signal);
+            return season;
+          }),
+        )) as TraktSeasonList;
+
+        setSeasons(showsWithImages);
+      } catch (e) {
+        if (!(e instanceof AbortError)) {
+          showToast({
+            title: "Error getting seasons",
+            style: Toast.Style.Failure,
+          });
+        }
+      }
       setIsLoading(false);
       return () => {
         if (abortable.current) {
@@ -40,8 +63,8 @@ export const Seasons = ({
           return (
             <Grid.Item
               key={season.ids.trakt}
-              title={`${season.name ?? "Unknown Show"} ${season.air_date ? `(${new Date(season.air_date).getFullYear()})` : ""}`}
-              content={`${season.poster_path ? `${TMDB_IMG_URL}/${season.poster_path}` : "poster.png"}`}
+              title={season.title}
+              content={`${season.details?.poster_path ? `${TMDB_IMG_URL}/${season.details.poster_path}` : "poster.png"}`}
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
