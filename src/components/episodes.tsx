@@ -6,6 +6,8 @@ import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
 import { checkInEpisode, getEpisodes } from "../services/shows";
 import { getTMDBEpisodeDetails } from "../services/tmdb";
 
+const formatter = new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "2-digit" });
+
 export const Episodes = ({
   traktId,
   tmdbId,
@@ -24,7 +26,7 @@ export const Episodes = ({
   useEffect(() => {
     (async () => {
       abortable.current = new AbortController();
-      setMaxListeners(20, abortable.current?.signal);
+      setMaxListeners(30, abortable.current?.signal);
       setIsLoading(true);
       try {
         const episodes = await getEpisodes(traktId, seasonNumber, abortable.current?.signal);
@@ -92,7 +94,8 @@ export const Episodes = ({
           return (
             <Grid.Item
               key={episode.ids.trakt}
-              title={episode.title}
+              title={`${episode.number}. ${episode.title}`}
+              subtitle={episode.details?.air_date ? formatter.format(new Date(episode.details?.air_date)) : ""}
               content={`${episode.details?.still_path ? `${TMDB_IMG_URL}/${episode.details.still_path}` : "episode.png"}`}
               actions={
                 <ActionPanel>
