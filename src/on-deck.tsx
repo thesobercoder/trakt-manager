@@ -5,13 +5,14 @@ import { useEffect, useRef, useState } from "react";
 import { Seasons } from "./components/seasons";
 import { View } from "./components/view";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
-import { getOnDeckItems } from "./services/shows";
+import { checkInEpisode, getOnDeckItems } from "./services/shows";
 import { getTMDBShowDetails } from "./services/tmdb";
 
 const OnDeckCommand = () => {
   const abortable = useRef<AbortController>();
   const [isLoading, setIsLoading] = useState(false);
   const [shows, setShows] = useState<TraktOnDeckList | undefined>();
+  const [x, forceRerender] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -46,7 +47,34 @@ const OnDeckCommand = () => {
         }
       };
     })();
-  }, []);
+  }, [x]);
+
+  const onCheckInNextEpisode = async (episodeId: number | undefined) => {
+    if (episodeId) {
+      setIsLoading(true);
+      try {
+        await checkInEpisode(episodeId, abortable.current?.signal);
+      } catch (e) {
+        if (!(e instanceof AbortError)) {
+          showToast({
+            title: "Error checking in episode",
+            style: Toast.Style.Failure,
+          });
+        }
+      }
+      setIsLoading(false);
+      showToast({
+        title: "Episode checked in",
+        style: Toast.Style.Success,
+      });
+      forceRerender((value) => value + 1);
+    } else {
+      showToast({
+        title: "No new episode to check in",
+        style: Toast.Style.Failure,
+      });
+    }
+  };
 
   return (
     <Grid
@@ -87,7 +115,7 @@ const OnDeckCommand = () => {
                     icon={Icon.Checkmark}
                     title={"Check-in Next Episode"}
                     shortcut={Keyboard.Shortcut.Common.Edit}
-                    onAction={() => {}}
+                    onAction={() => onCheckInNextEpisode(show.show.progress?.next_episode?.ids.trakt)}
                   />
                   <Action
                     icon={Icon.Cog}

@@ -55,7 +55,7 @@ export const getWatchlistShows = async (page: number, signal: AbortSignal | unde
 
 export const getSeasons = async (traktId: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
-  const traktResponse = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons?extended=full`, {
+  const response = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons?extended=full`, {
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
@@ -65,16 +65,16 @@ export const getSeasons = async (traktId: number, signal: AbortSignal | undefine
     signal,
   });
 
-  if (!traktResponse.ok) {
-    throw new Error(traktResponse.statusText);
+  if (!response.ok) {
+    throw new Error(response.statusText);
   }
 
-  return (await traktResponse.json()) as TraktSeasonList;
+  return (await response.json()) as TraktSeasonList;
 };
 
 export const getEpisodes = async (traktId: number, seasonNumber: number, signal: AbortSignal | undefined) => {
   const tokens = await oauthClient.getTokens();
-  const traktResponse = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons/${seasonNumber}?extended=full`, {
+  const response = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons/${seasonNumber}?extended=full`, {
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",
@@ -84,11 +84,11 @@ export const getEpisodes = async (traktId: number, seasonNumber: number, signal:
     signal,
   });
 
-  if (!traktResponse.ok) {
-    throw new Error(traktResponse.statusText);
+  if (!response.ok) {
+    throw new Error(response.statusText);
   }
 
-  return (await traktResponse.json()) as TraktEpisodeList;
+  return (await response.json()) as TraktEpisodeList;
 };
 
 export const addShowToWatchlist = async (showId: number, signal: AbortSignal | undefined) => {
