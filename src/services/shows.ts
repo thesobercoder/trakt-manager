@@ -209,7 +209,7 @@ export const getOnDeckItems = async (signal: AbortSignal | undefined): Promise<T
     }
 
     const showProgress = (await res.json()) as TraktShowProgress;
-    if (showProgress.aired !== showProgress.completed) {
+    if (showProgress.aired > showProgress.completed) {
       const show = result.find((s) => s.show.ids.trakt === traktId);
       if (show) {
         show.show.progress = showProgress;
