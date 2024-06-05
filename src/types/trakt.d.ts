@@ -1,9 +1,6 @@
 declare type TraktMovieList = Array<{
-  rank: number;
-  id: number;
-  listed_at: string;
-  notes: string;
   type: string;
+  score: number;
   movie: {
     title: string;
     year?: number;
@@ -22,10 +19,6 @@ declare type TraktMovieList = Array<{
 };
 
 declare type TraktShowList = Array<{
-  rank: number;
-  id: number;
-  listed_at: string;
-  notes: string;
   type: string;
   score: number;
   show: {
@@ -93,7 +86,6 @@ declare type TraktUpNextShowList = Array<{
   plays: number;
   last_watched_at: string;
   last_updated_at: string;
-  reset_at: string | null;
   show: {
     title: string;
     year: number;
@@ -105,7 +97,6 @@ declare type TraktUpNextShowList = Array<{
       tvdb: number;
       imdb: string;
       tmdb: number;
-      tvrage: number;
     };
   };
 }>;
@@ -114,7 +105,7 @@ declare type TraktShowProgress = {
   aired: number;
   completed: number;
   last_watched_at: string;
-  reset_at: string | null;
+  reset_at?: string;
   seasons: Array<{
     number: number;
     title: string;
@@ -123,7 +114,7 @@ declare type TraktShowProgress = {
     episodes: Array<{
       number: number;
       completed: boolean;
-      last_watched_at: number;
+      last_watched_at?: string;
     }>;
   }>;
   hidden_seasons: Array<{
@@ -141,18 +132,18 @@ declare type TraktShowProgress = {
     ids: {
       trakt: number;
       tvdb: number;
-      imdb: number;
+      imdb: string;
       tmdb: number;
     };
   };
-  last_episode?: {
+  last_episode: {
     season: number;
     number: number;
     title: string;
     ids: {
       trakt: number;
       tvdb: number;
-      imdb: number;
+      imdb: string;
       tmdb: number;
     };
   };

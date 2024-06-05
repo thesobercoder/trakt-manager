@@ -10,12 +10,11 @@ declare type TMDBMovieDetails = {
   homepage: string;
   id: number;
   imdb_id: string;
-  origin_country: Array<string>;
   original_language: string;
   original_title: string;
   overview: string;
   popularity: number;
-  poster_path: string;
+  poster_path?: string;
   production_companies: Array<{
     id: number;
     logo_path: string;
@@ -49,9 +48,8 @@ declare type TMDBShowDetails = {
     id: number;
     credit_id: string;
     name: string;
-    original_name: string;
     gender: number;
-    profile_path: string;
+    profile_path?: string;
   }>;
   episode_run_time: Array<number>;
   first_air_date: string;
@@ -77,10 +75,10 @@ declare type TMDBShowDetails = {
     runtime: number;
     season_number: number;
     show_id: number;
-    still_path: string;
+    still_path?: string;
   };
   name: string;
-  next_episode_to_air: string;
+  next_episode_to_air?: string;
   networks: Array<{
     id: number;
     logo_path: string;
@@ -94,7 +92,7 @@ declare type TMDBShowDetails = {
   original_name: string;
   overview: string;
   popularity: number;
-  poster_path: string;
+  poster_path?: string;
   production_companies: Array<{
     id: number;
     logo_path?: string;
@@ -111,7 +109,7 @@ declare type TMDBShowDetails = {
     id: number;
     name: string;
     overview: string;
-    poster_path: string;
+    poster_path?: string;
     season_number: number;
     vote_average: number;
   }>;
@@ -133,7 +131,6 @@ declare type TMDBSeasonDetails = {
   episodes: Array<{
     air_date: string;
     episode_number: number;
-    episode_type: string;
     id: number;
     name: string;
     overview: string;
@@ -141,7 +138,7 @@ declare type TMDBSeasonDetails = {
     runtime: number;
     season_number: number;
     show_id: number;
-    still_path: string;
+    still_path?: string;
     vote_average: number;
     vote_count: number;
     crew: Array<{
@@ -174,7 +171,7 @@ declare type TMDBSeasonDetails = {
   name: string;
   overview: string;
   id: number;
-  poster_path: string;
+  poster_path?: string;
   season_number: number;
   vote_average: number;
 };
@@ -206,7 +203,7 @@ declare type TMDBEpisodeDetails = {
     name: string;
     original_name: string;
     popularity: number;
-    profile_path: string;
+    profile_path?: string;
   }>;
   name: string;
   overview: string;
@@ -214,7 +211,7 @@ declare type TMDBEpisodeDetails = {
   production_code: string;
   runtime: number;
   season_number: number;
-  still_path: string;
+  still_path?: string;
   vote_average: number;
   vote_count: number;
 };
