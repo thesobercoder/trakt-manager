@@ -114,7 +114,7 @@ declare type TraktShowProgress = {
   aired: number;
   completed: number;
   last_watched_at: string;
-  reset_at: {};
+  reset_at: string | null;
   seasons: Array<{
     number: number;
     title: string;

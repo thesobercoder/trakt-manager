@@ -209,9 +209,18 @@ export const getUpNextShows = async (signal: AbortSignal | undefined): Promise<T
     }
 
     const showProgress = (await res.json()) as TraktShowProgress;
+
     if (showProgress.aired > showProgress.completed) {
       const show = result.find((s) => s.show.ids.trakt === traktId);
       if (show) {
+        if (showProgress.reset_at) {
+          const resetAt = new Date(showProgress.reset_at);
+          const lastUpdatedAt = new Date(show.last_updated_at);
+          if (resetAt.getTime() > lastUpdatedAt.getTime()) {
+            continue;
+          }
+        }
+
         show.show.progress = showProgress;
       }
     }
