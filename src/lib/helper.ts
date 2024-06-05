@@ -23,7 +23,7 @@ export const getFileCache = async (key: string) => {
 
 export const getPosterUrl = (posterPath: string | undefined, fallback: "poster.png" | "episode.png") => {
   if (posterPath) {
-    `${TMDB_IMG_URL}/${posterPath}`;
+    return `${TMDB_IMG_URL}${posterPath}`;
   }
 
   return fallback;

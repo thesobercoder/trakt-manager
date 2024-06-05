@@ -4,7 +4,7 @@ import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { Seasons } from "./components/seasons";
 import { View } from "./components/view";
-import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
+import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
 import { checkInEpisode, getUpNextShows } from "./services/shows";
 import { getTMDBShowDetails } from "./services/tmdb";
 
@@ -89,13 +89,13 @@ const OnDeckCommand = () => {
           <Grid.Item
             title={show.show.title}
             subtitle={`${show.show.progress?.next_episode?.season}x${show.show.progress?.next_episode?.number.toString().padStart(2, "0")}`}
-            content={`${show.show.details?.poster_path ? `${TMDB_IMG_URL}/${show.show.details.poster_path}` : "poster.png"}`}
+            content={getPosterUrl(show.show.details?.poster_path, "poster.png")}
             key={show.show.ids.trakt}
             actions={
               <ActionPanel>
                 <ActionPanel.Section>
-                  <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
-                  <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
+                  <Action.OpenInBrowser title="Open in Trakt" url={getTraktUrl("shows", show.show.ids.slug)} />
+                  <Action.OpenInBrowser title="Open in IMDb" url={getIMDbUrl(show.show.ids.imdb)} />
                 </ActionPanel.Section>
                 <ActionPanel.Section>
                   <Action.Push
