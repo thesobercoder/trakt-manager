@@ -170,7 +170,7 @@ export const checkInEpisode = async (episodeId: number, signal: AbortSignal | un
   }
 };
 
-export const getOnDeckItems = async (signal: AbortSignal | undefined): Promise<TraktOnDeckList> => {
+export const getUpNextShows = async (signal: AbortSignal | undefined): Promise<TraktUpNextShowList> => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watched/shows?extended=noseasons`, {
     headers: {
@@ -186,7 +186,7 @@ export const getOnDeckItems = async (signal: AbortSignal | undefined): Promise<T
     throw new Error(response.statusText);
   }
 
-  const result = (await response.json()) as TraktOnDeckList;
+  const result = (await response.json()) as TraktUpNextShowList;
   const showPromises = result.map((show) =>
     fetch(
       `${TRAKT_API_URL}/shows/${show.show.ids.trakt}/progress/watched?hidden=false&specials=false&count_specials=false`,

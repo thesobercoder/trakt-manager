@@ -5,13 +5,13 @@ import { useEffect, useRef, useState } from "react";
 import { Seasons } from "./components/seasons";
 import { View } from "./components/view";
 import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "./lib/constants";
-import { checkInEpisode, getOnDeckItems } from "./services/shows";
+import { checkInEpisode, getUpNextShows } from "./services/shows";
 import { getTMDBShowDetails } from "./services/tmdb";
 
 const OnDeckCommand = () => {
   const abortable = useRef<AbortController>();
   const [isLoading, setIsLoading] = useState(false);
-  const [shows, setShows] = useState<TraktOnDeckList | undefined>();
+  const [shows, setShows] = useState<TraktUpNextShowList | undefined>();
   const [x, forceRerender] = useState(0);
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const OnDeckCommand = () => {
       setIsLoading(true);
 
       try {
-        const shows = await getOnDeckItems(abortable.current?.signal);
+        const shows = await getUpNextShows(abortable.current?.signal);
         setShows(shows);
 
         const showsWithImages = (await Promise.all(
@@ -29,7 +29,7 @@ const OnDeckCommand = () => {
             show.show.details = await getTMDBShowDetails(show.show.ids.tmdb, abortable.current?.signal);
             return show;
           }),
-        )) as TraktOnDeckList;
+        )) as TraktUpNextShowList;
 
         setShows(showsWithImages);
       } catch (e) {
@@ -81,7 +81,7 @@ const OnDeckCommand = () => {
       isLoading={isLoading}
       aspectRatio="9/16"
       fit={Grid.Fit.Fill}
-      searchBarPlaceholder="Search for shows currently on deck"
+      searchBarPlaceholder="Search for shows that are up next"
       throttle={true}
     >
       {shows &&

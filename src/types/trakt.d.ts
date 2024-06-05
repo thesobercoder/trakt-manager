@@ -89,7 +89,7 @@ declare type TraktEpisodeList = Array<{
   details?: TMDBEpisodeDetails;
 }>;
 
-declare type TraktOnDeckList = Array<{
+declare type TraktUpNextShowList = Array<{
   plays: number;
   last_watched_at: string;
   last_updated_at: string;

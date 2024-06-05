@@ -39,17 +39,15 @@
       "mode": "view"
     },
     {
-      "name": "on-deck",
-      "title": "On Deck",
+      "name": "up-next",
+      "title": "Up Next",
       "subtitle": "Trakt Manager",
-      "description": "Lists currently on deck",
+      "description": "Lists shows that are up next",
       "mode": "view"
     }
   ],
   "dependencies": {
     "@raycast/api": "^1.75.1",
-    "@uidotdev/usehooks": "^2.4.1",
-    "cheerio": "^1.0.0-rc.12",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
