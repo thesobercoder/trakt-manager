@@ -1,6 +1,6 @@
 import { Action, ActionPanel, Grid, Icon, Image, Keyboard, openExtensionPreferences } from "@raycast/api";
 import { SetStateAction } from "react";
-import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
+import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
 
 export const MovieGrid = ({
   movies,
@@ -32,14 +32,12 @@ export const MovieGrid = ({
           key={movie.movie.ids.trakt}
           title={movie.movie.title}
           subtitle={movie.movie.year?.toString() || ""}
-          content={
-            movie.movie.details?.poster_path ? `${TMDB_IMG_URL}/${movie.movie.details.poster_path}` : "poster.png"
-          }
+          content={getPosterUrl(movie.movie.details?.poster_path, "poster.png")}
           actions={
             <ActionPanel>
               <ActionPanel.Section>
-                <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/movies/${movie.movie.ids.slug}`} />
-                <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${movie.movie.ids.imdb}`} />
+                <Action.OpenInBrowser title="Open in Trakt" url={getTraktUrl("movie", movie.movie.ids.slug)} />
+                <Action.OpenInBrowser title="Open in IMDb" url={getIMDbUrl(movie.movie.ids.imdb)} />
               </ActionPanel.Section>
               <ActionPanel.Section>
                 <Action

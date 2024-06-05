@@ -2,7 +2,8 @@ import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@ra
 import { setMaxListeners } from "events";
 import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
-import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
+import { IMDB_APP_URL, TMDB_IMG_URL } from "../lib/constants";
+import { getTraktUrl } from "../lib/helper";
 import { getSeasons } from "../services/shows";
 import { getTMDBSeasonDetails } from "../services/tmdb";
 import { Episodes } from "./episodes";
@@ -69,10 +70,7 @@ export const Seasons = ({
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
-                    <Action.OpenInBrowser
-                      title="Open in Trakt"
-                      url={`${TRAKT_APP_URL}/shows/${slug}/seasons/${season.number}`}
-                    />
+                    <Action.OpenInBrowser title="Open in Trakt" url={getTraktUrl("season", slug, season.number)} />
                     <Action.OpenInBrowser
                       title="Open in IMDb"
                       url={`${IMDB_APP_URL}/${imdbId}/episodes?season=${season.number}`}

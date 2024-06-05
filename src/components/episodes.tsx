@@ -2,7 +2,7 @@ import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@ra
 import { setMaxListeners } from "events";
 import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
-import { IMDB_APP_URL, TMDB_IMG_URL, TRAKT_APP_URL } from "../lib/constants";
+import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
 import { checkInEpisode, getEpisodes } from "../services/shows";
 import { getTMDBEpisodeDetails } from "../services/tmdb";
 
@@ -96,15 +96,15 @@ export const Episodes = ({
               key={episode.ids.trakt}
               title={`${episode.number}. ${episode.title}`}
               subtitle={formatter.format(new Date(episode.first_aired))}
-              content={episode.details?.still_path ? `${TMDB_IMG_URL}/${episode.details.still_path}` : "episode.png"}
+              content={getPosterUrl(episode.details?.still_path, "episode.png")}
               actions={
                 <ActionPanel>
                   <ActionPanel.Section>
                     <Action.OpenInBrowser
                       title="Open in Trakt"
-                      url={`${TRAKT_APP_URL}/shows/${slug}/seasons/${seasonNumber}/episodes/${episode.number}`}
+                      url={getTraktUrl("episode", slug, seasonNumber, episode.number)}
                     />
-                    <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${episode.ids.imdb}`} />
+                    <Action.OpenInBrowser title="Open in IMDb" url={getIMDbUrl(episode.ids.imdb)} />
                   </ActionPanel.Section>
                   <ActionPanel.Section>
                     <Action
