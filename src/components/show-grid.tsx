@@ -35,7 +35,7 @@ export const ShowGrid = ({
           actions={
             <ActionPanel>
               <ActionPanel.Section>
-                <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/movies/${show.show.ids.slug}`} />
+                <Action.OpenInBrowser title="Open in Trakt" url={`${TRAKT_APP_URL}/shows/${show.show.ids.slug}`} />
                 <Action.OpenInBrowser title="Open in IMDb" url={`${IMDB_APP_URL}/${show.show.ids.imdb}`} />
               </ActionPanel.Section>
               <ActionPanel.Section>
