@@ -1,7 +1,7 @@
 declare type TMDBMovieDetails = {
   adult: boolean;
   backdrop_path: string;
-  belongs_to_collection: any;
+  belongs_to_collection: string;
   budget: number;
   genres: Array<{
     id: number;
