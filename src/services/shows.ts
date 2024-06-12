@@ -1,8 +1,9 @@
+import { LocalStorage } from "@raycast/api";
 import fetch from "node-fetch";
 import { TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
 
-export const searchShows = async (query: string, page: number, signal: AbortSignal | undefined) => {
+export const searchShows = async (query: string, page: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(
     `${TRAKT_API_URL}/search/show?query=${encodeURIComponent(query)}&page=${page}&limit=10&fields=title`,
@@ -29,7 +30,7 @@ export const searchShows = async (query: string, page: number, signal: AbortSign
   return result;
 };
 
-export const getWatchlistShows = async (page: number, signal: AbortSignal | undefined) => {
+export const getWatchlistShows = async (page: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watchlist/shows/added?page=${page}&limit=10&fields=title`, {
     headers: {
@@ -53,7 +54,7 @@ export const getWatchlistShows = async (page: number, signal: AbortSignal | unde
   return result;
 };
 
-export const getSeasons = async (traktId: number, signal: AbortSignal | undefined) => {
+export const getSeasons = async (traktId: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons?extended=full`, {
     headers: {
@@ -72,7 +73,11 @@ export const getSeasons = async (traktId: number, signal: AbortSignal | undefine
   return (await response.json()) as TraktSeasonList;
 };
 
-export const getEpisodes = async (traktId: number, seasonNumber: number, signal: AbortSignal | undefined) => {
+export const getEpisodes = async (
+  traktId: number,
+  seasonNumber: number,
+  signal: AbortSignal | undefined = undefined,
+) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons/${seasonNumber}?extended=full`, {
     headers: {
@@ -91,7 +96,7 @@ export const getEpisodes = async (traktId: number, seasonNumber: number, signal:
   return (await response.json()) as TraktEpisodeList;
 };
 
-export const addShowToWatchlist = async (showId: number, signal: AbortSignal | undefined) => {
+export const addShowToWatchlist = async (showId: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watchlist`, {
     method: "POST",
@@ -118,7 +123,7 @@ export const addShowToWatchlist = async (showId: number, signal: AbortSignal | u
   }
 };
 
-export const removeShowFromWatchlist = async (showId: number, signal: AbortSignal | undefined) => {
+export const removeShowFromWatchlist = async (showId: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watchlist/remove`, {
     method: "POST",
@@ -145,7 +150,7 @@ export const removeShowFromWatchlist = async (showId: number, signal: AbortSigna
   }
 };
 
-export const checkInEpisode = async (episodeId: number, signal: AbortSignal | undefined) => {
+export const checkInEpisode = async (episodeId: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/checkin`, {
     method: "POST",
@@ -170,7 +175,12 @@ export const checkInEpisode = async (episodeId: number, signal: AbortSignal | un
   }
 };
 
-export const getUpNextShows = async (signal: AbortSignal | undefined): Promise<TraktUpNextShowList> => {
+export const getUpNextShows = async (signal: AbortSignal | undefined = undefined): Promise<TraktUpNextShowList> => {
+  const upNextShowsCache = await LocalStorage.getItem<string>("upNextShows");
+  if (upNextShowsCache) {
+    return JSON.parse(upNextShowsCache) as TraktUpNextShowList;
+  }
+
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watched/shows?extended=noseasons`, {
     headers: {
@@ -226,5 +236,7 @@ export const getUpNextShows = async (signal: AbortSignal | undefined): Promise<T
     }
   }
 
-  return result.filter((show) => show.show.progress);
+  const upNextShows = result.filter((show) => show.show.progress);
+  await LocalStorage.setItem("upNextShows", JSON.stringify(upNextShows));
+  return upNextShows;
 };

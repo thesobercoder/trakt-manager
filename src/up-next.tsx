@@ -1,4 +1,14 @@
-import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, openExtensionPreferences, showToast } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Grid,
+  Icon,
+  Keyboard,
+  LocalStorage,
+  Toast,
+  openExtensionPreferences,
+  showToast,
+} from "@raycast/api";
 import { setMaxListeners } from "events";
 import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
@@ -54,6 +64,7 @@ const OnDeckCommand = () => {
       setIsLoading(true);
       try {
         await checkInEpisode(episodeId, abortable.current?.signal);
+        await LocalStorage.removeItem("upNextShows");
         showToast({
           title: "Episode checked in",
           style: Toast.Style.Success,

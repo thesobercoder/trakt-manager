@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import { TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthClient } from "../lib/oauth";
 
-export const searchMovies = async (query: string, page: number, signal: AbortSignal | undefined) => {
+export const searchMovies = async (query: string, page: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(
     `${TRAKT_API_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}&limit=10&fields=title`,
@@ -25,7 +25,7 @@ export const searchMovies = async (query: string, page: number, signal: AbortSig
   return result;
 };
 
-export const getWatchlistMovies = async (page: number, signal: AbortSignal | undefined) => {
+export const getWatchlistMovies = async (page: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watchlist/movies/added?page=${page}&limit=10&fields=title`, {
     headers: {
@@ -49,7 +49,7 @@ export const getWatchlistMovies = async (page: number, signal: AbortSignal | und
   return result;
 };
 
-export const addMovieToWatchlist = async (movieId: number, signal: AbortSignal | undefined) => {
+export const addMovieToWatchlist = async (movieId: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watchlist`, {
     method: "POST",
@@ -76,7 +76,7 @@ export const addMovieToWatchlist = async (movieId: number, signal: AbortSignal |
   }
 };
 
-export const removeMovieFromWatchlist = async (movieId: number, signal: AbortSignal | undefined) => {
+export const removeMovieFromWatchlist = async (movieId: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watchlist/remove`, {
     method: "POST",
@@ -103,7 +103,7 @@ export const removeMovieFromWatchlist = async (movieId: number, signal: AbortSig
   }
 };
 
-export const checkInMovie = async (movieId: number, signal: AbortSignal | undefined) => {
+export const checkInMovie = async (movieId: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/checkin`, {
     method: "POST",

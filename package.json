@@ -35,6 +35,14 @@
       "subtitle": "Trakt Manager",
       "description": "Lists shows that are up next",
       "mode": "view"
+    },
+    {
+      "name": "refresh",
+      "title": "Refresh",
+      "subtitle": "Trakt Manager",
+      "description": "Refreshes the data from Trakt API",
+      "mode": "no-view",
+      "interval": "6h"
     }
   ],
   "dependencies": {
