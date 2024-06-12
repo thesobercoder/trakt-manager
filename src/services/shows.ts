@@ -268,9 +268,8 @@ export const updateShowProgress = async (
 
       const showProgress = (await response.json()) as TraktShowProgress;
       setShowProgress(showProgress, show);
+      const upNextShowsFiltered = upNextShows.filter((show) => show.show.progress);
+      await LocalStorage.setItem("upNextShows", JSON.stringify(upNextShowsFiltered));
     }
-
-    const upNextShowsFiltered = upNextShows.filter((show) => show.show.progress);
-    await LocalStorage.setItem("upNextShows", JSON.stringify(upNextShowsFiltered));
   }
 };
