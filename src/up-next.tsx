@@ -1,21 +1,11 @@
-import {
-  Action,
-  ActionPanel,
-  Grid,
-  Icon,
-  Keyboard,
-  LocalStorage,
-  Toast,
-  openExtensionPreferences,
-  showToast,
-} from "@raycast/api";
+import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, openExtensionPreferences, showToast } from "@raycast/api";
 import { setMaxListeners } from "events";
 import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { Seasons } from "./components/seasons";
 import { View } from "./components/view";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
-import { checkInEpisode, getUpNextShows } from "./services/shows";
+import { checkInEpisode, getUpNextShows, updateShowProgress } from "./services/shows";
 import { getTMDBShowDetails } from "./services/tmdb";
 
 const OnDeckCommand = () => {
@@ -59,12 +49,12 @@ const OnDeckCommand = () => {
     })();
   }, [x]);
 
-  const onCheckInNextEpisode = async (episodeId: number | undefined) => {
+  const onCheckInNextEpisode = async (episodeId: number | undefined, showId: number) => {
     if (episodeId) {
       setIsLoading(true);
       try {
         await checkInEpisode(episodeId, abortable.current?.signal);
-        await LocalStorage.removeItem("upNextShows");
+        await updateShowProgress(showId, abortable.current?.signal);
         showToast({
           title: "Episode checked in",
           style: Toast.Style.Success,
@@ -79,11 +69,6 @@ const OnDeckCommand = () => {
       }
       setIsLoading(false);
       forceRerender((value) => value + 1);
-    } else {
-      showToast({
-        title: "No new episode to check in",
-        style: Toast.Style.Failure,
-      });
     }
   };
 
@@ -126,7 +111,9 @@ const OnDeckCommand = () => {
                     icon={Icon.Checkmark}
                     title={"Check-in Next Episode"}
                     shortcut={Keyboard.Shortcut.Common.Edit}
-                    onAction={() => onCheckInNextEpisode(show.show.progress?.next_episode?.ids.trakt)}
+                    onAction={() =>
+                      onCheckInNextEpisode(show.show.progress?.next_episode?.ids.trakt, show.show.ids.trakt)
+                    }
                   />
                   <Action
                     icon={Icon.Cog}
