@@ -2,17 +2,36 @@
 
 Control your Trakt account directly from Raycast.
 
-# Usage
+## Usage
 
-Since Trakt API doesn't provide poster images for any movies or shows, this extension had to make use of the TMDB API to fetch all movie and show details. When you use the extension for the first time, you would need to provide a TMDB API key, after that you will be asked to sign in to Trakt using OAuth. Once all the authentication processes are done, you can start searching for movies and shows and take action like add to watchlist or checkin on Trakt. You can read about how to get a TMDB API key [here](https://developer.themoviedb.org/docs/getting-started). For Trakt, the sign in process is pretty standard to how you would login on the web app. Once you click the `Sign in with Trakt` button, a new browser tab will be open to authenticate the extension with your account.
+Trakt Manager enables you to control your Trakt account directly from Raycast. It provides a set of commands to perform various actions on your account like adding shows to watchlist, checking-in on shows, and more. It allows you to sign in to your Trakt account using OAuth and then perform actions on your account.
 
-> [!NOTE]
-> Please note that you would need a VIP Trakt account to be able to perform actions like add to watchlist or checkin to a movie or show episode.
+> [!IMPORTANT]
+> Please note that you would need a VIP account to be able to perform actions like add to watchlist or check-in on Trakt.
 
-# Commands
+> [!WARNING]
+> Since Trakt doesn't provide a way to get the poster images, this extension by default won't show the poster images for any movies or shows.
+> If you want to see the poster images, you need to get a TMDB API key and set it in the extension preference.
+> You can read about how to get a TMDB API key [here](https://developer.themoviedb.org/doc/getting-started).
 
-| Status             | Command        | Description                                 | <kbd>↵</kbd>          | <kbd>⌘</kbd> + <kbd>E</kbd> | <kbd>⌘</kbd> + <kbd>D</kbd> | <kbd>⌘</kbd> + <kbd>L</kbd> |
-| ------------------ | -------------- | ------------------------------------------- | --------------------- | --------------------------- | --------------------------- | --------------------------- |
-| :white_check_mark: | Search Movies  | Searches for movies with the title provided | Add To Watchlist      | Check-in Movie              | Open Trakt link in browser  |                             |
-| :white_check_mark: | Search Shows   | Searches for shows with the title provided  |                       |                             |                             |                             |
-| :construction:     | Show Watchlist |                                             | Remove From Watchlist |                             |                             |                             |
+## Commands
+
+### Search Movies
+
+Search for movies on Trakt and return the list of movies that match the search query.
+
+### Search Shows
+
+Search for shows on Trakt and return the list of shows that match the search query.
+
+### Watchlist
+
+Manage your watchlist on Trakt.
+
+### Up Next
+
+Get the list of shows that are currently being watched on Trakt.
+
+### Refresh
+
+Refresh the list of shows that are currently being watched on Trakt. This command also runs in the background every 6 hours to keep the list up to date.

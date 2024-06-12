@@ -1,3 +1,3 @@
 # Trakt Manager Changelog
 
-## [Initial Version] - 2024-05-26
+## [Initial Version] - 2024-06-12
