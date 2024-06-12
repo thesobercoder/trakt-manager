@@ -40,7 +40,7 @@
       "name": "refresh",
       "title": "Refresh",
       "subtitle": "Trakt Manager",
-      "description": "Refreshes the data from Trakt API",
+      "description": "Refreshes the cache from Trakt API",
       "mode": "no-view",
       "interval": "6h"
     }
