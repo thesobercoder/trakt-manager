@@ -61,7 +61,7 @@ function SearchCommand() {
     })();
   }, [searchText, page]);
 
-  const onAddToWatchlist = async (movieId: number) => {
+  const onAddMovieToWatchlist = async (movieId: number) => {
     setIsLoading(true);
     try {
       await addMovieToWatchlist(movieId, abortable.current?.signal);
@@ -141,7 +141,7 @@ function SearchCommand() {
         setPage={setPage}
         checkInAction={onCheckInMovie}
         watchlistActionTitle={"Add to Watchlist"}
-        watchlistAction={onAddToWatchlist}
+        watchlistAction={onAddMovieToWatchlist}
         watchlistIcon={Icon.Bookmark}
         watchlistActionShortcut={Keyboard.Shortcut.Common.Edit}
         addToHistoryAction={onAddMovieToHistory}

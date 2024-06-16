@@ -61,7 +61,7 @@ function SearchCommand() {
     })();
   }, [searchText, page]);
 
-  const onAddToWatchlist = async (showId: number) => {
+  const onAddShowToWatchlist = async (showId: number) => {
     setIsLoading(true);
     try {
       await addShowToWatchlist(showId, abortable.current?.signal);
@@ -121,7 +121,7 @@ function SearchCommand() {
         totalPages={totalPages}
         setPage={setPage}
         watchlistActionTitle="Add to Watchlist"
-        watchlistAction={onAddToWatchlist}
+        watchlistAction={onAddShowToWatchlist}
         watchlistIcon={Icon.Bookmark}
         watchlistActionShortcut={Keyboard.Shortcut.Common.Edit}
         addToHistoryAction={onAddShowToHistory}
