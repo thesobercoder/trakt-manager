@@ -8,7 +8,8 @@ export const MovieGrid = ({
   watchlistIcon,
   watchlistActionShortcut,
   watchlistAction,
-  checkinAction,
+  checkInAction,
+  addToHistoryAction,
   page,
   totalPages,
   setPage,
@@ -17,8 +18,9 @@ export const MovieGrid = ({
   watchlistActionTitle: string;
   watchlistIcon: Image.ImageLike;
   watchlistActionShortcut: Keyboard.Shortcut;
-  watchlistAction: (traktId: number) => void;
-  checkinAction: (traktId: number) => void;
+  watchlistAction: (movieId: number) => void;
+  checkInAction: (movieId: number) => void;
+  addToHistoryAction: (movieId: number) => void;
   page: number;
   totalPages: number;
   setPage: (value: SetStateAction<number>) => void;
@@ -50,7 +52,13 @@ export const MovieGrid = ({
                   icon={Icon.Checkmark}
                   title="Check-in Movie"
                   shortcut={Keyboard.Shortcut.Common.Duplicate}
-                  onAction={() => checkinAction(movie.movie.ids.trakt)}
+                  onAction={() => checkInAction(movie.movie.ids.trakt)}
+                />
+                <Action
+                  icon={Icon.Leaderboard}
+                  title="Add to History"
+                  shortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+                  onAction={() => addToHistoryAction(movie.movie.ids.trakt)}
                 />
                 <Action
                   icon={Icon.Cog}

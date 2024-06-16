@@ -167,7 +167,7 @@ const WatchlistCommand = () => {
             page={page}
             totalPages={totalPages}
             setPage={setPage}
-            checkinAction={onCheckInMovie}
+            checkInAction={onCheckInMovie}
             watchlistActionTitle="Remove from Watchlist"
             watchlistAction={onRemoveMovieFromWatchlist}
             watchlistIcon={Icon.Trash}

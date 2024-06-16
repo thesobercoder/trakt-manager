@@ -4,7 +4,7 @@ import { AbortError } from "node-fetch";
 import { useEffect, useRef, useState } from "react";
 import { ShowGrid } from "./components/show-grid";
 import { View } from "./components/view";
-import { addShowToWatchlist, searchShows } from "./services/shows";
+import { addShowToHistory, addShowToWatchlist, searchShows } from "./services/shows";
 import { getTMDBShowDetails } from "./services/tmdb";
 
 function SearchCommand() {
@@ -80,6 +80,25 @@ function SearchCommand() {
     setIsLoading(false);
   };
 
+  const onAddShowToHistory = async (showId: number) => {
+    setIsLoading(true);
+    try {
+      await addShowToHistory(showId, abortable.current?.signal);
+      showToast({
+        title: "Show added to history",
+        style: Toast.Style.Success,
+      });
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        showToast({
+          title: "Error adding show to history",
+          style: Toast.Style.Failure,
+        });
+      }
+    }
+    setIsLoading(false);
+  };
+
   const onSearchTextChange = (text: string): void => {
     setSearchText(text);
     setPage(1);
@@ -105,6 +124,7 @@ function SearchCommand() {
         watchlistAction={onAddToWatchlist}
         watchlistIcon={Icon.Bookmark}
         watchlistActionShortcut={Keyboard.Shortcut.Common.Edit}
+        addToHistoryAction={onAddShowToHistory}
       />
     </Grid>
   );

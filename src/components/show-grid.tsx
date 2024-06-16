@@ -9,6 +9,7 @@ export const ShowGrid = ({
   watchlistIcon,
   watchlistActionShortcut,
   watchlistAction,
+  addToHistoryAction,
   page,
   totalPages,
   setPage,
@@ -18,6 +19,7 @@ export const ShowGrid = ({
   watchlistIcon: Image.ImageLike;
   watchlistActionShortcut: Keyboard.Shortcut;
   watchlistAction: (traktId: number) => void;
+  addToHistoryAction: (movieId: number) => void;
   page: number;
   totalPages: number;
   setPage: (value: SetStateAction<number>) => void;
@@ -57,6 +59,12 @@ export const ShowGrid = ({
                   title={watchlistActionTitle}
                   shortcut={watchlistActionShortcut}
                   onAction={() => watchlistAction(show.show.ids.trakt)}
+                />
+                <Action
+                  icon={Icon.Leaderboard}
+                  title="Add to History"
+                  shortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+                  onAction={() => addToHistoryAction(show.show.ids.trakt)}
                 />
                 <Action
                   icon={Icon.Cog}
