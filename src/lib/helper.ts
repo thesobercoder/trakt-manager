@@ -52,3 +52,36 @@ export const getIMDbUrl = (imdbId: string, seasonNumber?: number): string => {
   }
   return `${IMDB_APP_URL}/${imdbId}`;
 };
+
+export const transformShowHistoryToShowList = (historyList: TraktShowHistoryList) => {
+  const uniqueShowsMap = new Map<number, TraktShowListItem>();
+
+  historyList.forEach((entry) => {
+    const show = entry.show;
+    if (!uniqueShowsMap.has(show.ids.trakt)) {
+      uniqueShowsMap.set(show.ids.trakt, {
+        type: "show",
+        score: 0,
+        show: {
+          title: show.title,
+          year: show.year,
+          ids: {
+            trakt: show.ids.trakt,
+            slug: show.ids.slug,
+            tvdb: show.ids.tvdb,
+            imdb: show.ids.imdb,
+            tmdb: show.ids.tmdb,
+          },
+        },
+      });
+    }
+  });
+
+  const uniqueShowsArray = Array.from(uniqueShowsMap.values());
+
+  return Object.assign(uniqueShowsArray, {
+    page: 0,
+    total_pages: 0,
+    total_results: 0,
+  }) as TraktShowList;
+};
