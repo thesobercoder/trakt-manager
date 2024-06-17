@@ -9,7 +9,7 @@ Trakt Manager enables you to control your Trakt account directly from Raycast. I
 > [!IMPORTANT]
 > Please note that you would need a VIP account to be able to perform actions like add to watchlist or check-in on Trakt.
 
-> [!WARNING]
+> [!INFO]
 > Since Trakt doesn't provide a way to get the poster images, this extension makes use of a read only TMDB API key to fetch the poster images from TMDB.
 
 ## Commands
