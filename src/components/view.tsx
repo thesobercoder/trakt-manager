@@ -7,9 +7,9 @@ export const View = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     (async () => {
       await authorize();
-      forceRerender(x + 1);
+      forceRerender((value) => value + 1);
     })();
-  }, []);
+  }, [x]);
 
   return children;
 };
