@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { MovieGrid } from "./components/movie-grid";
 import { ShowGrid } from "./components/show-grid";
 import { View } from "./components/view";
-import { getHistoryMovies } from "./services/movies";
-import { getHistoryShows } from "./services/shows";
+import { getHistoryMovies, removeMovieFromHistory } from "./services/movies";
+import { getHistoryShows, removeShowFromHistory } from "./services/shows";
 import { getTMDBMovieDetails, getTMDBShowDetails } from "./services/tmdb";
 
 const HistoryCommand = () => {
@@ -82,10 +82,10 @@ const HistoryCommand = () => {
     })();
   }, [x, mediaType, page]);
 
-  const onRemoveMovieFromHistory = async (/*movieId: number*/) => {
+  const onRemoveMovieFromHistory = async (movieId: number) => {
     setIsLoading(true);
     try {
-      // await addMovieToHistory(movieId, abortable.current?.signal);
+      await removeMovieFromHistory(movieId, abortable.current?.signal);
       showToast({
         title: "Movie removed from history",
         style: Toast.Style.Success,
@@ -102,10 +102,10 @@ const HistoryCommand = () => {
     forceRerender((value) => value + 1);
   };
 
-  const onRemoveShowFromHistory = async (/*showId: number*/) => {
+  const onRemoveShowFromHistory = async (showId: number) => {
     setIsLoading(true);
     try {
-      // await addMovieToHistory(showId, abortable.current?.signal);
+      await removeShowFromHistory(showId, abortable.current?.signal);
       showToast({
         title: "Show removed from history",
         style: Toast.Style.Success,

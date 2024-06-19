@@ -1,4 +1,4 @@
-import { Action, ActionPanel, Grid, Icon, Image, Keyboard, openExtensionPreferences } from "@raycast/api";
+import { Action, ActionPanel, Grid, Icon, Image, Keyboard } from "@raycast/api";
 import { getFavicon } from "@raycast/utils";
 import { SetStateAction } from "react";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
@@ -81,12 +81,6 @@ export const MovieGrid = ({
                     onAction={() => historyAction(movie.movie.ids.trakt)}
                   />
                 )}
-                <Action
-                  icon={Icon.Cog}
-                  title="Open Extension Preferences"
-                  onAction={openExtensionPreferences}
-                  shortcut={Keyboard.Shortcut.Common.Pin}
-                />
               </ActionPanel.Section>
               <ActionPanel.Section>
                 {page === totalPages ? null : (

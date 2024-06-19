@@ -301,60 +301,6 @@ export const addShowToHistory = async (showId: number, signal: AbortSignal | und
   }
 };
 
-export const addSeasonToHistory = async (seasonId: number, signal: AbortSignal | undefined = undefined) => {
-  const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${TRAKT_API_URL}/sync/history`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "trakt-api-version": "2",
-      "trakt-api-key": TRAKT_CLIENT_ID,
-      Authorization: `Bearer ${tokens?.accessToken}`,
-    },
-    body: JSON.stringify({
-      seasons: [
-        {
-          ids: {
-            trakt: seasonId,
-          },
-        },
-      ],
-    }),
-    signal,
-  });
-
-  if (!response.ok) {
-    throw new Error(response.statusText);
-  }
-};
-
-export const addEpisodeToHistory = async (episodeId: number, signal: AbortSignal | undefined = undefined) => {
-  const tokens = await oauthClient.getTokens();
-  const response = await fetch(`${TRAKT_API_URL}/sync/history`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "trakt-api-version": "2",
-      "trakt-api-key": TRAKT_CLIENT_ID,
-      Authorization: `Bearer ${tokens?.accessToken}`,
-    },
-    body: JSON.stringify({
-      episodes: [
-        {
-          ids: {
-            trakt: episodeId,
-          },
-        },
-      ],
-    }),
-    signal,
-  });
-
-  if (!response.ok) {
-    throw new Error(response.statusText);
-  }
-};
-
 export const getHistoryShows = async (page: number, signal: AbortSignal | undefined = undefined) => {
   const tokens = await oauthClient.getTokens();
   const response = await fetch(`${TRAKT_API_URL}/sync/watched/shows?extended=noseasons`, {
@@ -388,4 +334,31 @@ export const getHistoryShows = async (page: number, signal: AbortSignal | undefi
   pageResult.total_results = result.length;
 
   return pageResult;
+};
+
+export const removeShowFromHistory = async (showId: number, signal: AbortSignal | undefined = undefined) => {
+  const tokens = await oauthClient.getTokens();
+  const response = await fetch(`${TRAKT_API_URL}/sync/history/remove`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": TRAKT_CLIENT_ID,
+      Authorization: `Bearer ${tokens?.accessToken}`,
+    },
+    body: JSON.stringify({
+      shows: [
+        {
+          ids: {
+            trakt: showId,
+          },
+        },
+      ],
+    }),
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
 };

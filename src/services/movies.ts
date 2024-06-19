@@ -189,3 +189,30 @@ export const getHistoryMovies = async (page: number, signal: AbortSignal | undef
 
   return pageResult;
 };
+
+export const removeMovieFromHistory = async (movieId: number, signal: AbortSignal | undefined = undefined) => {
+  const tokens = await oauthClient.getTokens();
+  const response = await fetch(`${TRAKT_API_URL}/sync/history/remove`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "trakt-api-version": "2",
+      "trakt-api-key": TRAKT_CLIENT_ID,
+      Authorization: `Bearer ${tokens?.accessToken}`,
+    },
+    body: JSON.stringify({
+      movies: [
+        {
+          ids: {
+            trakt: movieId,
+          },
+        },
+      ],
+    }),
+    signal,
+  });
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+};
