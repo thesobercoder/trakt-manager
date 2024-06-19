@@ -40,7 +40,7 @@
       "name": "history",
       "title": "History",
       "subtitle": "Trakt Manager",
-      "description": "Lists movies & shows that are in your history",
+      "description": "Lists movies and shows that are in your history",
       "mode": "view"
     },
     {
