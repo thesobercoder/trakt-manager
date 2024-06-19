@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsAuthenticated(true);
       } catch (e) {
         showToast({
-          title: "Error authorizing with Trakt",
+          title: "Error authorizing",
           style: Toast.Style.Failure,
         });
       }
