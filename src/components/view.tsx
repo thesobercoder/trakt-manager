@@ -12,7 +12,7 @@ export const View = ({ children }: { children: ReactNode }) => {
         setAuth(true);
       } catch (e) {
         showToast({
-          title: "Error authorizing the app",
+          title: "Error authorizing with Trakt",
           style: Toast.Style.Failure,
         });
       }
