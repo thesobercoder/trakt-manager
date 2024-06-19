@@ -1,15 +1,27 @@
+import { Toast, showToast } from "@raycast/api";
 import { ReactNode, useMemo, useState } from "react";
 import { authorize } from "../lib/oauth";
 
 export const View = ({ children }: { children: ReactNode }) => {
-  const [, forceRerender] = useState(0);
+  const [auth, setAuth] = useState(false);
 
   useMemo(() => {
     (async () => {
-      await authorize();
-      forceRerender((value) => value + 1);
+      try {
+        await authorize();
+        setAuth(true);
+      } catch (e) {
+        showToast({
+          title: "Error authorizing the app",
+          style: Toast.Style.Failure,
+        });
+      }
     })();
   }, []);
+
+  if (!auth) {
+    return null;
+  }
 
   return children;
 };
