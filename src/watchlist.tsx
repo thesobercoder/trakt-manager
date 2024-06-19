@@ -21,14 +21,6 @@ const WatchlistCommand = () => {
   const [x, forceRerender] = useState(0);
 
   useEffect(() => {
-    return () => {
-      if (abortable.current) {
-        abortable.current.abort();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
     (async () => {
       if (!isAuthenticated) {
         return;

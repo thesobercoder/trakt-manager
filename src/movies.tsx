@@ -17,14 +17,6 @@ function SearchCommand() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    return () => {
-      if (abortable.current) {
-        abortable.current.abort();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
     (async () => {
       if (!isAuthenticated) {
         return;
@@ -62,6 +54,11 @@ function SearchCommand() {
           }
         }
         setIsLoading(false);
+        return () => {
+          if (abortable.current) {
+            abortable.current.abort();
+          }
+        };
       }
     })();
   }, [isAuthenticated, searchText, page]);
