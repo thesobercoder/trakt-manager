@@ -7,7 +7,7 @@ import { useHistoryShows } from "./hooks/useHistoryShows";
 
 export default function Command() {
   const [page, setPage] = useState(1);
-  const [mediaType, setMediaType] = useState("movie");
+  const [mediaType, setMediaType] = useState<MediaType>("movie");
 
   const {
     movies,
@@ -22,13 +22,13 @@ export default function Command() {
     removeShow,
   } = useHistoryShows(page, mediaType === "show");
 
-  const onMediaTypeChange = (newValue: string) => {
-    setMediaType(newValue);
-    setPage(1);
-  };
-
   const isLoading = mediaType === "movie" ? moviesLoading : showsLoading;
   const totalPages = mediaType === "movie" ? totalMoviePages : totalShowPages;
+
+  const onMediaTypeChange = (newValue: string) => {
+    setMediaType(newValue as MediaType);
+    setPage(1);
+  };
 
   return (
     <Grid
