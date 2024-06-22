@@ -1,5 +1,5 @@
-import { Grid, Icon, Keyboard } from "@raycast/api";
-import { useState } from "react";
+import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { useEffect, useState } from "react";
 import { MovieGrid } from "./components/movie-grid";
 import { ShowGrid } from "./components/show-grid";
 import { useHistoryMovies } from "./hooks/useHistoryMovies";
@@ -14,13 +14,33 @@ export default function Command() {
     isLoading: moviesLoading,
     totalPages: totalMoviePages,
     removeMovie,
+    error: movieError,
   } = useHistoryMovies(page, mediaType === "movie");
   const {
     shows,
     isLoading: showsLoading,
     totalPages: totalShowPages,
     removeShow,
+    error: showError,
   } = useHistoryShows(page, mediaType === "show");
+
+  useEffect(() => {
+    if (movieError) {
+      showToast({
+        title: movieError.message,
+        style: Toast.Style.Failure,
+      });
+    }
+  }, [movieError]);
+
+  useEffect(() => {
+    if (showError) {
+      showToast({
+        title: showError.message,
+        style: Toast.Style.Failure,
+      });
+    }
+  }, [showError]);
 
   const isLoading = mediaType === "movie" ? moviesLoading : showsLoading;
   const totalPages = mediaType === "movie" ? totalMoviePages : totalShowPages;

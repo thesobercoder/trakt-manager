@@ -8,6 +8,7 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
   const [movies, setMovies] = useState<TraktMovieList | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState<Error | undefined>();
   const abortable = useRef<AbortController>();
 
   const fetchMovies = useCallback(async () => {
@@ -31,10 +32,7 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
       setMovies(moviesWithImages);
     } catch (e) {
       if (!(e instanceof AbortError)) {
-        showToast({
-          title: "Error loading movies",
-          style: Toast.Style.Failure,
-        });
+        setError(e as Error);
       }
     }
     setIsLoading(false);
@@ -51,10 +49,7 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
       fetchMovies();
     } catch (e) {
       if (!(e instanceof AbortError)) {
-        showToast({
-          title: "Error removing movie from history",
-          style: Toast.Style.Failure,
-        });
+        setError(e as Error);
       }
     }
     setIsLoading(false);
@@ -66,5 +61,5 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
     }
   }, [fetchMovies, shouldFetch]);
 
-  return { movies, isLoading, totalPages, removeMovie };
+  return { movies, isLoading, totalPages, removeMovie, error };
 };

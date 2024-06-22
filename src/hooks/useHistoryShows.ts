@@ -8,6 +8,7 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
   const [shows, setShows] = useState<TraktShowList | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
+  const [error, setError] = useState<Error | undefined>();
   const abortable = useRef<AbortController>();
 
   const fetchShows = useCallback(async () => {
@@ -31,10 +32,7 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
       setShows(showsWithImages);
     } catch (e) {
       if (!(e instanceof AbortError)) {
-        showToast({
-          title: "Error loading shows",
-          style: Toast.Style.Failure,
-        });
+        setError(e as Error);
       }
     }
     setIsLoading(false);
@@ -51,10 +49,7 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
       fetchShows();
     } catch (e) {
       if (!(e instanceof AbortError)) {
-        showToast({
-          title: "Error removing show from history",
-          style: Toast.Style.Failure,
-        });
+        setError(e as Error);
       }
     }
     setIsLoading(false);
@@ -66,5 +61,5 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
     }
   }, [fetchShows, shouldFetch]);
 
-  return { shows, isLoading, totalPages, removeShow };
+  return { shows, isLoading, totalPages, removeShow, error };
 };
