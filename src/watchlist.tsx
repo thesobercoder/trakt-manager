@@ -1,152 +1,74 @@
 import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
-import { setMaxListeners } from "events";
-import { AbortError } from "node-fetch";
-import { useEffect, useRef, useState } from "react";
-import { checkInMovie, getWatchlistMovies, removeMovieFromWatchlist } from "./api/movies";
-import { getWatchlistShows, removeShowFromWatchlist } from "./api/shows";
-import { getTMDBMovieDetails, getTMDBShowDetails } from "./api/tmdb";
+import { useEffect, useState } from "react";
 import { MovieGrid } from "./components/movie-grid";
 import { ShowGrid } from "./components/show-grid";
-import { APP_MAX_LISTENERS } from "./lib/constants";
+import { useWatchlistMovies } from "./hooks/useWatchlistMovies";
+import { useWatchlistShows } from "./hooks/useWatchlistShows";
 
 export default function Command() {
-  const abortable = useRef<AbortController>();
-  const [movies, setMovies] = useState<TraktMovieList | undefined>();
-  const [shows, setShows] = useState<TraktShowList | undefined>();
-  const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [mediaType, setMediaType] = useState("movie");
-  const [x, forceRerender] = useState(0);
+  const [mediaType, setMediaType] = useState<MediaType>("movie");
+
+  const {
+    movies,
+    isLoading: moviesLoading,
+    totalPages: totalMoviePages,
+    onRemoveMovieFromWatchlist,
+    error: movieError,
+    success: movieSuccess,
+  } = useWatchlistMovies(page, mediaType === "movie");
+
+  const {
+    shows,
+    isLoading: showsLoading,
+    totalPages: totalShowPages,
+    onRemoveShowFromWatchlist,
+    error: showError,
+    success: showSuccess,
+  } = useWatchlistShows(page, mediaType === "show");
 
   useEffect(() => {
-    (async () => {
-      if (abortable.current) {
-        abortable.current.abort();
-      }
-      abortable.current = new AbortController();
-      setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      setIsLoading(true);
-      if (mediaType === "show") {
-        try {
-          const showWatchlist = await getWatchlistShows(page, abortable.current?.signal);
-          setShows(showWatchlist);
-          setPage(showWatchlist.page);
-          setTotalPages(showWatchlist.total_pages);
-
-          const showsWithImages = (await Promise.all(
-            showWatchlist.map(async (movie) => {
-              movie.show.details = await getTMDBShowDetails(movie.show.ids.tmdb, abortable.current?.signal);
-              return movie;
-            }),
-          )) as TraktShowList;
-
-          setShows(showsWithImages);
-        } catch (e) {
-          if (!(e instanceof AbortError)) {
-            showToast({
-              title: "Error loading shows",
-              style: Toast.Style.Failure,
-            });
-          }
-        }
-      } else {
-        try {
-          const movieWatchlist = await getWatchlistMovies(page, abortable.current?.signal);
-          setMovies(movieWatchlist);
-          setPage(movieWatchlist.page);
-          setTotalPages(movieWatchlist.total_pages);
-
-          const moviesWithImages = (await Promise.all(
-            movieWatchlist.map(async (movie) => {
-              movie.movie.details = await getTMDBMovieDetails(movie.movie.ids.tmdb, abortable.current?.signal);
-              return movie;
-            }),
-          )) as TraktMovieList;
-
-          setMovies(moviesWithImages);
-        } catch (e) {
-          if (!(e instanceof AbortError)) {
-            showToast({
-              title: "Error loading movies",
-              style: Toast.Style.Failure,
-            });
-          }
-        }
-      }
-      setIsLoading(false);
-      return () => {
-        if (abortable.current) {
-          abortable.current.abort();
-        }
-      };
-    })();
-  }, [x, mediaType, page]);
-
-  const onRemoveMovieFromWatchlist = async (movieId: number) => {
-    setIsLoading(true);
-    try {
-      await removeMovieFromWatchlist(movieId, abortable.current?.signal);
+    if (movieError) {
       showToast({
-        title: "Movie removed from watchlist",
+        title: movieError.message,
+        style: Toast.Style.Failure,
+      });
+    }
+  }, [movieError]);
+
+  useEffect(() => {
+    if (showError) {
+      showToast({
+        title: showError.message,
+        style: Toast.Style.Failure,
+      });
+    }
+  }, [showError]);
+
+  useEffect(() => {
+    if (movieSuccess) {
+      showToast({
+        title: movieSuccess,
         style: Toast.Style.Success,
       });
-    } catch (e) {
-      if (!(e instanceof AbortError)) {
-        showToast({
-          title: "Error removing movie from watchlist",
-          style: Toast.Style.Failure,
-        });
-      }
     }
-    setIsLoading(false);
-    forceRerender((value) => value + 1);
-  };
+  }, [movieSuccess]);
 
-  const onRemoveShowFromWatchlist = async (showId: number) => {
-    setIsLoading(true);
-    try {
-      await removeShowFromWatchlist(showId, abortable.current?.signal);
+  useEffect(() => {
+    if (showSuccess) {
       showToast({
-        title: "Show removed from watchlist",
+        title: showSuccess,
         style: Toast.Style.Success,
       });
-    } catch (e) {
-      if (!(e instanceof AbortError)) {
-        showToast({
-          title: "Error removing show from watchlist",
-          style: Toast.Style.Failure,
-        });
-      }
     }
-    setIsLoading(false);
-    forceRerender((value) => value + 1);
-  };
+  }, [showSuccess]);
 
-  const onCheckInMovie = async (movieId: number) => {
-    setIsLoading(true);
-    try {
-      await checkInMovie(movieId, abortable.current?.signal);
-      showToast({
-        title: "Movie checked in",
-        style: Toast.Style.Success,
-      });
-    } catch (e) {
-      if (!(e instanceof AbortError)) {
-        showToast({
-          title: "Error checking in movie",
-          style: Toast.Style.Failure,
-        });
-      }
-    }
-    setIsLoading(false);
-    forceRerender((value) => value + 1);
-  };
+  const isLoading = mediaType === "movie" ? moviesLoading : showsLoading;
+  const totalPages = mediaType === "movie" ? totalMoviePages : totalShowPages;
 
   const onMediaTypeChange = (newValue: string) => {
-    setMediaType(newValue);
+    setMediaType(newValue as MediaType);
     setPage(1);
-    setTotalPages(1);
   };
 
   return (
@@ -170,11 +92,10 @@ export default function Command() {
             page={page}
             totalPages={totalPages}
             setPage={setPage}
-            checkInAction={onCheckInMovie}
             watchlistActionTitle="Remove from Watchlist"
-            watchlistAction={onRemoveMovieFromWatchlist}
             watchlistActionIcon={Icon.Trash}
             watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
+            watchlistAction={onRemoveMovieFromWatchlist}
           />
         </>
       )}
@@ -187,9 +108,9 @@ export default function Command() {
             totalPages={totalPages}
             setPage={setPage}
             watchlistActionTitle="Remove from Watchlist"
-            watchlistAction={onRemoveShowFromWatchlist}
             watchlistActionIcon={Icon.Trash}
             watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
+            watchlistAction={onRemoveShowFromWatchlist}
           />
         </>
       )}
