@@ -15,7 +15,7 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
 
   const fetchMovies = useCallback(async () => {
     try {
-      const movieHistory = await getHistoryMovies(page, abortable?.current?.signal);
+      const movieHistory = await getHistoryMovies(page, abortable.current?.signal);
       setMovies(movieHistory);
       setTotalPages(movieHistory.total_pages);
     } catch (e) {
@@ -31,7 +31,7 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
       const moviesWithImages = (await Promise.all(
         moviesList.map(async (movieItem) => {
           if (movieItem.movie.details) return movieItem;
-          movieItem.movie.details = await getTMDBMovieDetails(movieItem.movie.ids.tmdb, abortable?.current?.signal);
+          movieItem.movie.details = await getTMDBMovieDetails(movieItem.movie.ids.tmdb, abortable.current?.signal);
           return movieItem;
         }),
       )) as TraktMovieList;
@@ -48,7 +48,7 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
   const onRemoveMovieFromHistory = async (movieId: number) => {
     setIsLoading(true);
     try {
-      await removeMovieFromHistory(movieId, abortable?.current?.signal);
+      await removeMovieFromHistory(movieId, abortable.current?.signal);
       setSuccess("Movie removed from history");
       await fetchMovies();
     } catch (e) {

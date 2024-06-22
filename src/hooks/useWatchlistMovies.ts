@@ -15,7 +15,7 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
 
   const fetchMovies = useCallback(async () => {
     try {
-      const movieWatchlist = await getWatchlistMovies(page, abortable?.current?.signal);
+      const movieWatchlist = await getWatchlistMovies(page, abortable.current?.signal);
       setMovies(movieWatchlist);
       setTotalPages(movieWatchlist.total_pages);
     } catch (e) {
@@ -28,15 +28,15 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
 
   const fetchMovieDetails = useCallback(async (moviesList: TraktMovieList) => {
     try {
-      const updatedMoviesList = (await Promise.all(
+      const moviesWithImages = (await Promise.all(
         moviesList.map(async (movieItem) => {
           if (movieItem.movie.details) return movieItem;
-          movieItem.movie.details = await getTMDBMovieDetails(movieItem.movie.ids.tmdb, abortable?.current?.signal);
+          movieItem.movie.details = await getTMDBMovieDetails(movieItem.movie.ids.tmdb, abortable.current?.signal);
           return movieItem;
         }),
       )) as TraktMovieList;
 
-      setMovies(updatedMoviesList);
+      setMovies(moviesWithImages);
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
@@ -48,7 +48,7 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
   const onRemoveMovieFromWatchlist = async (movieId: number) => {
     setIsLoading(true);
     try {
-      await removeMovieFromWatchlist(movieId, abortable?.current?.signal);
+      await removeMovieFromWatchlist(movieId, abortable.current?.signal);
       setSuccess("Movie removed from watchlist");
       fetchMovies();
     } catch (e) {

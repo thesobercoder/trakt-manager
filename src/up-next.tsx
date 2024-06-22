@@ -1,79 +1,30 @@
 import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
 import { getFavicon } from "@raycast/utils";
-import { setMaxListeners } from "events";
-import { AbortError } from "node-fetch";
-import { useEffect, useRef, useState } from "react";
-import { checkInEpisode, getUpNextShows, updateShowProgress } from "./api/shows";
-import { getTMDBShowDetails } from "./api/tmdb";
+import { useEffect } from "react";
 import { Seasons } from "./components/seasons";
-import { APP_MAX_LISTENERS } from "./lib/constants";
+import { useUpNextShows } from "./hooks/useUpNextShows";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
 
 export default function Command() {
-  const abortable = useRef<AbortController>();
-  const [isLoading, setIsLoading] = useState(false);
-  const [shows, setShows] = useState<TraktUpNextShowList | undefined>();
-  const [x, forceRerender] = useState(0);
+  const { isLoading, shows, onCheckInNextEpisode, error, success } = useUpNextShows();
 
   useEffect(() => {
-    (async () => {
-      if (abortable.current) {
-        abortable.current.abort();
-      }
-      abortable.current = new AbortController();
-      setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      setIsLoading(true);
-      try {
-        const shows = await getUpNextShows(abortable.current?.signal);
-        setShows(shows);
-
-        const showsWithImages = (await Promise.all(
-          shows.map(async (show) => {
-            show.show.details = await getTMDBShowDetails(show.show.ids.tmdb, abortable.current?.signal);
-            return show;
-          }),
-        )) as TraktUpNextShowList;
-
-        setShows(showsWithImages);
-      } catch (e) {
-        if (!(e instanceof AbortError)) {
-          showToast({
-            title: "Error getting on deck shows",
-            style: Toast.Style.Failure,
-          });
-        }
-      }
-      setIsLoading(false);
-      return () => {
-        if (abortable.current) {
-          abortable.current.abort();
-        }
-      };
-    })();
-  }, [x]);
-
-  const onCheckInNextEpisode = async (episodeId: number | undefined, showId: number) => {
-    if (episodeId) {
-      setIsLoading(true);
-      try {
-        await checkInEpisode(episodeId, abortable.current?.signal);
-        await updateShowProgress(showId, abortable.current?.signal);
-        showToast({
-          title: "Episode checked in",
-          style: Toast.Style.Success,
-        });
-      } catch (e) {
-        if (!(e instanceof AbortError)) {
-          showToast({
-            title: "Error checking in episode",
-            style: Toast.Style.Failure,
-          });
-        }
-      }
-      setIsLoading(false);
-      forceRerender((value) => value + 1);
+    if (error) {
+      showToast({
+        title: error.message,
+        style: Toast.Style.Failure,
+      });
     }
-  };
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      showToast({
+        title: success,
+        style: Toast.Style.Success,
+      });
+    }
+  }, [success]);
 
   return (
     <Grid

@@ -15,7 +15,7 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
 
   const fetchShows = useCallback(async () => {
     try {
-      const showHistory = await getHistoryShows(page, abortable?.current?.signal);
+      const showHistory = await getHistoryShows(page, abortable.current?.signal);
       setShows(showHistory);
       setTotalPages(showHistory.total_pages);
     } catch (e) {
@@ -31,7 +31,7 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
       const showsWithImages = (await Promise.all(
         showsList.map(async (showItem) => {
           if (showItem.show.details) return showItem;
-          showItem.show.details = await getTMDBShowDetails(showItem.show.ids.tmdb, abortable?.current?.signal);
+          showItem.show.details = await getTMDBShowDetails(showItem.show.ids.tmdb, abortable.current?.signal);
           return showItem;
         }),
       )) as TraktShowList;
@@ -48,7 +48,7 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
   const onRemoveShowFromHistory = async (showId: number) => {
     setIsLoading(true);
     try {
-      await removeShowFromHistory(showId, abortable?.current?.signal);
+      await removeShowFromHistory(showId, abortable.current?.signal);
       setSuccess("Show removed from history");
       await fetchShows();
     } catch (e) {

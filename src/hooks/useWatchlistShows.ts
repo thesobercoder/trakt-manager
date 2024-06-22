@@ -13,7 +13,7 @@ export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
 
   const fetchShows = useCallback(async () => {
     try {
-      const showWatchlist = await getWatchlistShows(page, abortable?.current?.signal);
+      const showWatchlist = await getWatchlistShows(page, abortable.current?.signal);
       setShows(showWatchlist);
       setTotalPages(showWatchlist.total_pages);
     } catch (e) {
@@ -26,15 +26,15 @@ export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
 
   const fetchShowDetails = useCallback(async (showsList: TraktShowList) => {
     try {
-      const updatedShowsList = (await Promise.all(
+      const showsWithImages = (await Promise.all(
         showsList.map(async (showItem) => {
           if (showItem.show.details) return showItem;
-          showItem.show.details = await getTMDBShowDetails(showItem.show.ids.tmdb, abortable?.current?.signal);
+          showItem.show.details = await getTMDBShowDetails(showItem.show.ids.tmdb, abortable.current?.signal);
           return showItem;
         }),
       )) as TraktShowList;
 
-      setShows(updatedShowsList);
+      setShows(showsWithImages);
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
@@ -46,7 +46,7 @@ export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
   const onRemoveShowFromWatchlist = async (showId: number) => {
     setIsLoading(true);
     try {
-      await removeShowFromWatchlist(showId, abortable?.current?.signal);
+      await removeShowFromWatchlist(showId, abortable.current?.signal);
       setSuccess("Show removed from watchlist");
       fetchShows();
     } catch (e) {
