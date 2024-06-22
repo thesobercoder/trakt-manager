@@ -13,15 +13,17 @@ export default function Command() {
     movies,
     isLoading: moviesLoading,
     totalPages: totalMoviePages,
-    removeMovie,
+    onRemoveMovieFromHistory,
     error: movieError,
+    success: movieSuccess,
   } = useHistoryMovies(page, mediaType === "movie");
   const {
     shows,
     isLoading: showsLoading,
     totalPages: totalShowPages,
-    removeShow,
+    onRemoveShowFromHistory,
     error: showError,
+    success: showSuccess,
   } = useHistoryShows(page, mediaType === "show");
 
   useEffect(() => {
@@ -41,6 +43,24 @@ export default function Command() {
       });
     }
   }, [showError]);
+
+  useEffect(() => {
+    if (movieSuccess) {
+      showToast({
+        title: movieSuccess,
+        style: Toast.Style.Success,
+      });
+    }
+  }, [movieSuccess]);
+
+  useEffect(() => {
+    if (showSuccess) {
+      showToast({
+        title: showSuccess,
+        style: Toast.Style.Success,
+      });
+    }
+  }, [showSuccess]);
 
   const isLoading = mediaType === "movie" ? moviesLoading : showsLoading;
   const totalPages = mediaType === "movie" ? totalMoviePages : totalShowPages;
@@ -74,7 +94,7 @@ export default function Command() {
             historyActionTitle="Remove from History"
             historyActionIcon={Icon.Trash}
             historyActionShortcut={Keyboard.Shortcut.Common.Remove}
-            historyAction={removeMovie}
+            historyAction={onRemoveMovieFromHistory}
           />
         </>
       )}
@@ -89,7 +109,7 @@ export default function Command() {
             historyActionTitle="Remove from History"
             historyActionIcon={Icon.Trash}
             historyActionShortcut={Keyboard.Shortcut.Common.Remove}
-            historyAction={removeShow}
+            historyAction={onRemoveShowFromHistory}
           />
         </>
       )}

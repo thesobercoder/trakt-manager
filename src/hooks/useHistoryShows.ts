@@ -1,31 +1,38 @@
-import { Toast, showToast } from "@raycast/api";
 import { AbortError } from "node-fetch";
+import { setMaxListeners } from "node:events";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getHistoryShows, removeShowFromHistory } from "../api/shows";
 import { getTMDBShowDetails } from "../api/tmdb";
+import { APP_MAX_LISTENERS } from "../lib/constants";
 
 export const useHistoryShows = (page: number, shouldFetch: boolean) => {
   const [shows, setShows] = useState<TraktShowList | undefined>();
   const [isLoading, setIsLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<Error | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
   const abortable = useRef<AbortController>();
 
   const fetchShows = useCallback(async () => {
-    if (abortable.current) {
-      abortable.current.abort();
-    }
-    abortable.current = new AbortController();
-    setIsLoading(true);
     try {
-      const showWatchlist = await getHistoryShows(page, abortable?.current?.signal);
-      setShows(showWatchlist);
-      setTotalPages(showWatchlist.total_pages);
+      const showHistory = await getHistoryShows(page, abortable?.current?.signal);
+      setShows(showHistory);
+      setTotalPages(showHistory.total_pages);
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        setError(e as Error);
+        setIsLoading(false);
+      }
+    }
+  }, [page]);
 
+  const fetchShowDetails = useCallback(async (showsList: TraktShowList) => {
+    try {
       const showsWithImages = (await Promise.all(
-        showWatchlist.map(async (show) => {
-          show.show.details = await getTMDBShowDetails(show.show.ids.tmdb, abortable?.current?.signal);
-          return show;
+        showsList.map(async (showItem) => {
+          if (showItem.show.details) return showItem;
+          showItem.show.details = await getTMDBShowDetails(showItem.show.ids.tmdb, abortable?.current?.signal);
+          return showItem;
         }),
       )) as TraktShowList;
 
@@ -33,20 +40,17 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
+        setIsLoading(false);
       }
     }
-    setIsLoading(false);
-  }, [page]);
+  }, []);
 
-  const removeShow = async (showId: number) => {
+  const onRemoveShowFromHistory = async (showId: number) => {
     setIsLoading(true);
     try {
       await removeShowFromHistory(showId, abortable?.current?.signal);
-      showToast({
-        title: "Show removed from history",
-        style: Toast.Style.Success,
-      });
-      fetchShows();
+      setSuccess("Show removed from history");
+      await fetchShows();
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
@@ -57,9 +61,32 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
 
   useEffect(() => {
     if (shouldFetch) {
+      if (abortable.current) {
+        abortable.current.abort();
+      }
+      abortable.current = new AbortController();
+      setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
+      setIsLoading(true);
       fetchShows();
     }
+    return () => {
+      if (abortable.current) {
+        abortable.current.abort();
+      }
+    };
   }, [fetchShows, shouldFetch]);
 
-  return { shows, isLoading, totalPages, removeShow, error };
+  useEffect(() => {
+    if (shows && shows.some((show) => !show.show.details)) {
+      fetchShowDetails(shows);
+      setIsLoading(false);
+    }
+    return () => {
+      if (abortable.current) {
+        abortable.current.abort();
+      }
+    };
+  }, [shows, fetchShowDetails]);
+
+  return { shows, isLoading, totalPages, onRemoveShowFromHistory, error, success };
 };
