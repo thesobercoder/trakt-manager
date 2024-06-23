@@ -1,5 +1,5 @@
 import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MovieGrid } from "./components/movie-grid";
 import { ShowGrid } from "./components/show-grid";
 import { useHistoryMovies } from "./hooks/useHistoryMovies";
@@ -10,6 +10,7 @@ import { useShowDetails } from "./hooks/useShowDetails";
 export default function Command() {
   const [page, setPage] = useState(1);
   const [mediaType, setMediaType] = useState<MediaType>("movie");
+  const [actionLoading, setActionLoading] = useState(false);
 
   const {
     movies,
@@ -28,6 +29,30 @@ export default function Command() {
     success: showSuccess,
   } = useHistoryShows(page, mediaType === "show");
   const { details: showDetails, error: showDetailsError } = useShowDetails(shows);
+
+  const handleMovieAction = useCallback(
+    async (movie: TraktMovieListItem, action: (movie: TraktMovieListItem) => Promise<void>) => {
+      setActionLoading(true);
+      try {
+        await action(movie);
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    [],
+  );
+
+  const handleShowAction = useCallback(
+    async (show: TraktShowListItem, action: (show: TraktShowListItem) => Promise<void>) => {
+      setActionLoading(true);
+      try {
+        await action(show);
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (movieError) {
@@ -84,9 +109,10 @@ export default function Command() {
   }, [showSuccess]);
 
   const isLoading =
-    mediaType === "movie"
+    actionLoading ||
+    (mediaType === "movie"
       ? !(movies && movieDetails) && !(movieError || movieDetailsError)
-      : !(shows && showDetails) && !(showError || showDetailsError);
+      : !(shows && showDetails) && !(showError || showDetailsError));
   const totalPages = mediaType === "movie" ? totalMoviePages : totalShowPages;
 
   const onMediaTypeChange = (newValue: string) => {
@@ -119,7 +145,7 @@ export default function Command() {
             primaryActionTitle="Remove from History"
             primaryActionIcon={Icon.Trash}
             primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-            primaryAction={removeMovieFromHistoryMutation}
+            primaryAction={(movie) => handleMovieAction(movie, removeMovieFromHistoryMutation)}
           />
         </>
       )}
@@ -136,7 +162,7 @@ export default function Command() {
             primaryActionTitle="Remove from History"
             primaryActionIcon={Icon.Trash}
             primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-            primaryAction={removeShowFromHistoryMutation}
+            primaryAction={(show) => handleShowAction(show, removeShowFromHistoryMutation)}
           />
         </>
       )}

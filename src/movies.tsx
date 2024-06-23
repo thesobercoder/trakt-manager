@@ -7,6 +7,8 @@ import { useMovies } from "./hooks/useMovies";
 export default function Command() {
   const [page, setPage] = useState(1);
   const [searchText, setSearchText] = useState<string | undefined>();
+  const [actionLoading, setActionLoading] = useState(false);
+
   const {
     movies,
     addMovieToWatchlistMutation,
@@ -23,6 +25,18 @@ export default function Command() {
     setPage(1);
   }, []);
 
+  const handleAction = useCallback(
+    async (movie: TraktMovieListItem, action: (movie: TraktMovieListItem) => Promise<void>) => {
+      setActionLoading(true);
+      try {
+        await action(movie);
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    [],
+  );
+
   useEffect(() => {
     if (error) {
       showToast({
@@ -33,9 +47,9 @@ export default function Command() {
   }, [error]);
 
   useEffect(() => {
-    if (error) {
+    if (detailsError) {
       showToast({
-        title: error.message,
+        title: detailsError.message,
         style: Toast.Style.Failure,
       });
     }
@@ -50,7 +64,7 @@ export default function Command() {
     }
   }, [success]);
 
-  const isLoading = !!searchText && (!movies || !movieDetails) && !error && !detailsError;
+  const isLoading = !!searchText && (!movies || !movieDetails || actionLoading) && !error && !detailsError;
 
   return (
     <Grid
@@ -71,15 +85,15 @@ export default function Command() {
         primaryActionTitle="Add to Watchlist"
         primaryActionIcon={Icon.Bookmark}
         primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-        primaryAction={addMovieToWatchlistMutation}
+        primaryAction={(movie) => handleAction(movie, addMovieToWatchlistMutation)}
         secondaryActionTitle="Check-in Movie"
         secondaryActionIcon={Icon.Checkmark}
         secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-        secondaryAction={checkInMovieMutation}
+        secondaryAction={(movie) => handleAction(movie, checkInMovieMutation)}
         tertiaryActionTitle="Add to History"
         tertiaryActionIcon={Icon.Clock}
         tertiaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-        tertiaryAction={addMovieToHistoryMutation}
+        tertiaryAction={(movie) => handleAction(movie, addMovieToHistoryMutation)}
       />
     </Grid>
   );

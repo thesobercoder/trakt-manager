@@ -1,5 +1,5 @@
 import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ShowGrid } from "./components/show-grid";
 import { useShowDetails } from "./hooks/useShowDetails";
 import { useUpNextShows } from "./hooks/useUpNextShows";
@@ -8,6 +8,19 @@ export default function Command() {
   const [page, setPage] = useState(1);
   const { shows, totalPages, checkInNextEpisodeMutation, error, success } = useUpNextShows(page);
   const { details: showDetails, error: detailsError } = useShowDetails(shows);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  const handleAction = useCallback(
+    async (show: TraktShowListItem, action: (show: TraktShowListItem) => Promise<void>) => {
+      setActionLoading(true);
+      try {
+        await action(show);
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (error) {
@@ -36,7 +49,7 @@ export default function Command() {
     }
   }, [success]);
 
-  const isLoading = (!shows || !showDetails) && !error && !detailsError;
+  const isLoading = ((!shows || !showDetails) && !error && !detailsError) || actionLoading;
 
   return (
     <Grid
@@ -58,7 +71,7 @@ export default function Command() {
         primaryActionTitle="Check-in Next Episode"
         primaryActionIcon={Icon.Checkmark}
         primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-        primaryAction={checkInNextEpisodeMutation}
+        primaryAction={(show) => handleAction(show, checkInNextEpisodeMutation)}
       />
     </Grid>
   );

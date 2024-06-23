@@ -7,6 +7,7 @@ import { useShows } from "./hooks/useShows";
 export default function Command() {
   const [page, setPage] = useState(1);
   const [searchText, setSearchText] = useState<string | undefined>();
+  const [actionLoading, setActionLoading] = useState(false);
 
   const { shows, addShowToWatchlistMutation, addShowToHistoryMutation, error, success, totalPages } = useShows(
     searchText,
@@ -18,6 +19,18 @@ export default function Command() {
     setSearchText(text);
     setPage(1);
   }, []);
+
+  const handleAction = useCallback(
+    async (show: TraktShowListItem, action: (show: TraktShowListItem) => Promise<void>) => {
+      setActionLoading(true);
+      try {
+        await action(show);
+      } finally {
+        setActionLoading(false);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     if (error) {
@@ -46,7 +59,7 @@ export default function Command() {
     }
   }, [success]);
 
-  const isLoading = !!searchText && (!shows || !showDetails) && !error && !detailsError;
+  const isLoading = !!searchText && (!shows || !showDetails || actionLoading) && !error && !detailsError;
 
   return (
     <Grid
@@ -68,11 +81,11 @@ export default function Command() {
         primaryActionTitle="Add to Watchlist"
         primaryActionIcon={Icon.Bookmark}
         primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-        primaryAction={addShowToWatchlistMutation}
+        primaryAction={(show) => handleAction(show, addShowToWatchlistMutation)}
         secondaryActionTitle="Add to History"
         secondaryActionIcon={Icon.Clock}
         secondaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-        secondaryAction={addShowToHistoryMutation}
+        secondaryAction={(show) => handleAction(show, addShowToHistoryMutation)}
       />
     </Grid>
   );
