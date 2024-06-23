@@ -61,17 +61,18 @@ export default function Command() {
       <ShowGrid
         shows={shows}
         showDetails={showDetails}
+        subtitle={(show) => show.show.year?.toString() || ""}
         page={page}
         totalPages={totalPages}
         setPage={setPage}
-        watchlistActionTitle="Add to Watchlist"
-        watchlistActionIcon={Icon.Bookmark}
-        watchlistActionShortcut={Keyboard.Shortcut.Common.Edit}
-        watchlistAction={addShowToWatchlistMutation}
-        historyActionTitle="Add to History"
-        historyActionIcon={Icon.Clock}
-        historyActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-        historyAction={addShowToHistoryMutation}
+        primaryActionTitle="Add to Watchlist"
+        primaryActionIcon={Icon.Bookmark}
+        primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
+        primaryAction={addShowToWatchlistMutation}
+        secondaryActionTitle="Add to History"
+        secondaryActionIcon={Icon.Clock}
+        secondaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+        secondaryAction={addShowToHistoryMutation}
       />
     </Grid>
   );

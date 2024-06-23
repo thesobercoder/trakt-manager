@@ -6,7 +6,6 @@ import { APP_MAX_LISTENERS } from "../lib/constants";
 
 export function useUpNextShows(page: number) {
   const abortable = useRef<AbortController>();
-  const [isLoading, setIsLoading] = useState(false);
   const [shows, setShows] = useState<TraktShowList | undefined>();
   const [totalPages, setTotalPages] = useState(1);
   const [x, forceRerender] = useState(0);
@@ -21,7 +20,6 @@ export function useUpNextShows(page: number) {
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
-        setIsLoading(false);
       }
     }
   }, [page]);
@@ -32,9 +30,7 @@ export function useUpNextShows(page: number) {
     }
     abortable.current = new AbortController();
     setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
-    setIsLoading(true);
     fetchShows();
-    setIsLoading(false);
     return () => {
       if (abortable.current) {
         abortable.current.abort();
@@ -42,22 +38,20 @@ export function useUpNextShows(page: number) {
     };
   }, [fetchShows, x]);
 
-  const onCheckInNextEpisode = async (episodeId: number | undefined, showId: number) => {
-    if (episodeId) {
-      setIsLoading(true);
+  const checkInNextEpisodeMutation = async (show: TraktShowListItem) => {
+    if (show.show.progress?.next_episode) {
       try {
-        await checkInEpisode(episodeId, abortable.current?.signal);
-        await updateShowProgress(showId, abortable.current?.signal);
+        await checkInEpisode(show.show.progress?.next_episode.ids.trakt, abortable.current?.signal);
+        await updateShowProgress(show.show.ids.trakt, abortable.current?.signal);
         setSuccess("Episode checked in");
       } catch (e) {
         if (!(e instanceof AbortError)) {
           setError(e as Error);
         }
       }
-      setIsLoading(false);
       forceRerender((value) => value + 1);
     }
   };
 
-  return { isLoading, shows, totalPages, onCheckInNextEpisode, error, success };
+  return { shows, totalPages, checkInNextEpisodeMutation, error, success };
 }

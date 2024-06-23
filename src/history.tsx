@@ -129,13 +129,14 @@ export default function Command() {
           <ShowGrid
             shows={shows}
             showDetails={showDetails}
+            subtitle={(show) => show.show.year?.toString() || ""}
             page={page}
             totalPages={totalPages}
             setPage={setPage}
-            historyActionTitle="Remove from History"
-            historyActionIcon={Icon.Trash}
-            historyActionShortcut={Keyboard.Shortcut.Common.Remove}
-            historyAction={removeShowFromHistoryMutation}
+            secondaryActionTitle="Remove from History"
+            secondaryActionIcon={Icon.Trash}
+            secondaryActionShortcut={Keyboard.Shortcut.Common.Remove}
+            secondaryAction={removeShowFromHistoryMutation}
           />
         </>
       )}

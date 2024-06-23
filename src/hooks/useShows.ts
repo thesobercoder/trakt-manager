@@ -28,9 +28,9 @@ export function useShows(searchText: string | undefined, page: number) {
     }
   }, [searchText, page]);
 
-  const addShowToWatchlistMutation = useCallback(async (showId: number) => {
+  const addShowToWatchlistMutation = useCallback(async (show: TraktShowListItem) => {
     try {
-      await addShowToWatchlist(showId, abortable.current?.signal);
+      await addShowToWatchlist(show.show.ids.trakt, abortable.current?.signal);
       setSuccess("Show added to watchlist");
     } catch (e) {
       if (!(e instanceof AbortError)) {
@@ -39,9 +39,9 @@ export function useShows(searchText: string | undefined, page: number) {
     }
   }, []);
 
-  const addShowToHistoryMutation = useCallback(async (showId: number) => {
+  const addShowToHistoryMutation = useCallback(async (show: TraktShowListItem) => {
     try {
-      await addShowToHistory(showId, abortable.current?.signal);
+      await addShowToHistory(show.show.ids.trakt, abortable.current?.signal);
       setSuccess("Show added to history");
     } catch (e) {
       if (!(e instanceof AbortError)) {

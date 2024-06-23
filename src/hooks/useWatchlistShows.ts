@@ -23,10 +23,10 @@ export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
     }
   }, [page]);
 
-  const removeShowFromWatchlistMutation = async (showId: number) => {
+  const removeShowFromWatchlistMutation = async (show: TraktShowListItem) => {
     setIsLoading(true);
     try {
-      await removeShowFromWatchlist(showId, abortable.current?.signal);
+      await removeShowFromWatchlist(show.show.ids.trakt, abortable.current?.signal);
       setSuccess("Show removed from watchlist");
       fetchShows();
     } catch (e) {

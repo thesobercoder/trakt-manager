@@ -6,7 +6,7 @@ import { useUpNextShows } from "./hooks/useUpNextShows";
 
 export default function Command() {
   const [page, setPage] = useState(1);
-  const { shows, totalPages, onCheckInNextEpisode, error, success } = useUpNextShows(page);
+  const { shows, totalPages, checkInNextEpisodeMutation, error, success } = useUpNextShows(page);
   const { details: showDetails, error: detailsError } = useShowDetails(shows);
 
   useEffect(() => {
@@ -49,13 +49,16 @@ export default function Command() {
       <ShowGrid
         shows={shows}
         showDetails={showDetails}
+        subtitle={(show) =>
+          `${show.show.progress?.next_episode?.season}x${show.show.progress?.next_episode?.number.toString().padStart(2, "0")}`
+        }
         page={page}
         totalPages={totalPages}
         setPage={setPage}
-        checkInActionTitle="Check-in Next Episode"
-        checkInActionIcon={Icon.Checkmark}
-        checkInActionShortcut={Keyboard.Shortcut.Common.Edit}
-        checkInAction={onCheckInNextEpisode}
+        primaryActionTitle="Check-in Next Episode"
+        primaryActionIcon={Icon.Checkmark}
+        primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
+        primaryAction={checkInNextEpisodeMutation}
       />
     </Grid>
   );

@@ -5,11 +5,11 @@ import { getHistoryShows, removeShowFromHistory } from "../api/shows";
 import { APP_MAX_LISTENERS } from "../lib/constants";
 
 export const useHistoryShows = (page: number, shouldFetch: boolean) => {
+  const abortable = useRef<AbortController>();
   const [shows, setShows] = useState<TraktShowList | undefined>();
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<Error | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
-  const abortable = useRef<AbortController>();
 
   const fetchShows = useCallback(async () => {
     try {
@@ -23,9 +23,9 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
     }
   }, [page]);
 
-  const removeShowFromHistoryMutation = async (showId: number) => {
+  const removeShowFromHistoryMutation = async (show: TraktShowListItem) => {
     try {
-      await removeShowFromHistory(showId, abortable.current?.signal);
+      await removeShowFromHistory(show.show.ids.trakt, abortable.current?.signal);
       setSuccess("Show removed from history");
       await fetchShows();
     } catch (e) {

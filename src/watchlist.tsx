@@ -129,13 +129,14 @@ export default function Command() {
           <ShowGrid
             shows={shows}
             showDetails={showDetails}
+            subtitle={(show) => show.show.year?.toString() || ""}
             page={page}
             totalPages={totalPages}
             setPage={setPage}
-            watchlistActionTitle="Remove from Watchlist"
-            watchlistActionIcon={Icon.Trash}
-            watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
-            watchlistAction={removeShowFromWatchlistMutation}
+            primaryActionTitle="Remove from Watchlist"
+            primaryActionIcon={Icon.Trash}
+            primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
+            primaryAction={removeShowFromWatchlistMutation}
           />
         </>
       )}

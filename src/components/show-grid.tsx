@@ -7,36 +7,30 @@ import { Seasons } from "./seasons";
 export const ShowGrid = ({
   shows,
   showDetails,
-  watchlistActionTitle,
-  watchlistActionIcon,
-  watchlistActionShortcut,
-  watchlistAction,
-  historyActionTitle,
-  historyActionIcon,
-  historyActionShortcut,
-  historyAction,
-  checkInActionTitle,
-  checkInActionIcon,
-  checkInActionShortcut,
-  checkInAction,
+  subtitle,
+  primaryActionTitle,
+  primaryActionIcon,
+  primaryActionShortcut,
+  primaryAction,
+  secondaryActionTitle,
+  secondaryActionIcon,
+  secondaryActionShortcut,
+  secondaryAction,
   page,
   totalPages,
   setPage,
 }: {
   shows: TraktShowList | undefined;
   showDetails: Map<number, TMDBShowDetails | undefined>;
-  watchlistActionTitle?: string;
-  watchlistActionIcon?: Image.ImageLike;
-  watchlistActionShortcut?: Keyboard.Shortcut;
-  watchlistAction?: (traktId: number) => void;
-  historyActionTitle?: string;
-  historyActionIcon?: Image.ImageLike;
-  historyActionShortcut?: Keyboard.Shortcut;
-  historyAction?: (showId: number) => void;
-  checkInActionTitle?: string;
-  checkInActionIcon?: Image.ImageLike;
-  checkInActionShortcut?: Keyboard.Shortcut;
-  checkInAction?: (nextEpisodeId: number | undefined, showId: number) => void;
+  subtitle: (show: TraktShowListItem) => string;
+  primaryActionTitle?: string;
+  primaryActionIcon?: Image.ImageLike;
+  primaryActionShortcut?: Keyboard.Shortcut;
+  primaryAction?: (show: TraktShowListItem) => void;
+  secondaryActionTitle?: string;
+  secondaryActionIcon?: Image.ImageLike;
+  secondaryActionShortcut?: Keyboard.Shortcut;
+  secondaryAction?: (show: TraktShowListItem) => void;
   page: number;
   totalPages: number;
   setPage: (value: SetStateAction<number>) => void;
@@ -52,7 +46,7 @@ export const ShowGrid = ({
           <Grid.Item
             key={show.show.ids.trakt}
             title={show.show.title}
-            subtitle={show.show.year?.toString() || ""}
+            subtitle={subtitle(show)}
             content={getPosterUrl(details?.poster_path, "poster.png")}
             actions={
               <ActionPanel>
@@ -82,28 +76,20 @@ export const ShowGrid = ({
                       />
                     }
                   />
-                  {watchlistAction && watchlistActionTitle && watchlistActionIcon && watchlistActionShortcut && (
+                  {primaryAction && primaryActionTitle && primaryActionIcon && primaryActionShortcut && (
                     <Action
-                      icon={watchlistActionIcon}
-                      title={watchlistActionTitle}
-                      shortcut={watchlistActionShortcut}
-                      onAction={() => watchlistAction(show.show.ids.trakt)}
+                      icon={primaryActionIcon}
+                      title={primaryActionTitle}
+                      shortcut={primaryActionShortcut}
+                      onAction={() => primaryAction(show)}
                     />
                   )}
-                  {historyAction && historyActionTitle && historyActionIcon && historyActionShortcut && (
+                  {secondaryAction && secondaryActionTitle && secondaryActionIcon && secondaryActionShortcut && (
                     <Action
-                      icon={historyActionIcon}
-                      title={historyActionTitle}
-                      shortcut={historyActionShortcut}
-                      onAction={() => historyAction(show.show.ids.trakt)}
-                    />
-                  )}
-                  {checkInAction && checkInActionTitle && checkInActionIcon && checkInActionShortcut && (
-                    <Action
-                      icon={checkInActionIcon}
-                      title={checkInActionTitle}
-                      shortcut={checkInActionShortcut}
-                      onAction={() => checkInAction(show.show.progress?.next_episode?.ids.trakt, show.show.ids.trakt)}
+                      icon={secondaryActionIcon}
+                      title={secondaryActionTitle}
+                      shortcut={secondaryActionShortcut}
+                      onAction={() => secondaryAction(show)}
                     />
                   )}
                 </ActionPanel.Section>
