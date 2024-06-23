@@ -90,8 +90,6 @@ declare type TraktEpisodeList = Array<{
   available_translations: Array<string>;
   runtime: number;
   episode_type: string;
-  // TODO: Remove this
-  details?: TMDBEpisodeDetails;
 }>;
 
 declare type TraktEpisodeListItem = ArrayElementType<TraktEpisodeList>;

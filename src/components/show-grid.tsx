@@ -69,7 +69,7 @@ export const ShowGridItems = ({
                     shortcut={Keyboard.Shortcut.Common.Open}
                     target={
                       <Seasons
-                        traktId={show.show.ids.trakt}
+                        showId={show.show.ids.trakt}
                         tmdbId={show.show.ids.tmdb}
                         slug={show.show.ids.slug}
                         imdbId={show.show.ids.imdb}

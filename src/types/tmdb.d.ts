@@ -215,7 +215,3 @@ declare type TMDBEpisodeDetails = {
   vote_average: number;
   vote_count: number;
 };
-
-declare type MovieDetailsMap = Map<number, TMDBMovieDetails | undefined>;
-
-declare type ShowDetailsMap = Map<number, TMDBShowDetails | undefined>;

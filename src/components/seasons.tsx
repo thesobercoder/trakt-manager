@@ -9,12 +9,12 @@ import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
 import { Episodes } from "./episodes";
 
 export const Seasons = ({
-  traktId,
+  showId,
   tmdbId,
   slug,
   imdbId,
 }: {
-  traktId: number;
+  showId: number;
   tmdbId: number;
   slug: string;
   imdbId: string;
@@ -29,7 +29,7 @@ export const Seasons = ({
       setMaxListeners(20, abortable.current?.signal);
       setIsLoading(true);
       try {
-        const seasons = await getSeasons(traktId, abortable.current?.signal);
+        const seasons = await getSeasons(showId, abortable.current?.signal);
         setSeasons(seasons);
 
         const showsWithImages = (await Promise.all(
@@ -86,7 +86,7 @@ export const Seasons = ({
                       icon={Icon.Switch}
                       title="Episodes"
                       shortcut={Keyboard.Shortcut.Common.Open}
-                      target={<Episodes traktId={traktId} tmdbId={tmdbId} seasonNumber={season.number} slug={slug} />}
+                      target={<Episodes showId={showId} tmdbId={tmdbId} seasonNumber={season.number} slug={slug} />}
                     />
                   </ActionPanel.Section>
                 </ActionPanel>

@@ -77,12 +77,12 @@ export const getSeasons = async (traktId: number, signal: AbortSignal | undefine
 };
 
 export const getEpisodes = async (
-  traktId: number,
+  showId: number,
   seasonNumber: number,
   signal: AbortSignal | undefined = undefined,
 ) => {
   const accessToken = await oauthProvider.authorize();
-  const response = await fetch(`${TRAKT_API_URL}/shows/${traktId}/seasons/${seasonNumber}?extended=full`, {
+  const response = await fetch(`${TRAKT_API_URL}/shows/${showId}/seasons/${seasonNumber}?extended=full`, {
     headers: {
       "Content-Type": "application/json",
       "trakt-api-version": "2",

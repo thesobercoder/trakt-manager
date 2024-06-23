@@ -6,7 +6,6 @@ import { APP_MAX_LISTENERS } from "../lib/constants";
 
 export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
   const [movies, setMovies] = useState<TraktMovieList | undefined>();
-  const [isLoading, setIsLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<Error | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
@@ -20,13 +19,11 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
-        setIsLoading(false);
       }
     }
   }, [page]);
 
   const removeMovieFromHistoryMutation = async (movie: TraktMovieListItem) => {
-    setIsLoading(true);
     try {
       await removeMovieFromHistory(movie.movie.ids.trakt, abortable.current?.signal);
       setSuccess("Movie removed from history");
@@ -36,7 +33,6 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
         setError(e as Error);
       }
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -46,9 +42,7 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
       }
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      setIsLoading(true);
       fetchMovies();
-      setIsLoading(false);
     }
     return () => {
       if (abortable.current) {
@@ -57,5 +51,5 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
     };
   }, [fetchMovies, shouldFetch]);
 
-  return { movies, isLoading, totalPages, removeMovieFromHistoryMutation, error, success };
+  return { movies, totalPages, removeMovieFromHistoryMutation, error, success };
 };
