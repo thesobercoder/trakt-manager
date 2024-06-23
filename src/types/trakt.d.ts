@@ -61,11 +61,9 @@ declare type TraktSeasonList = Array<{
   aired_episodes: number;
   title: string;
   overview?: string;
-  first_aired: string;
+  first_aired?: string;
   udpated_at: string;
   network: string;
-  // TODO: Remove this
-  details?: TMDBSeasonDetails;
 }>;
 
 declare type TraktSeasonListItem = ArrayElementType<TraktSeasonList>;
