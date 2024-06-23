@@ -31,7 +31,6 @@ export function useMovies(searchText: string | undefined, page: number) {
 
   const fetchMovieDetails = useCallback(async (moviesList: TraktMovieList) => {
     try {
-      console.count("fethMovieDetails");
       const updatedDetailedMovies = new Map();
 
       await Promise.all(
@@ -112,7 +111,7 @@ export function useMovies(searchText: string | undefined, page: number) {
   }, [fetchMovies]);
 
   useEffect(() => {
-    if (searchText && movies) {
+    if (searchText && movies && movieDetails.size < 1) {
       fetchMovieDetails(movies);
       setIsLoading(false);
     }
