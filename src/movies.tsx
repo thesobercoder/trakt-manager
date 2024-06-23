@@ -1,125 +1,45 @@
 import { Grid, Icon, Keyboard, showToast, Toast } from "@raycast/api";
-import { setMaxListeners } from "events";
-import { AbortError } from "node-fetch";
-import { useEffect, useRef, useState } from "react";
-import { addMovieToHistory, addMovieToWatchlist, checkInMovie, searchMovies } from "./api/movies";
-import { getTMDBMovieDetails } from "./api/tmdb";
+import { useCallback, useEffect, useState } from "react";
 import { MovieGrid } from "./components/movie-grid";
-import { APP_MAX_LISTENERS } from "./lib/constants";
+import { useMovies } from "./hooks/useMovies";
 
 export default function Command() {
-  const abortable = useRef<AbortController>();
-  const [searchText, setSearchText] = useState<string | undefined>();
-  const [movies, setMovies] = useState<TraktMovieList | undefined>();
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+  const [searchText, setSearchText] = useState<string | undefined>();
+  const {
+    isLoading,
+    movies,
+    movieDetails,
+    addMovieToWatchlistMutation,
+    checkInMovieMutation,
+    addMovieToHistoryMutation,
+    error,
+    success,
+    totalPages,
+  } = useMovies(searchText, page);
 
-  useEffect(() => {
-    (async () => {
-      if (abortable.current) {
-        abortable.current.abort();
-      }
-      abortable.current = new AbortController();
-      setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      if (!searchText) {
-        setMovies(undefined);
-      } else {
-        setIsLoading(true);
-        try {
-          const movies = await searchMovies(searchText, page, abortable.current.signal);
-          setMovies(movies);
-          setPage(movies.page);
-          setTotalPages(movies.total_pages);
-
-          const moviesWithImages = (await Promise.all(
-            movies.map(async (movie) => {
-              movie.movie.details = await getTMDBMovieDetails(movie.movie.ids.tmdb, abortable.current?.signal);
-              return movie;
-            }),
-          )) as TraktMovieList;
-
-          setMovies(moviesWithImages);
-        } catch (e) {
-          if (!(e instanceof AbortError)) {
-            showToast({
-              title: "Error searching movies",
-              style: Toast.Style.Failure,
-            });
-          }
-        }
-        setIsLoading(false);
-        return () => {
-          if (abortable.current) {
-            abortable.current.abort();
-          }
-        };
-      }
-    })();
-  }, [searchText, page]);
-
-  const onAddMovieToWatchlist = async (movieId: number) => {
-    setIsLoading(true);
-    try {
-      await addMovieToWatchlist(movieId, abortable.current?.signal);
-      showToast({
-        title: "Movie added to watchlist",
-        style: Toast.Style.Success,
-      });
-    } catch (e) {
-      if (!(e instanceof AbortError)) {
-        showToast({
-          title: "Error adding movie to watchlist",
-          style: Toast.Style.Failure,
-        });
-      }
-    }
-    setIsLoading(false);
-  };
-
-  const onCheckInMovie = async (movieId: number) => {
-    setIsLoading(true);
-    try {
-      await checkInMovie(movieId, abortable.current?.signal);
-      showToast({
-        title: "Movie checked in",
-        style: Toast.Style.Success,
-      });
-    } catch (e) {
-      if (!(e instanceof AbortError)) {
-        showToast({
-          title: "Error checking in movie",
-          style: Toast.Style.Failure,
-        });
-      }
-    }
-    setIsLoading(false);
-  };
-
-  const onAddMovieToHistory = async (movieId: number) => {
-    setIsLoading(true);
-    try {
-      await addMovieToHistory(movieId, abortable.current?.signal);
-      showToast({
-        title: "Movie added to history",
-        style: Toast.Style.Success,
-      });
-    } catch (e) {
-      if (!(e instanceof AbortError)) {
-        showToast({
-          title: "Error adding movie to history",
-          style: Toast.Style.Failure,
-        });
-      }
-    }
-    setIsLoading(false);
-  };
-
-  const onSearchTextChange = (text: string): void => {
+  const onSearchTextChange = useCallback((text: string): void => {
     setSearchText(text);
     setPage(1);
-    setTotalPages(1);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (error) {
+      showToast({
+        title: error.message,
+        style: Toast.Style.Failure,
+      });
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      showToast({
+        title: success,
+        style: Toast.Style.Success,
+      });
+    }
+  }, [success]);
 
   return (
     <Grid
@@ -133,18 +53,19 @@ export default function Command() {
       <Grid.EmptyView title="Search for movies" />
       <MovieGrid
         movies={movies}
+        movieDetails={movieDetails}
         page={page}
         totalPages={totalPages}
         setPage={setPage}
-        checkInAction={onCheckInMovie}
+        checkInAction={checkInMovieMutation}
         watchlistActionTitle={"Add to Watchlist"}
         watchlistActionIcon={Icon.Bookmark}
         watchlistActionShortcut={Keyboard.Shortcut.Common.Edit}
-        watchlistAction={onAddMovieToWatchlist}
+        watchlistAction={addMovieToWatchlistMutation}
         historyActionTitle="Add to History"
         historyActionIcon={Icon.Clock}
         historyActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-        historyAction={onAddMovieToHistory}
+        historyAction={addMovieToHistoryMutation}
       />
     </Grid>
   );
