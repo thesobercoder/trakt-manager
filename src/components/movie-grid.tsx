@@ -6,30 +6,36 @@ import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
 export const MovieGrid = ({
   movies,
   movieDetails,
-  watchlistActionTitle,
-  watchlistActionIcon,
-  watchlistActionShortcut,
-  watchlistAction,
-  checkInAction,
-  historyActionTitle,
-  historyActionIcon,
-  historyActionShortcut,
-  historyAction,
+  primaryActionTitle,
+  primaryActionIcon,
+  primaryActionShortcut,
+  primaryAction,
+  secondaryActionTitle,
+  secondaryActionIcon,
+  secondaryActionShortcut,
+  secondaryAction,
+  tertiaryActionTitle,
+  tertiaryActionIcon,
+  tertiaryActionShortcut,
+  tertiaryAction,
   page,
   totalPages,
   setPage,
 }: {
   movies: TraktMovieList | undefined;
   movieDetails: Map<number, TMDBMovieDetails | undefined>;
-  watchlistActionTitle?: string;
-  watchlistActionIcon?: Image.ImageLike;
-  watchlistActionShortcut?: Keyboard.Shortcut;
-  watchlistAction?: (movieId: number) => void;
-  checkInAction?: (movieId: number) => void;
-  historyActionTitle?: string;
-  historyActionIcon?: Image.ImageLike;
-  historyActionShortcut?: Keyboard.Shortcut;
-  historyAction?: (movieId: number) => void;
+  primaryActionTitle?: string;
+  primaryActionIcon?: Image.ImageLike;
+  primaryActionShortcut?: Keyboard.Shortcut;
+  primaryAction?: (movie: TraktMovieListItem) => void;
+  secondaryActionTitle?: string;
+  secondaryActionIcon?: Image.ImageLike;
+  secondaryActionShortcut?: Keyboard.Shortcut;
+  secondaryAction?: (movie: TraktMovieListItem) => void;
+  tertiaryActionTitle?: string;
+  tertiaryActionIcon?: Image.ImageLike;
+  tertiaryActionShortcut?: Keyboard.Shortcut;
+  tertiaryAction?: (movie: TraktMovieListItem) => void;
   page: number;
   totalPages: number;
   setPage: (value: SetStateAction<number>) => void;
@@ -62,28 +68,28 @@ export const MovieGrid = ({
                   />
                 </ActionPanel.Section>
                 <ActionPanel.Section>
-                  {watchlistAction && watchlistActionTitle && watchlistActionIcon && watchlistActionShortcut && (
+                  {primaryAction && primaryActionTitle && primaryActionIcon && primaryActionShortcut && (
                     <Action
-                      icon={watchlistActionIcon}
-                      title={watchlistActionTitle}
-                      shortcut={watchlistActionShortcut}
-                      onAction={() => watchlistAction(movie.movie.ids.trakt)}
+                      icon={primaryActionIcon}
+                      title={primaryActionTitle}
+                      shortcut={primaryActionShortcut}
+                      onAction={() => primaryAction(movie)}
                     />
                   )}
-                  {checkInAction && (
+                  {secondaryAction && secondaryActionTitle && secondaryActionIcon && secondaryActionShortcut && (
                     <Action
                       icon={Icon.Checkmark}
-                      title="Check-in Movie"
-                      shortcut={Keyboard.Shortcut.Common.Duplicate}
-                      onAction={() => checkInAction(movie.movie.ids.trakt)}
+                      title={secondaryActionTitle}
+                      shortcut={secondaryActionShortcut}
+                      onAction={() => secondaryAction(movie)}
                     />
                   )}
-                  {historyAction && historyActionTitle && historyActionIcon && historyActionShortcut && (
+                  {tertiaryAction && tertiaryActionTitle && tertiaryActionIcon && tertiaryActionShortcut && (
                     <Action
-                      icon={historyActionIcon}
-                      title={historyActionTitle}
-                      shortcut={historyActionShortcut}
-                      onAction={() => historyAction(movie.movie.ids.trakt)}
+                      icon={tertiaryActionIcon}
+                      title={tertiaryActionTitle}
+                      shortcut={tertiaryActionShortcut}
+                      onAction={() => tertiaryAction(movie)}
                     />
                   )}
                 </ActionPanel.Section>

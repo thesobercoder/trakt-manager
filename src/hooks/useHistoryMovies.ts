@@ -25,10 +25,10 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
     }
   }, [page]);
 
-  const removeMovieFromHistoryMutation = async (movieId: number) => {
+  const removeMovieFromHistoryMutation = async (movie: TraktMovieListItem) => {
     setIsLoading(true);
     try {
-      await removeMovieFromHistory(movieId, abortable.current?.signal);
+      await removeMovieFromHistory(movie.movie.ids.trakt, abortable.current?.signal);
       setSuccess("Movie removed from history");
       await fetchMovies();
     } catch (e) {

@@ -68,15 +68,18 @@ export default function Command() {
         page={page}
         totalPages={totalPages}
         setPage={setPage}
-        checkInAction={checkInMovieMutation}
-        watchlistActionTitle={"Add to Watchlist"}
-        watchlistActionIcon={Icon.Bookmark}
-        watchlistActionShortcut={Keyboard.Shortcut.Common.Edit}
-        watchlistAction={addMovieToWatchlistMutation}
-        historyActionTitle="Add to History"
-        historyActionIcon={Icon.Clock}
-        historyActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-        historyAction={addMovieToHistoryMutation}
+        primaryActionTitle="Add to Watchlist"
+        primaryActionIcon={Icon.Bookmark}
+        primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
+        primaryAction={addMovieToWatchlistMutation}
+        secondaryActionTitle="Check-in Movie"
+        secondaryActionIcon={Icon.Checkmark}
+        secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
+        secondaryAction={checkInMovieMutation}
+        tertiaryActionTitle="Add to History"
+        tertiaryActionIcon={Icon.Clock}
+        tertiaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+        tertiaryAction={addMovieToHistoryMutation}
       />
     </Grid>
   );

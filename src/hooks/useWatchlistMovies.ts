@@ -25,10 +25,10 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
     }
   }, [page]);
 
-  const removeMovieFromWatchlistMutation = async (movieId: number) => {
+  const removeMovieFromWatchlistMutation = async (movie: TraktMovieListItem) => {
     setIsLoading(true);
     try {
-      await removeMovieFromWatchlist(movieId, abortable.current?.signal);
+      await removeMovieFromWatchlist(movie.movie.ids.trakt, abortable.current?.signal);
       setSuccess("Movie removed from watchlist");
       fetchMovies();
     } catch (e) {

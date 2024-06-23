@@ -27,9 +27,9 @@ export function useMovies(searchText: string | undefined, page: number) {
     }
   }, [searchText, page]);
 
-  const addMovieToWatchlistMutation = useCallback(async (movieId: number) => {
+  const addMovieToWatchlistMutation = useCallback(async (movie: TraktMovieListItem) => {
     try {
-      await addMovieToWatchlist(movieId, abortable.current?.signal);
+      await addMovieToWatchlist(movie.movie.ids.trakt, abortable.current?.signal);
       setSuccess("Movie added to watchlist");
     } catch (e) {
       if (!(e instanceof AbortError)) {
@@ -38,9 +38,9 @@ export function useMovies(searchText: string | undefined, page: number) {
     }
   }, []);
 
-  const checkInMovieMutation = useCallback(async (movieId: number) => {
+  const checkInMovieMutation = useCallback(async (movie: TraktMovieListItem) => {
     try {
-      await checkInMovie(movieId, abortable.current?.signal);
+      await checkInMovie(movie.movie.ids.trakt, abortable.current?.signal);
       setSuccess("Movie checked in");
     } catch (e) {
       if (!(e instanceof AbortError)) {
@@ -49,9 +49,9 @@ export function useMovies(searchText: string | undefined, page: number) {
     }
   }, []);
 
-  const addMovieToHistoryMutation = useCallback(async (movieId: number) => {
+  const addMovieToHistoryMutation = useCallback(async (movie: TraktMovieListItem) => {
     try {
-      await addMovieToHistory(movieId, abortable.current?.signal);
+      await addMovieToHistory(movie.movie.ids.trakt, abortable.current?.signal);
       setSuccess("Movie added to history");
     } catch (e) {
       if (!(e instanceof AbortError)) {

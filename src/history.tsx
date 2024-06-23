@@ -116,10 +116,10 @@ export default function Command() {
             page={page}
             totalPages={totalPages}
             setPage={setPage}
-            historyActionTitle="Remove from History"
-            historyActionIcon={Icon.Trash}
-            historyActionShortcut={Keyboard.Shortcut.Common.Remove}
-            historyAction={removeMovieFromHistoryMutation}
+            primaryActionTitle="Remove from History"
+            primaryActionIcon={Icon.Trash}
+            primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
+            primaryAction={removeMovieFromHistoryMutation}
           />
         </>
       )}
@@ -133,10 +133,10 @@ export default function Command() {
             page={page}
             totalPages={totalPages}
             setPage={setPage}
-            secondaryActionTitle="Remove from History"
-            secondaryActionIcon={Icon.Trash}
-            secondaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-            secondaryAction={removeShowFromHistoryMutation}
+            primaryActionTitle="Remove from History"
+            primaryActionIcon={Icon.Trash}
+            primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
+            primaryAction={removeShowFromHistoryMutation}
           />
         </>
       )}
