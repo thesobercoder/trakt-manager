@@ -4,7 +4,7 @@ import { SetStateAction } from "react";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
 import { Seasons } from "./seasons";
 
-export const ShowGrid = ({
+export const ShowGridItems = ({
   shows,
   showDetails,
   subtitle,

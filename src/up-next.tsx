@@ -1,6 +1,6 @@
 import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
-import { ShowGrid } from "./components/show-grid";
+import { ShowGridItems } from "./components/show-grid";
 import { useShowDetails } from "./hooks/useShowDetails";
 import { useUpNextShows } from "./hooks/useUpNextShows";
 
@@ -59,7 +59,7 @@ export default function Command() {
       searchBarPlaceholder="Search for shows that are up next"
       throttle={true}
     >
-      <ShowGrid
+      <ShowGridItems
         shows={shows}
         showDetails={showDetails}
         subtitle={(show) =>

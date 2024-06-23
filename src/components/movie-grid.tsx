@@ -3,7 +3,7 @@ import { getFavicon } from "@raycast/utils";
 import { SetStateAction } from "react";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
 
-export const MovieGrid = ({
+export const MovieGridItems = ({
   movies,
   movieDetails,
   primaryActionTitle,

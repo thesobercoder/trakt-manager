@@ -1,6 +1,6 @@
 import { Grid, Icon, Keyboard, showToast, Toast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
-import { MovieGrid } from "./components/movie-grid";
+import { MovieGridItems } from "./components/movie-grid";
 import { useMovieDetails } from "./hooks/useMovieDetails";
 import { useMovies } from "./hooks/useMovies";
 
@@ -76,7 +76,7 @@ export default function Command() {
       throttle={true}
     >
       <Grid.EmptyView title="Search for movies" />
-      <MovieGrid
+      <MovieGridItems
         movies={movies}
         movieDetails={movieDetails}
         page={page}

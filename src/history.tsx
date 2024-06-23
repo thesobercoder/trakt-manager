@@ -1,7 +1,7 @@
 import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
-import { MovieGrid } from "./components/movie-grid";
-import { ShowGrid } from "./components/show-grid";
+import { MovieGridItems } from "./components/movie-grid";
+import { ShowGridItems } from "./components/show-grid";
 import { useHistoryMovies } from "./hooks/useHistoryMovies";
 import { useHistoryShows } from "./hooks/useHistoryShows";
 import { useMovieDetails } from "./hooks/useMovieDetails";
@@ -136,7 +136,7 @@ export default function Command() {
       {mediaType === "movie" && (
         <>
           <Grid.EmptyView title="No movies in your history" />
-          <MovieGrid
+          <MovieGridItems
             movies={movies}
             movieDetails={movieDetails}
             page={page}
@@ -152,7 +152,7 @@ export default function Command() {
       {mediaType === "show" && (
         <>
           <Grid.EmptyView title="No shows in your history" />
-          <ShowGrid
+          <ShowGridItems
             shows={shows}
             showDetails={showDetails}
             subtitle={(show) => show.show.year?.toString() || ""}

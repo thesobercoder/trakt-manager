@@ -1,6 +1,6 @@
 import { Grid, Icon, Keyboard, showToast, Toast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
-import { ShowGrid } from "./components/show-grid";
+import { ShowGridItems } from "./components/show-grid";
 import { useShowDetails } from "./hooks/useShowDetails";
 import { useShows } from "./hooks/useShows";
 
@@ -71,7 +71,7 @@ export default function Command() {
       throttle={true}
     >
       <Grid.EmptyView title="Search for shows" />
-      <ShowGrid
+      <ShowGridItems
         shows={shows}
         showDetails={showDetails}
         subtitle={(show) => show.show.year?.toString() || ""}
