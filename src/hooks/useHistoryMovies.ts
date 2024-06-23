@@ -5,11 +5,11 @@ import { getHistoryMovies, removeMovieFromHistory } from "../api/movies";
 import { APP_MAX_LISTENERS } from "../lib/constants";
 
 export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
+  const abortable = useRef<AbortController>();
   const [movies, setMovies] = useState<TraktMovieList | undefined>();
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<Error | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
-  const abortable = useRef<AbortController>();
 
   const fetchMovies = useCallback(async () => {
     try {

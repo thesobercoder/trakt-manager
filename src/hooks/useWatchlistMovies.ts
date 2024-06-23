@@ -5,12 +5,11 @@ import { getWatchlistMovies, removeMovieFromWatchlist } from "../api/movies";
 import { APP_MAX_LISTENERS } from "../lib/constants";
 
 export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
+  const abortable = useRef<AbortController>();
   const [movies, setMovies] = useState<TraktMovieList | undefined>();
-  const [isLoading, setIsLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState<Error | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
-  const abortable = useRef<AbortController>();
 
   const fetchMovies = useCallback(async () => {
     try {
@@ -20,13 +19,11 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
-        setIsLoading(false);
       }
     }
   }, [page]);
 
   const removeMovieFromWatchlistMutation = async (movie: TraktMovieListItem) => {
-    setIsLoading(true);
     try {
       await removeMovieFromWatchlist(movie.movie.ids.trakt, abortable.current?.signal);
       setSuccess("Movie removed from watchlist");
@@ -34,10 +31,8 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
-        setIsLoading(false);
       }
     }
-    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -47,7 +42,6 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
       }
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      setIsLoading(true);
       fetchMovies();
     }
     return () => {
@@ -59,7 +53,6 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
 
   return {
     movies,
-    isLoading,
     totalPages,
     removeMovieFromWatchlistMutation,
     error,
