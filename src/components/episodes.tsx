@@ -18,7 +18,7 @@ export const Episodes = ({
   seasonNumber: number;
   slug: string;
 }) => {
-  const { episodes, checkInEpisodeMutation, error } = useEpisodes(showId, seasonNumber);
+  const { episodes, checkInEpisodeMutation, error, success } = useEpisodes(showId, seasonNumber);
   const { details: episodeDetails, error: detailsError } = useEpisodeDetails(tmdbId, seasonNumber, episodes);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -33,6 +33,15 @@ export const Episodes = ({
     },
     [],
   );
+
+  useEffect(() => {
+    if (success) {
+      showToast({
+        title: success,
+        style: Toast.Style.Failure,
+      });
+    }
+  }, [success]);
 
   useEffect(() => {
     if (error) {

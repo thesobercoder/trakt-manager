@@ -8,6 +8,7 @@ export function useEpisodes(showId: number, seasonNumber: number) {
   const abortable = useRef<AbortController>();
   const [episodes, setEpisodes] = useState<TraktEpisodeList | undefined>();
   const [error, setError] = useState<Error | undefined>();
+  const [success, setSuccess] = useState<string | undefined>();
 
   const fetchEpisodes = useCallback(async () => {
     try {
@@ -23,6 +24,7 @@ export function useEpisodes(showId: number, seasonNumber: number) {
   const checkInEpisodeMutation = useCallback(async (episode: TraktEpisodeListItem) => {
     try {
       await checkInEpisode(episode.ids.trakt, abortable.current?.signal);
+      setSuccess("Episode checked in");
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
@@ -49,5 +51,6 @@ export function useEpisodes(showId: number, seasonNumber: number) {
     episodes,
     checkInEpisodeMutation,
     error,
+    success,
   };
 }
