@@ -33,13 +33,14 @@ export function useEpisodes(showId: number, seasonNumber: number) {
   }, []);
 
   useEffect(() => {
-    if (abortable.current) {
-      abortable.current.abort();
-    }
-    abortable.current = new AbortController();
-    setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
-    fetchEpisodes();
-
+    (async () => {
+      if (abortable.current) {
+        abortable.current.abort();
+      }
+      abortable.current = new AbortController();
+      setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
+      await fetchEpisodes();
+    })();
     return () => {
       if (abortable.current) {
         abortable.current.abort();

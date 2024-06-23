@@ -16,6 +16,7 @@ export default function Command() {
     movies,
     totalPages: totalMoviePages,
     removeMovieFromWatchlistMutation,
+    checkInMovieMutation,
     error: movieError,
     success: movieSuccess,
   } = useWatchlistMovies(page, mediaType === "movie");
@@ -111,8 +112,8 @@ export default function Command() {
   const isLoading =
     actionLoading ||
     (mediaType === "movie"
-      ? !(movies && movieDetails) && !(movieError || movieDetailsError)
-      : !(shows && showDetails) && !(showError || showDetailsError));
+      ? !(movies && movieDetails.size) && !(movieError || movieDetailsError)
+      : !(shows && showDetails.size) && !(showError || showDetailsError));
   const totalPages = mediaType === "movie" ? totalMoviePages : totalShowPages;
 
   const onMediaTypeChange = (newValue: string) => {
@@ -146,6 +147,10 @@ export default function Command() {
             primaryActionIcon={Icon.Trash}
             primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
             primaryAction={(movie) => handleMovieAction(movie, removeMovieFromWatchlistMutation)}
+            secondaryActionTitle="Check-in Movie"
+            secondaryActionIcon={Icon.Checkmark}
+            secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
+            secondaryAction={(movie) => handleMovieAction(movie, checkInMovieMutation)}
           />
         </>
       )}

@@ -31,14 +31,16 @@ export function useMovieDetails(movieList: TraktMovieList | undefined) {
   }, []);
 
   useEffect(() => {
-    if (movieList) {
-      if (abortable.current) {
-        abortable.current.abort();
+    (async () => {
+      if (movieList) {
+        if (abortable.current) {
+          abortable.current.abort();
+        }
+        abortable.current = new AbortController();
+        setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
+        await fetchMovieDetails(movieList);
       }
-      abortable.current = new AbortController();
-      setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
-      fetchMovieDetails(movieList);
-    }
+    })();
     return () => {
       if (abortable.current) {
         abortable.current.abort();

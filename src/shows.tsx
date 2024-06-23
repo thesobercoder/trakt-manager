@@ -59,7 +59,7 @@ export default function Command() {
     }
   }, [success]);
 
-  const isLoading = !!searchText && (!shows || !showDetails || actionLoading) && !error && !detailsError;
+  const isLoading = !!searchText && (!shows || !showDetails.size || actionLoading) && !error && !detailsError;
 
   return (
     <Grid

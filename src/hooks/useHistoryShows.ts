@@ -36,14 +36,16 @@ export const useHistoryShows = (page: number, shouldFetch: boolean) => {
   };
 
   useEffect(() => {
-    if (shouldFetch) {
-      if (abortable.current) {
-        abortable.current.abort();
+    (async () => {
+      if (shouldFetch) {
+        if (abortable.current) {
+          abortable.current.abort();
+        }
+        abortable.current = new AbortController();
+        setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
+        await fetchShows();
       }
-      abortable.current = new AbortController();
-      setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      fetchShows();
-    }
+    })();
     return () => {
       if (abortable.current) {
         abortable.current.abort();

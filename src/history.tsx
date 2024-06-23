@@ -111,8 +111,8 @@ export default function Command() {
   const isLoading =
     actionLoading ||
     (mediaType === "movie"
-      ? !(movies && movieDetails) && !(movieError || movieDetailsError)
-      : !(shows && showDetails) && !(showError || showDetailsError));
+      ? !(movies && movieDetails.size) && !(movieError || movieDetailsError)
+      : !(shows && showDetails.size) && !(showError || showDetailsError));
   const totalPages = mediaType === "movie" ? totalMoviePages : totalShowPages;
 
   const onMediaTypeChange = (newValue: string) => {

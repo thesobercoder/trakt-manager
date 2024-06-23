@@ -1,7 +1,7 @@
 import { setMaxListeners } from "events";
 import { AbortError } from "node-fetch";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getWatchlistMovies, removeMovieFromWatchlist } from "../api/movies";
+import { checkInMovie, getWatchlistMovies, removeMovieFromWatchlist } from "../api/movies";
 import { APP_MAX_LISTENERS } from "../lib/constants";
 
 export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
@@ -27,7 +27,7 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
     try {
       await removeMovieFromWatchlist(movie.movie.ids.trakt, abortable.current?.signal);
       setSuccess("Movie removed from watchlist");
-      fetchMovies();
+      await fetchMovies();
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
@@ -35,15 +35,29 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
     }
   };
 
-  useEffect(() => {
-    if (shouldFetch) {
-      if (abortable.current) {
-        abortable.current.abort();
+  const checkInMovieMutation = useCallback(async (movie: TraktMovieListItem) => {
+    try {
+      await checkInMovie(movie.movie.ids.trakt, abortable.current?.signal);
+      setSuccess("Movie checked in");
+      await fetchMovies();
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        setError(e as Error);
       }
-      abortable.current = new AbortController();
-      setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      fetchMovies();
     }
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (shouldFetch) {
+        if (abortable.current) {
+          abortable.current.abort();
+        }
+        abortable.current = new AbortController();
+        setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
+        await fetchMovies();
+      }
+    })();
     return () => {
       if (abortable.current) {
         abortable.current.abort();
@@ -55,6 +69,7 @@ export const useWatchlistMovies = (page: number, shouldFetch: boolean) => {
     movies,
     totalPages,
     removeMovieFromWatchlistMutation,
+    checkInMovieMutation,
     error,
     success,
   };

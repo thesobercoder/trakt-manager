@@ -64,7 +64,7 @@ export default function Command() {
     }
   }, [success]);
 
-  const isLoading = !!searchText && (!movies || !movieDetails || actionLoading) && !error && !detailsError;
+  const isLoading = !!searchText && (!movies || !movieDetails.size || actionLoading) && !error && !detailsError;
 
   return (
     <Grid

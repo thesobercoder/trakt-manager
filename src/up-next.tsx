@@ -49,7 +49,7 @@ export default function Command() {
     }
   }, [success]);
 
-  const isLoading = ((!shows || !showDetails) && !error && !detailsError) || actionLoading;
+  const isLoading = ((!shows || !showDetails.size) && !error && !detailsError) || actionLoading;
 
   return (
     <Grid

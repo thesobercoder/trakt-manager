@@ -31,14 +31,16 @@ export function useShowDetails(showsList: TraktShowList | undefined) {
   }, []);
 
   useEffect(() => {
-    if (showsList) {
-      if (abortable.current) {
-        abortable.current.abort();
+    (async () => {
+      if (showsList) {
+        if (abortable.current) {
+          abortable.current.abort();
+        }
+        abortable.current = new AbortController();
+        setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
+        await fetchShowDetails(showsList);
       }
-      abortable.current = new AbortController();
-      setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
-      fetchShowDetails(showsList);
-    }
+    })();
     return () => {
       if (abortable.current) {
         abortable.current.abort();

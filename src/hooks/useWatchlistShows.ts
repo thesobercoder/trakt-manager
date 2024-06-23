@@ -25,7 +25,7 @@ export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
     try {
       await removeShowFromWatchlist(show.show.ids.trakt, abortable.current?.signal);
       setSuccess("Show removed from watchlist");
-      fetchShows();
+      await fetchShows();
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);
@@ -34,13 +34,15 @@ export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
   };
 
   useEffect(() => {
-    if (shouldFetch) {
-      if (abortable.current) {
-        abortable.current.abort();
+    (async () => {
+      if (shouldFetch) {
+        if (abortable.current) {
+          abortable.current.abort();
+        }
+        abortable.current = new AbortController();
+        await fetchShows();
       }
-      abortable.current = new AbortController();
-      fetchShows();
-    }
+    })();
     return () => {
       if (abortable.current) {
         abortable.current.abort();

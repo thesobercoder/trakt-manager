@@ -51,12 +51,14 @@ export function useShows(searchText: string | undefined, page: number) {
   }, []);
 
   useEffect(() => {
-    if (abortable.current) {
-      abortable.current.abort();
-    }
-    abortable.current = new AbortController();
-    setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
-    fetchShows();
+    (async () => {
+      if (abortable.current) {
+        abortable.current.abort();
+      }
+      abortable.current = new AbortController();
+      setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
+      await fetchShows();
+    })();
     return () => {
       if (abortable.current) {
         abortable.current.abort();

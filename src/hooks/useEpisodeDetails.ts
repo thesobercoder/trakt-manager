@@ -39,15 +39,16 @@ export function useEpisodeDetails(tmdbId: number, seasonNumber: number, episodeL
   );
 
   useEffect(() => {
-    if (episodeList) {
-      if (abortable.current) {
-        abortable.current.abort();
+    (async () => {
+      if (episodeList) {
+        if (abortable.current) {
+          abortable.current.abort();
+        }
+        abortable.current = new AbortController();
+        setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
+        await fetchEpisodeDetails(episodeList);
       }
-      abortable.current = new AbortController();
-      setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
-      fetchEpisodeDetails(episodeList);
-    }
-
+    })();
     return () => {
       if (abortable.current) {
         abortable.current.abort();

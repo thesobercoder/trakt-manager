@@ -61,12 +61,14 @@ export function useMovies(searchText: string | undefined, page: number) {
   }, []);
 
   useEffect(() => {
-    if (abortable.current) {
-      abortable.current.abort();
-    }
-    abortable.current = new AbortController();
-    setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
-    fetchMovies();
+    (async () => {
+      if (abortable.current) {
+        abortable.current.abort();
+      }
+      abortable.current = new AbortController();
+      setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
+      await fetchMovies();
+    })();
     return () => {
       if (abortable.current) {
         abortable.current.abort();
