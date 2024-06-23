@@ -2,6 +2,8 @@ import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
 import { useEffect, useState } from "react";
 import { MovieGrid } from "./components/movie-grid";
 import { ShowGrid } from "./components/show-grid";
+import { useMovieDetails } from "./hooks/useMovieDetails";
+import { useShowDetails } from "./hooks/useShowDetails";
 import { useWatchlistMovies } from "./hooks/useWatchlistMovies";
 import { useWatchlistShows } from "./hooks/useWatchlistShows";
 
@@ -11,21 +13,21 @@ export default function Command() {
 
   const {
     movies,
-    isLoading: moviesLoading,
     totalPages: totalMoviePages,
-    onRemoveMovieFromWatchlist,
+    removeMovieFromWatchlistMutation,
     error: movieError,
     success: movieSuccess,
   } = useWatchlistMovies(page, mediaType === "movie");
+  const { details: movieDetails, error: movieDetailsError } = useMovieDetails(movies);
 
   const {
     shows,
-    isLoading: showsLoading,
     totalPages: totalShowPages,
-    onRemoveShowFromWatchlist,
+    removeShowFromWatchlistMutation,
     error: showError,
     success: showSuccess,
   } = useWatchlistShows(page, mediaType === "show");
+  const { details: showDetails, error: showDetailsError } = useShowDetails(shows);
 
   useEffect(() => {
     if (movieError) {
@@ -37,6 +39,15 @@ export default function Command() {
   }, [movieError]);
 
   useEffect(() => {
+    if (movieDetailsError) {
+      showToast({
+        title: movieDetailsError.message,
+        style: Toast.Style.Failure,
+      });
+    }
+  }, [movieDetailsError]);
+
+  useEffect(() => {
     if (showError) {
       showToast({
         title: showError.message,
@@ -44,6 +55,15 @@ export default function Command() {
       });
     }
   }, [showError]);
+
+  useEffect(() => {
+    if (showDetailsError) {
+      showToast({
+        title: showDetailsError.message,
+        style: Toast.Style.Failure,
+      });
+    }
+  }, [showDetailsError]);
 
   useEffect(() => {
     if (movieSuccess) {
@@ -63,7 +83,10 @@ export default function Command() {
     }
   }, [showSuccess]);
 
-  const isLoading = mediaType === "movie" ? moviesLoading : showsLoading;
+  const isLoading =
+    mediaType === "movie"
+      ? !(movies && movieDetails) && !(movieError || movieDetailsError)
+      : !(shows && showDetails) && !(showError || showDetailsError);
   const totalPages = mediaType === "movie" ? totalMoviePages : totalShowPages;
 
   const onMediaTypeChange = (newValue: string) => {
@@ -89,13 +112,14 @@ export default function Command() {
           <Grid.EmptyView title="No movies in your watchlist" />
           <MovieGrid
             movies={movies}
+            movieDetails={movieDetails}
             page={page}
             totalPages={totalPages}
             setPage={setPage}
             watchlistActionTitle="Remove from Watchlist"
             watchlistActionIcon={Icon.Trash}
             watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
-            watchlistAction={onRemoveMovieFromWatchlist}
+            watchlistAction={removeMovieFromWatchlistMutation}
           />
         </>
       )}
@@ -104,13 +128,14 @@ export default function Command() {
           <Grid.EmptyView title="No shows in your watchlist" />
           <ShowGrid
             shows={shows}
+            showDetails={showDetails}
             page={page}
             totalPages={totalPages}
             setPage={setPage}
             watchlistActionTitle="Remove from Watchlist"
             watchlistActionIcon={Icon.Trash}
             watchlistActionShortcut={Keyboard.Shortcut.Common.Remove}
-            watchlistAction={onRemoveShowFromWatchlist}
+            watchlistAction={removeShowFromWatchlistMutation}
           />
         </>
       )}

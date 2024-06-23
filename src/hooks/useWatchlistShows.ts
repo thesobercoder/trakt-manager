@@ -1,7 +1,6 @@
 import { AbortError } from "node-fetch";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getWatchlistShows, removeShowFromWatchlist } from "../api/shows";
-import { getTMDBShowDetails } from "../api/tmdb";
 
 export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
   const [shows, setShows] = useState<TraktShowList | undefined>();
@@ -24,26 +23,7 @@ export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
     }
   }, [page]);
 
-  const fetchShowDetails = useCallback(async (showsList: TraktShowList) => {
-    try {
-      const showsWithImages = (await Promise.all(
-        showsList.map(async (showItem) => {
-          if (showItem.show.details) return showItem;
-          showItem.show.details = await getTMDBShowDetails(showItem.show.ids.tmdb, abortable.current?.signal);
-          return showItem;
-        }),
-      )) as TraktShowList;
-
-      setShows(showsWithImages);
-    } catch (e) {
-      if (!(e instanceof AbortError)) {
-        setError(e as Error);
-        setIsLoading(false);
-      }
-    }
-  }, []);
-
-  const onRemoveShowFromWatchlist = async (showId: number) => {
+  const removeShowFromWatchlistMutation = async (showId: number) => {
     setIsLoading(true);
     try {
       await removeShowFromWatchlist(showId, abortable.current?.signal);
@@ -73,17 +53,5 @@ export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
     };
   }, [fetchShows, shouldFetch]);
 
-  useEffect(() => {
-    if (shows && shows.some((show) => !show.show.details)) {
-      fetchShowDetails(shows);
-      setIsLoading(false);
-    }
-    return () => {
-      if (abortable.current) {
-        abortable.current.abort();
-      }
-    };
-  }, [shows, fetchShowDetails]);
-
-  return { shows, isLoading, totalPages, onRemoveShowFromWatchlist, error, success };
+  return { shows, isLoading, totalPages, removeShowFromWatchlistMutation, error, success };
 };

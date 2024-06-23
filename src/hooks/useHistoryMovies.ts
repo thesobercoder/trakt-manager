@@ -2,7 +2,6 @@ import { AbortError } from "node-fetch";
 import { setMaxListeners } from "node:events";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getHistoryMovies, removeMovieFromHistory } from "../api/movies";
-import { getTMDBMovieDetails } from "../api/tmdb";
 import { APP_MAX_LISTENERS } from "../lib/constants";
 
 export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
@@ -26,26 +25,7 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
     }
   }, [page]);
 
-  const fetchMovieDetails = useCallback(async (moviesList: TraktMovieList) => {
-    try {
-      const moviesWithImages = (await Promise.all(
-        moviesList.map(async (movieItem) => {
-          if (movieItem.movie.details) return movieItem;
-          movieItem.movie.details = await getTMDBMovieDetails(movieItem.movie.ids.tmdb, abortable.current?.signal);
-          return movieItem;
-        }),
-      )) as TraktMovieList;
-
-      setMovies(moviesWithImages);
-    } catch (e) {
-      if (!(e instanceof AbortError)) {
-        setError(e as Error);
-        setIsLoading(false);
-      }
-    }
-  }, []);
-
-  const onRemoveMovieFromHistory = async (movieId: number) => {
+  const removeMovieFromHistoryMutation = async (movieId: number) => {
     setIsLoading(true);
     try {
       await removeMovieFromHistory(movieId, abortable.current?.signal);
@@ -68,6 +48,7 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
       setIsLoading(true);
       fetchMovies();
+      setIsLoading(false);
     }
     return () => {
       if (abortable.current) {
@@ -76,17 +57,5 @@ export const useHistoryMovies = (page: number, shouldFetch: boolean) => {
     };
   }, [fetchMovies, shouldFetch]);
 
-  useEffect(() => {
-    if (movies && movies.some((movie) => !movie.movie.details)) {
-      fetchMovieDetails(movies);
-      setIsLoading(false);
-    }
-    return () => {
-      if (abortable.current) {
-        abortable.current.abort();
-      }
-    };
-  }, [movies, fetchMovieDetails]);
-
-  return { movies, isLoading, totalPages, onRemoveMovieFromHistory, error, success };
+  return { movies, isLoading, totalPages, removeMovieFromHistoryMutation, error, success };
 };

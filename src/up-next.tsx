@@ -1,12 +1,13 @@
-import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
-import { getFavicon } from "@raycast/utils";
-import { useEffect } from "react";
-import { Seasons } from "./components/seasons";
+import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { useEffect, useState } from "react";
+import { ShowGrid } from "./components/show-grid";
+import { useShowDetails } from "./hooks/useShowDetails";
 import { useUpNextShows } from "./hooks/useUpNextShows";
-import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
 
 export default function Command() {
-  const { isLoading, shows, onCheckInNextEpisode, error, success } = useUpNextShows();
+  const [page, setPage] = useState(1);
+  const { shows, totalPages, onCheckInNextEpisode, error, success } = useUpNextShows(page);
+  const { details: showDetails, error: detailsError } = useShowDetails(shows);
 
   useEffect(() => {
     if (error) {
@@ -18,6 +19,15 @@ export default function Command() {
   }, [error]);
 
   useEffect(() => {
+    if (detailsError) {
+      showToast({
+        title: detailsError.message,
+        style: Toast.Style.Failure,
+      });
+    }
+  }, [detailsError]);
+
+  useEffect(() => {
     if (success) {
       showToast({
         title: success,
@@ -25,6 +35,8 @@ export default function Command() {
       });
     }
   }, [success]);
+
+  const isLoading = (!shows || !showDetails) && !error && !detailsError;
 
   return (
     <Grid
@@ -34,54 +46,17 @@ export default function Command() {
       searchBarPlaceholder="Search for shows that are up next"
       throttle={true}
     >
-      {shows &&
-        shows.map((show) => (
-          <Grid.Item
-            title={show.show.title}
-            subtitle={`${show.show.progress?.next_episode?.season}x${show.show.progress?.next_episode?.number.toString().padStart(2, "0")}`}
-            content={getPosterUrl(show.show.details?.poster_path, "poster.png")}
-            key={show.show.ids.trakt}
-            actions={
-              <ActionPanel>
-                <ActionPanel.Section>
-                  <Action.OpenInBrowser
-                    icon={getFavicon("https://trakt.tv")}
-                    title="Open in Trakt"
-                    url={getTraktUrl("shows", show.show.ids.slug)}
-                  />
-                  <Action.OpenInBrowser
-                    icon={getFavicon("https://www.imdb.com")}
-                    title="Open in IMDb"
-                    url={getIMDbUrl(show.show.ids.imdb)}
-                  />
-                </ActionPanel.Section>
-                <ActionPanel.Section>
-                  <Action.Push
-                    icon={Icon.Switch}
-                    title="Seasons"
-                    shortcut={Keyboard.Shortcut.Common.Open}
-                    target={
-                      <Seasons
-                        traktId={show.show.ids.trakt}
-                        tmdbId={show.show.ids.tmdb}
-                        slug={show.show.ids.slug}
-                        imdbId={show.show.ids.imdb}
-                      />
-                    }
-                  />
-                  <Action
-                    icon={Icon.Checkmark}
-                    title={"Check-in Next Episode"}
-                    shortcut={Keyboard.Shortcut.Common.Edit}
-                    onAction={() =>
-                      onCheckInNextEpisode(show.show.progress?.next_episode?.ids.trakt, show.show.ids.trakt)
-                    }
-                  />
-                </ActionPanel.Section>
-              </ActionPanel>
-            }
-          />
-        ))}
+      <ShowGrid
+        shows={shows}
+        showDetails={showDetails}
+        page={page}
+        totalPages={totalPages}
+        setPage={setPage}
+        checkInActionTitle="Check-in Next Episode"
+        checkInActionIcon={Icon.Checkmark}
+        checkInActionShortcut={Keyboard.Shortcut.Common.Edit}
+        checkInAction={onCheckInNextEpisode}
+      />
     </Grid>
   );
 }

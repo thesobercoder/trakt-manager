@@ -1,15 +1,14 @@
 import { Grid, Icon, Keyboard, showToast, Toast } from "@raycast/api";
 import { useCallback, useEffect, useState } from "react";
 import { MovieGrid } from "./components/movie-grid";
+import { useMovieDetails } from "./hooks/useMovieDetails";
 import { useMovies } from "./hooks/useMovies";
 
 export default function Command() {
   const [page, setPage] = useState(1);
   const [searchText, setSearchText] = useState<string | undefined>();
   const {
-    isLoading,
     movies,
-    movieDetails,
     addMovieToWatchlistMutation,
     checkInMovieMutation,
     addMovieToHistoryMutation,
@@ -17,6 +16,7 @@ export default function Command() {
     success,
     totalPages,
   } = useMovies(searchText, page);
+  const { details: movieDetails, error: detailsError } = useMovieDetails(movies);
 
   const onSearchTextChange = useCallback((text: string): void => {
     setSearchText(text);
@@ -33,6 +33,15 @@ export default function Command() {
   }, [error]);
 
   useEffect(() => {
+    if (error) {
+      showToast({
+        title: error.message,
+        style: Toast.Style.Failure,
+      });
+    }
+  }, [detailsError]);
+
+  useEffect(() => {
     if (success) {
       showToast({
         title: success,
@@ -40,6 +49,8 @@ export default function Command() {
       });
     }
   }, [success]);
+
+  const isLoading = !!searchText && (!movies || !movieDetails) && !error && !detailsError;
 
   return (
     <Grid
