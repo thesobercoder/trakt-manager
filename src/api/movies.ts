@@ -3,6 +3,8 @@ import { TRAKT_API_URL, TRAKT_CLIENT_ID } from "../lib/constants";
 import { oauthProvider } from "../lib/oauth";
 
 export const searchMovies = async (query: string, page: number, signal: AbortSignal | undefined = undefined) => {
+  console.log(`${TRAKT_API_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}&limit=10&fields=title`);
+
   const accessToken = await oauthProvider.authorize();
   const response = await fetch(
     `${TRAKT_API_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}&limit=10&fields=title`,
@@ -23,11 +25,13 @@ export const searchMovies = async (query: string, page: number, signal: AbortSig
   }
 
   const result = (await response.json()) as TraktMovieList;
-  result.page = Number(response.headers.get("X-Pagination-Page")) ?? 1;
-  result.total_pages = Number(response.headers.get("X-Pagination-Page-Count")) ?? 1;
-  result.total_results = Number(response.headers.get("X-Pagination-Item-Count")) ?? result.length;
+  const slicedResult = result.slice(0, 10) as TraktMovieList;
 
-  return result;
+  slicedResult.page = Number(response.headers.get("X-Pagination-Page")) ?? 1;
+  slicedResult.total_pages = Number(response.headers.get("X-Pagination-Page-Count")) ?? 1;
+  slicedResult.total_results = Number(response.headers.get("X-Pagination-Item-Count")) ?? result.length;
+
+  return slicedResult as TraktMovieList;
 };
 
 export const getWatchlistMovies = async (page: number, signal: AbortSignal | undefined = undefined) => {

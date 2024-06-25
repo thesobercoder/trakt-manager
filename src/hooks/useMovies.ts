@@ -17,9 +17,9 @@ export function useMovies(searchText: string | undefined, page: number) {
       return;
     }
     try {
-      const movies = await searchMovies(searchText, page, abortable.current?.signal);
-      setMovies(movies);
-      setTotalPages(movies.total_pages);
+      const result = await searchMovies(searchText, page, abortable.current?.signal);
+      setMovies(result);
+      setTotalPages(result.total_pages);
     } catch (e) {
       if (!(e instanceof AbortError)) {
         setError(e as Error);

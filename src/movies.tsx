@@ -8,6 +8,7 @@ export default function Command() {
   const [page, setPage] = useState(1);
   const [searchText, setSearchText] = useState<string | undefined>();
   const [actionLoading, setActionLoading] = useState(false);
+  const [cachedMovies, setCachedMovies] = useState<TraktMovieList | undefined>();
 
   const {
     movies,
@@ -18,12 +19,20 @@ export default function Command() {
     success,
     totalPages,
   } = useMovies(searchText, page);
+
   const { details: movieDetails, error: detailsError } = useMovieDetails(movies);
 
-  const onSearchTextChange = useCallback((text: string): void => {
+  const handleSearchTextChange = useCallback((text: string): void => {
     setSearchText(text);
     setPage(1);
+    setCachedMovies(undefined); // Reset cache on new search
   }, []);
+
+  // Add logging to debug newPage
+  const handleLoadMore = () => {
+    // console.log("onLoadMore called with newPage:", newPage);
+    setPage((page) => (page + 1 > totalPages ? totalPages : page + 1));
+  };
 
   const handleAction = useCallback(
     async (movie: TraktMovieListItem, action: (movie: TraktMovieListItem) => Promise<void>) => {
@@ -64,7 +73,24 @@ export default function Command() {
     }
   }, [success]);
 
-  const isLoading = !!searchText && (!movies || !movieDetails.size || actionLoading) && !error && !detailsError;
+  useEffect(() => {
+    if (movies) {
+      setCachedMovies((prev) => {
+        if (!prev) return movies as TraktMovieList;
+
+        const existingIds = new Set(prev.map((movie) => movie.movie.ids.trakt));
+        const newMovies = movies.filter((movie) => !existingIds.has(movie.movie.ids.trakt));
+
+        return [...prev, ...newMovies] as TraktMovieList;
+      });
+    }
+  }, [movies]);
+
+  const isLoading =
+    !!searchText &&
+    (!movies || !(movieDetails.size === (cachedMovies?.length || 0)) || actionLoading) &&
+    !error &&
+    !detailsError;
 
   return (
     <Grid
@@ -72,12 +98,17 @@ export default function Command() {
       aspectRatio="9/16"
       fit={Grid.Fit.Fill}
       searchBarPlaceholder="Search for movies"
-      onSearchTextChange={onSearchTextChange}
+      onSearchTextChange={handleSearchTextChange}
       throttle={true}
+      pagination={{
+        pageSize: 10,
+        hasMore: page < totalPages,
+        onLoadMore: handleLoadMore,
+      }}
     >
       <Grid.EmptyView title="Search for movies" />
       <MovieGridItems
-        movies={movies}
+        movies={cachedMovies}
         movieDetails={movieDetails}
         page={page}
         totalPages={totalPages}
