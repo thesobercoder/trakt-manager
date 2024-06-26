@@ -16,6 +16,10 @@ export const ShowGridItems = ({
   secondaryActionIcon,
   secondaryActionShortcut,
   secondaryAction,
+  tertiaryActionTitle,
+  tertiaryActionIcon,
+  tertiaryActionShortcut,
+  tertiaryAction,
   page,
   totalPages,
   setPage,
@@ -31,6 +35,10 @@ export const ShowGridItems = ({
   secondaryActionIcon?: Image.ImageLike;
   secondaryActionShortcut?: Keyboard.Shortcut;
   secondaryAction?: (show: TraktShowListItem) => void;
+  tertiaryActionTitle?: string;
+  tertiaryActionIcon?: Image.ImageLike;
+  tertiaryActionShortcut?: Keyboard.Shortcut;
+  tertiaryAction?: (show: TraktShowListItem) => void;
   page: number;
   totalPages: number;
   setPage: (value: SetStateAction<number>) => void;
@@ -90,6 +98,14 @@ export const ShowGridItems = ({
                       title={secondaryActionTitle}
                       shortcut={secondaryActionShortcut}
                       onAction={() => secondaryAction(show)}
+                    />
+                  )}
+                  {tertiaryAction && tertiaryActionTitle && tertiaryActionIcon && tertiaryActionShortcut && (
+                    <Action
+                      icon={tertiaryActionIcon}
+                      title={tertiaryActionTitle}
+                      shortcut={tertiaryActionShortcut}
+                      onAction={() => tertiaryAction(show)}
                     />
                   )}
                 </ActionPanel.Section>

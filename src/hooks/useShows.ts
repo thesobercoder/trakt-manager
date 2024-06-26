@@ -1,7 +1,14 @@
 import { AbortError } from "node-fetch";
 import { setMaxListeners } from "node:events";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { addShowToHistory, addShowToWatchlist, searchShows } from "../api/shows";
+import {
+  addNewShowProgress,
+  addShowToHistory,
+  addShowToWatchlist,
+  checkInEpisode,
+  getEpisodes,
+  searchShows,
+} from "../api/shows";
 import { APP_MAX_LISTENERS } from "../lib/constants";
 
 export function useShows(searchText: string | undefined, page: number) {
@@ -50,6 +57,26 @@ export function useShows(searchText: string | undefined, page: number) {
     }
   }, []);
 
+  const checkInFirstEpisodeMutation = useCallback(async (show: TraktShowListItem) => {
+    try {
+      const episodes = await getEpisodes(show.show.ids.trakt, 1, abortable.current?.signal);
+      if (episodes) {
+        const firstEpisode = episodes.find((e) => e.number === 1);
+        if (firstEpisode) {
+          await checkInEpisode(firstEpisode.ids.trakt, abortable.current?.signal);
+          await addNewShowProgress(show, abortable.current?.signal);
+          setSuccess("First episode checked-in");
+          return;
+        }
+      }
+      setError(new Error("First episode not found"));
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        setError(e as Error);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     (async () => {
       if (abortable.current) {
@@ -70,6 +97,7 @@ export function useShows(searchText: string | undefined, page: number) {
     shows,
     addShowToWatchlistMutation,
     addShowToHistoryMutation,
+    checkInFirstEpisodeMutation,
     error,
     success,
     totalPages,

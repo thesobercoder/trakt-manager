@@ -1,6 +1,12 @@
 import { AbortError } from "node-fetch";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getWatchlistShows, removeShowFromWatchlist } from "../api/shows";
+import {
+  addNewShowProgress,
+  checkInEpisode,
+  getEpisodes,
+  getWatchlistShows,
+  removeShowFromWatchlist,
+} from "../api/shows";
 
 export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
   const abortable = useRef<AbortController>();
@@ -33,6 +39,26 @@ export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
     }
   };
 
+  const checkInFirstEpisodeMutation = useCallback(async (show: TraktShowListItem) => {
+    try {
+      const episodes = await getEpisodes(show.show.ids.trakt, 1, abortable.current?.signal);
+      if (episodes) {
+        const firstEpisode = episodes.find((e) => e.number === 1);
+        if (firstEpisode) {
+          await checkInEpisode(firstEpisode.ids.trakt, abortable.current?.signal);
+          await addNewShowProgress(show, abortable.current?.signal);
+          setSuccess("First episode checked-in");
+          return;
+        }
+      }
+      setError(new Error("First episode not found"));
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        setError(e as Error);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     (async () => {
       if (shouldFetch) {
@@ -50,5 +76,5 @@ export const useWatchlistShows = (page: number, shouldFetch: boolean) => {
     };
   }, [fetchShows, shouldFetch]);
 
-  return { shows, totalPages, removeShowFromWatchlistMutation, error, success };
+  return { shows, totalPages, removeShowFromWatchlistMutation, checkInFirstEpisodeMutation, error, success };
 };
