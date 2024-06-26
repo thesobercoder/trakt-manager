@@ -9,10 +9,15 @@ export default function Command() {
   const [searchText, setSearchText] = useState<string | undefined>();
   const [actionLoading, setActionLoading] = useState(false);
 
-  const { shows, addShowToWatchlistMutation, addShowToHistoryMutation, error, success, totalPages } = useShows(
-    searchText,
-    page,
-  );
+  const {
+    shows,
+    addShowToWatchlistMutation,
+    addShowToHistoryMutation,
+    checkInFirstEpisodeMutation,
+    error,
+    success,
+    totalPages,
+  } = useShows(searchText, page);
   const { details: showDetails, error: detailsError } = useShowDetails(shows);
 
   const onSearchTextChange = useCallback((text: string): void => {
@@ -86,6 +91,10 @@ export default function Command() {
         secondaryActionIcon={Icon.Clock}
         secondaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
         secondaryAction={(show) => handleAction(show, addShowToHistoryMutation)}
+        tertiaryActionTitle="Check-in first episode"
+        tertiaryActionIcon={Icon.Checkmark}
+        tertiaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
+        tertiaryAction={(show) => handleAction(show, checkInFirstEpisodeMutation)}
       />
     </Grid>
   );

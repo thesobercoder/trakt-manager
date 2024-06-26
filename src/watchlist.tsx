@@ -26,6 +26,7 @@ export default function Command() {
     shows,
     totalPages: totalShowPages,
     removeShowFromWatchlistMutation,
+    checkInFirstEpisodeMutation,
     error: showError,
     success: showSuccess,
   } = useWatchlistShows(page, mediaType === "show");
@@ -168,6 +169,10 @@ export default function Command() {
             primaryActionIcon={Icon.Trash}
             primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
             primaryAction={(show) => handleShowAction(show, removeShowFromWatchlistMutation)}
+            secondaryActionTitle="Check-in first episode"
+            secondaryActionIcon={Icon.Checkmark}
+            secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
+            secondaryAction={(show) => handleShowAction(show, checkInFirstEpisodeMutation)}
           />
         </>
       )}

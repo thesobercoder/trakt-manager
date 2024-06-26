@@ -297,6 +297,41 @@ export const updateShowProgress = async (
   }
 };
 
+export const addNewShowProgress = async (
+  show: TraktShowListItem,
+  signal: AbortSignal | undefined = undefined,
+): Promise<void> => {
+  const upNextShowsCache = await LocalStorage.getItem<string>("upNextShows");
+  if (upNextShowsCache) {
+    const accessToken = await oauthProvider.authorize();
+    const response = await fetch(
+      `${TRAKT_API_URL}/shows/${show.show.ids.trakt}/progress/watched?hidden=false&specials=false&count_specials=false`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "trakt-api-version": "2",
+          "trakt-api-key": TRAKT_CLIENT_ID,
+          Authorization: `Bearer ${accessToken}`,
+        },
+        signal,
+      },
+    );
+
+    if (!response.ok) {
+      console.error("updateShowProgress:", await response.text());
+      throw new Error(response.statusText);
+    }
+
+    const showProgress = (await response.json()) as TraktShowProgress;
+    setShowProgress(showProgress, show);
+
+    const upNextShows = JSON.parse(upNextShowsCache) as TraktShowList;
+    upNextShows.push(show);
+    const upNextShowsFiltered = upNextShows.filter((show) => show.show.progress);
+    await LocalStorage.setItem("upNextShows", JSON.stringify(upNextShowsFiltered));
+  }
+};
+
 export const addShowToHistory = async (showId: number, signal: AbortSignal | undefined = undefined) => {
   const accessToken = await oauthProvider.authorize();
   const response = await fetch(`${TRAKT_API_URL}/sync/history`, {
