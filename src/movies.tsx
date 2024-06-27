@@ -1,38 +1,51 @@
-import { Grid, Icon, Keyboard, showToast, Toast } from "@raycast/api";
-import { useCallback, useEffect, useState } from "react";
+import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { useCachedPromise } from "@raycast/utils";
+import { PaginationOptions } from "@raycast/utils/dist/types";
+import { setTimeout } from "node:timers/promises";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { searchMovies } from "./api/movies";
 import { MovieGridItems } from "./components/movie-grid";
-import { useMovieDetails } from "./hooks/useMovieDetails";
 import { useMovies } from "./hooks/useMovies";
 
 export default function Command() {
-  const [page, setPage] = useState(1);
-  const [searchText, setSearchText] = useState<string | undefined>();
+  const abortable = useRef<AbortController>();
+  const [searchText, setSearchText] = useState<string>("");
+  const [details] = useState<MovieDetailsMap>(new Map());
   const [actionLoading, setActionLoading] = useState(false);
-  const [cachedMovies, setCachedMovies] = useState<TraktMovieList | undefined>();
-
+  const { addMovieToWatchlistMutation, checkInMovieMutation, addMovieToHistoryMutation, error, success } = useMovies();
   const {
-    movies,
-    addMovieToWatchlistMutation,
-    checkInMovieMutation,
-    addMovieToHistoryMutation,
-    error,
-    success,
-    totalPages,
-  } = useMovies(searchText, page);
-
-  const { details: movieDetails, error: detailsError } = useMovieDetails(movies);
-
+    isLoading,
+    data: movies,
+    pagination,
+  } = useCachedPromise(
+    (searchText: string) => async (options: PaginationOptions) => {
+      if (!searchText) {
+        return { data: [], hasMore: false };
+      }
+      await setTimeout(200);
+      const pagedMovies = await searchMovies(searchText, options.page + 1, abortable.current?.signal);
+      return { data: pagedMovies, hasMore: options.page < pagedMovies.total_pages };
+    },
+    [searchText],
+    {
+      initialData: undefined,
+      keepPreviousData: true,
+      abortable,
+      onError(error) {
+        showToast({
+          title: error.message,
+          style: Toast.Style.Failure,
+        });
+      },
+    },
+  );
   const handleSearchTextChange = useCallback((text: string): void => {
     setSearchText(text);
-    setPage(1);
-    setCachedMovies(undefined); // Reset cache on new search
   }, []);
 
-  // Add logging to debug newPage
-  const handleLoadMore = () => {
-    // console.log("onLoadMore called with newPage:", newPage);
-    setPage((page) => (page + 1 > totalPages ? totalPages : page + 1));
-  };
+  useEffect(() => {
+    return () => abortable.current?.abort();
+  });
 
   const handleAction = useCallback(
     async (movie: TraktMovieListItem, action: (movie: TraktMovieListItem) => Promise<void>) => {
@@ -56,15 +69,6 @@ export default function Command() {
   }, [error]);
 
   useEffect(() => {
-    if (detailsError) {
-      showToast({
-        title: detailsError.message,
-        style: Toast.Style.Failure,
-      });
-    }
-  }, [detailsError]);
-
-  useEffect(() => {
     if (success) {
       showToast({
         title: success,
@@ -73,46 +77,20 @@ export default function Command() {
     }
   }, [success]);
 
-  useEffect(() => {
-    if (movies) {
-      setCachedMovies((prev) => {
-        if (!prev) return movies as TraktMovieList;
-
-        const existingIds = new Set(prev.map((movie) => movie.movie.ids.trakt));
-        const newMovies = movies.filter((movie) => !existingIds.has(movie.movie.ids.trakt));
-
-        return [...prev, ...newMovies] as TraktMovieList;
-      });
-    }
-  }, [movies]);
-
-  const isLoading =
-    !!searchText &&
-    (!movies || !(movieDetails.size === (cachedMovies?.length || 0)) || actionLoading) &&
-    !error &&
-    !detailsError;
-
   return (
     <Grid
-      isLoading={isLoading}
+      isLoading={isLoading || actionLoading}
       aspectRatio="9/16"
       fit={Grid.Fit.Fill}
       searchBarPlaceholder="Search for movies"
       onSearchTextChange={handleSearchTextChange}
       throttle={true}
-      pagination={{
-        pageSize: 10,
-        hasMore: page < totalPages,
-        onLoadMore: handleLoadMore,
-      }}
+      pagination={pagination}
     >
       <Grid.EmptyView title="Search for movies" />
       <MovieGridItems
-        movies={cachedMovies}
-        movieDetails={movieDetails}
-        page={page}
-        totalPages={totalPages}
-        setPage={setPage}
+        movies={movies}
+        movieDetails={details}
         primaryActionTitle="Add to Watchlist"
         primaryActionIcon={Icon.Bookmark}
         primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
