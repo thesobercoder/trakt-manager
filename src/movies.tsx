@@ -10,9 +10,9 @@ import { useMovies } from "./hooks/useMovies";
 export default function Command() {
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string>("");
-  const [details] = useState<MovieDetailsMap>(new Map());
   const [actionLoading, setActionLoading] = useState(false);
-  const { addMovieToWatchlistMutation, checkInMovieMutation, addMovieToHistoryMutation, error, success } = useMovies();
+  const { addMovieToWatchlistMutation, checkInMovieMutation, addMovieToHistoryMutation, error, success } =
+    useMovies(abortable);
   const {
     isLoading,
     data: movies,
@@ -39,13 +39,11 @@ export default function Command() {
       },
     },
   );
+
   const handleSearchTextChange = useCallback((text: string): void => {
+    abortable.current?.abort();
     setSearchText(text);
   }, []);
-
-  useEffect(() => {
-    return () => abortable.current?.abort();
-  });
 
   const handleAction = useCallback(
     async (movie: TraktMovieListItem, action: (movie: TraktMovieListItem) => Promise<void>) => {
@@ -89,8 +87,7 @@ export default function Command() {
     >
       <Grid.EmptyView title="Search for movies" />
       <MovieGridItems
-        movies={movies}
-        movieDetails={details}
+        movies={movies as TraktMovieList}
         primaryActionTitle="Add to Watchlist"
         primaryActionIcon={Icon.Bookmark}
         primaryActionShortcut={Keyboard.Shortcut.Common.Edit}

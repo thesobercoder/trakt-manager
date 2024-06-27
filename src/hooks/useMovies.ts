@@ -1,9 +1,8 @@
 import { AbortError } from "node-fetch";
-import { useCallback, useRef, useState } from "react";
+import { MutableRefObject, useCallback, useState } from "react";
 import { addMovieToHistory, addMovieToWatchlist, checkInMovie } from "../api/movies";
 
-export function useMovies() {
-  const abortable = useRef<AbortController>();
+export function useMovies(abortable: MutableRefObject<AbortController | undefined>) {
   const [error, setError] = useState<Error | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
 

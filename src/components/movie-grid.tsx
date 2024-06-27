@@ -16,8 +16,7 @@ export const MovieGridItems = ({
   tertiaryActionShortcut,
   tertiaryAction,
 }: {
-  movies: TraktMovieList | undefined | never[];
-  movieDetails: Map<number, TMDBMovieDetails | undefined>;
+  movies: TraktMovieList | undefined;
   primaryActionTitle?: string;
   primaryActionIcon?: Image.ImageLike;
   primaryActionShortcut?: Keyboard.Shortcut;
