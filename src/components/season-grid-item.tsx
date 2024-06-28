@@ -3,7 +3,7 @@ import { getFavicon, useCachedPromise } from "@raycast/utils";
 import { useRef } from "react";
 import { getTMDBSeasonDetails } from "../api/tmdb";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
-import { Episodes } from "./episodes";
+import { EpisodeGrid } from "./episode-grid";
 
 export const SeasonGridItem = ({
   season,
@@ -21,8 +21,7 @@ export const SeasonGridItem = ({
   const abortable = useRef<AbortController>();
   const { data: seasonDetail } = useCachedPromise(
     async (tmdbId: number, season: TraktSeasonListItem) => {
-      const detail = await getTMDBSeasonDetails(tmdbId, season.number, abortable.current?.signal);
-      return detail;
+      return await getTMDBSeasonDetails(tmdbId, season.number, abortable.current?.signal);
     },
     [tmdbId, season],
     {
@@ -63,7 +62,7 @@ export const SeasonGridItem = ({
               icon={Icon.Switch}
               title="Episodes"
               shortcut={Keyboard.Shortcut.Common.Open}
-              target={<Episodes showId={showId} tmdbId={tmdbId} seasonNumber={season.number} slug={slug} />}
+              target={<EpisodeGrid showId={showId} tmdbId={tmdbId} seasonNumber={season.number} slug={slug} />}
             />
           </ActionPanel.Section>
         </ActionPanel>

@@ -16,7 +16,6 @@ export const SeasonGrid = ({
   imdbId: string;
 }) => {
   const abortable = useRef<AbortController>();
-
   const { isLoading, data: seasons } = useCachedPromise(
     async (showId: number) => {
       const seasons = await getSeasons(showId, abortable.current?.signal);
