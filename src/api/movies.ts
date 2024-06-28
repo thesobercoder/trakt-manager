@@ -183,7 +183,7 @@ export const addMovieToHistory = async (movieId: number, signal: AbortSignal | u
 };
 
 export const getHistoryMovies = async (page: number, signal: AbortSignal | undefined = undefined) => {
-  const url = `${TRAKT_API_URL}/sync/watched/movies`;
+  const url = `${TRAKT_API_URL}/sync/history/movies?page=${page}&limit=10`;
   console.log("getHistoryMovies:", url);
 
   const accessToken = await oauthProvider.authorize();
@@ -203,22 +203,11 @@ export const getHistoryMovies = async (page: number, signal: AbortSignal | undef
   }
 
   const result = (await response.json()) as TraktMovieList;
-  result.sort((a, b) => {
-    const dateA = new Date(a.last_watched_at || 0);
-    const dateB = new Date(b.last_watched_at || 0);
-    return dateB.getTime() - dateA.getTime();
-  });
+  result.page = Number(response.headers.get("X-Pagination-Page")) ?? 1;
+  result.total_pages = Number(response.headers.get("X-Pagination-Page-Count")) ?? 1;
+  result.total_results = Number(response.headers.get("X-Pagination-Item-Count")) ?? result.length;
 
-  const pageSize = 10;
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const pageResult = result.slice(startIndex, endIndex) as TraktMovieList;
-
-  pageResult.page = page;
-  pageResult.total_pages = Math.floor(result.length / pageSize);
-  pageResult.total_results = result.length;
-
-  return pageResult;
+  return result;
 };
 
 export const removeMovieFromHistory = async (movieId: number, signal: AbortSignal | undefined = undefined) => {

@@ -42,6 +42,7 @@ export default function Command() {
 
   const handleSearchTextChange = useCallback((text: string): void => {
     abortable.current?.abort();
+    abortable.current = new AbortController();
     setSearchText(text);
   }, []);
 

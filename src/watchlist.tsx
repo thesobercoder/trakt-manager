@@ -145,6 +145,7 @@ export default function Command() {
 
   const onMediaTypeChange = (newValue: string) => {
     abortable.current?.abort();
+    abortable.current = new AbortController();
     setMediaType(newValue as MediaType);
   };
 
