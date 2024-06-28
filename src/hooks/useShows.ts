@@ -1,39 +1,10 @@
 import { AbortError } from "node-fetch";
-import { setMaxListeners } from "node:events";
-import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  addNewShowProgress,
-  addShowToHistory,
-  addShowToWatchlist,
-  checkInEpisode,
-  getEpisodes,
-  searchShows,
-} from "../api/shows";
-import { APP_MAX_LISTENERS } from "../lib/constants";
+import { MutableRefObject, useCallback, useState } from "react";
+import { addNewShowProgress, addShowToHistory, addShowToWatchlist, checkInEpisode, getEpisodes } from "../api/shows";
 
-export function useShows(searchText: string | undefined, page: number) {
-  const abortable = useRef<AbortController>();
-  const [shows, setShows] = useState<TraktShowList | undefined>();
-  const [totalPages, setTotalPages] = useState(1);
+export function useShows(abortable: MutableRefObject<AbortController | undefined>) {
   const [error, setError] = useState<Error | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
-
-  const fetchShows = useCallback(async () => {
-    if (!searchText) {
-      setShows(undefined);
-      return;
-    }
-
-    try {
-      const shows = await searchShows(searchText, page, abortable.current?.signal);
-      setShows(shows);
-      setTotalPages(shows.total_pages);
-    } catch (e) {
-      if (!(e instanceof AbortError)) {
-        setError(e as Error);
-      }
-    }
-  }, [searchText, page]);
 
   const addShowToWatchlistMutation = useCallback(async (show: TraktShowListItem) => {
     try {
@@ -77,29 +48,11 @@ export function useShows(searchText: string | undefined, page: number) {
     }
   }, []);
 
-  useEffect(() => {
-    (async () => {
-      if (abortable.current) {
-        abortable.current.abort();
-      }
-      abortable.current = new AbortController();
-      setMaxListeners(APP_MAX_LISTENERS, abortable.current.signal);
-      await fetchShows();
-    })();
-    return () => {
-      if (abortable.current) {
-        abortable.current.abort();
-      }
-    };
-  }, [fetchShows]);
-
   return {
-    shows,
     addShowToWatchlistMutation,
     addShowToHistoryMutation,
     checkInFirstEpisodeMutation,
     error,
     success,
-    totalPages,
   };
 }
