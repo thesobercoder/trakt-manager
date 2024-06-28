@@ -3,7 +3,7 @@ import { getFavicon, useCachedPromise } from "@raycast/utils";
 import { useRef } from "react";
 import { getTMDBShowDetails } from "../api/tmdb";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
-import { Seasons } from "./seasons";
+import { SeasonGrid } from "./season-grid";
 
 export const ShowGridItem = ({
   show,
@@ -76,7 +76,7 @@ export const ShowGridItem = ({
               title="Seasons"
               shortcut={Keyboard.Shortcut.Common.Open}
               target={
-                <Seasons
+                <SeasonGrid
                   showId={show.show.ids.trakt}
                   tmdbId={show.show.ids.tmdb}
                   slug={show.show.ids.slug}
