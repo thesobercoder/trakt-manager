@@ -5,7 +5,7 @@ import { setTimeout } from "node:timers/promises";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getHistoryMovies } from "./api/movies";
 import { getHistoryShows } from "./api/shows";
-import { MovieGridItems } from "./components/movie-grid";
+import { MovieGrid } from "./components/movie-grid";
 import { ShowGridItems } from "./components/show-grid";
 import { useHistoryMovies } from "./hooks/useHistoryMovies";
 import { useHistoryShows } from "./hooks/useHistoryShows";
@@ -140,28 +140,23 @@ export default function Command() {
   };
 
   return mediaType === "movie" ? (
-    <Grid
+    <MovieGrid
       isLoading={isMovieLoading || actionLoading}
-      aspectRatio="9/16"
-      fit={Grid.Fit.Fill}
+      emptyViewTitle="No movies in your history"
       searchBarPlaceholder="Search history"
-      pagination={moviePagination}
       searchBarAccessory={
         <Grid.Dropdown onChange={onMediaTypeChange} tooltip="Media Type">
           <Grid.Dropdown.Item value="movie" title="Movies" />
           <Grid.Dropdown.Item value="show" title="Shows" />
         </Grid.Dropdown>
       }
-    >
-      <Grid.EmptyView title="No movies in your history" />
-      <MovieGridItems
-        movies={movies as TraktMovieList}
-        primaryActionTitle="Remove from history"
-        primaryActionIcon={Icon.Trash}
-        primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-        primaryAction={(movie) => handleMovieAction(movie, removeMovieFromHistoryMutation)}
-      />
-    </Grid>
+      pagination={moviePagination}
+      movies={movies as TraktMovieList}
+      primaryActionTitle="Remove from history"
+      primaryActionIcon={Icon.Trash}
+      primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
+      primaryAction={(movie) => handleMovieAction(movie, removeMovieFromHistoryMutation)}
+    />
   ) : (
     <Grid
       isLoading={isShowsLoading || actionLoading}

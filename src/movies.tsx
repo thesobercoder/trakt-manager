@@ -1,10 +1,10 @@
-import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { Icon, Keyboard, Toast, showToast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { searchMovies } from "./api/movies";
-import { MovieGridItems } from "./components/movie-grid";
+import { MovieGrid } from "./components/movie-grid";
 import { useMovies } from "./hooks/useMovies";
 
 export default function Command() {
@@ -77,31 +77,26 @@ export default function Command() {
   }, [success]);
 
   return (
-    <Grid
+    <MovieGrid
       isLoading={isLoading || actionLoading}
-      aspectRatio="9/16"
-      fit={Grid.Fit.Fill}
+      emptyViewTitle="Search for movies"
       searchBarPlaceholder="Search for movies"
       onSearchTextChange={handleSearchTextChange}
       throttle={true}
       pagination={pagination}
-    >
-      <Grid.EmptyView title="Search for movies" />
-      <MovieGridItems
-        movies={movies as TraktMovieList}
-        primaryActionTitle="Add to Watchlist"
-        primaryActionIcon={Icon.Bookmark}
-        primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-        primaryAction={(movie) => handleAction(movie, addMovieToWatchlistMutation)}
-        secondaryActionTitle="Check-in Movie"
-        secondaryActionIcon={Icon.Checkmark}
-        secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-        secondaryAction={(movie) => handleAction(movie, checkInMovieMutation)}
-        tertiaryActionTitle="Add to History"
-        tertiaryActionIcon={Icon.Clock}
-        tertiaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-        tertiaryAction={(movie) => handleAction(movie, addMovieToHistoryMutation)}
-      />
-    </Grid>
+      movies={movies as TraktMovieList}
+      primaryActionTitle="Add to Watchlist"
+      primaryActionIcon={Icon.Bookmark}
+      primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
+      primaryAction={(movie) => handleAction(movie, addMovieToWatchlistMutation)}
+      secondaryActionTitle="Check-in Movie"
+      secondaryActionIcon={Icon.Checkmark}
+      secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
+      secondaryAction={(movie) => handleAction(movie, checkInMovieMutation)}
+      tertiaryActionTitle="Add to History"
+      tertiaryActionIcon={Icon.Clock}
+      tertiaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+      tertiaryAction={(movie) => handleAction(movie, addMovieToHistoryMutation)}
+    />
   );
 }
