@@ -1,59 +1,8 @@
 {
-  // Place your trakt-manager workspace snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
-  // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
-  // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
-  // used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
-  // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
-  // Placeholders with the same ids are connected.
-  // Example:
   "Print to console after JSON.stringify": {
     "scope": "typescript,typescriptreact",
     "prefix": "cljs",
     "body": ["console.log(JSON.stringify($1, null, 2));", "$2"],
     "description": "Log output to console",
-  },
-  "New Raycast command": {
-    "scope": "typescriptreact",
-    "prefix": "cmd",
-    "body": [
-      "import { Grid } from \"@raycast/api\";",
-      "import { setMaxListeners } from \"events\";",
-      "import { useEffect, useRef, useState } from \"react\";",
-      "import { View } from \"./components/view\";",
-      "",
-      "const ${1:NewCommand} = () => {",
-      "  const abortable = useRef<AbortController>();",
-      "  const [isLoading, setIsLoading] = useState(false);",
-      "",
-      "  useEffect(() => {",
-      "    (async () => {",
-      "      abortable.current = new AbortController();",
-      "      setMaxListeners(20, abortable.current?.signal);",
-      "      setIsLoading(true);",
-      "",
-      "      // Write logic here",
-      "",
-      "      setIsLoading(false);",
-      "      return () => {",
-      "        if (abortable.current) {",
-      "          abortable.current.abort();",
-      "        }",
-      "      };",
-      "    })();",
-      "  }, []);",
-      "",
-      "  return <Grid isLoading={isLoading} />;",
-      "};",
-      "",
-      "export default function Command() {",
-      "  return (",
-      "    <View>",
-      "      <${1:NewCommand} />",
-      "    </View>",
-      "  );",
-      "}",
-      "",
-    ],
-    "description": "Add a new command",
   },
 }
