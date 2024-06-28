@@ -81,6 +81,12 @@ export default function Command() {
     },
   );
 
+  const onMediaTypeChange = (newValue: string) => {
+    abortable.current?.abort();
+    abortable.current = new AbortController();
+    setMediaType(newValue as MediaType);
+  };
+
   const handleMovieAction = useCallback(
     async (movie: TraktMovieListItem, action: (movie: TraktMovieListItem) => Promise<void>) => {
       setActionLoading(true);
@@ -142,12 +148,6 @@ export default function Command() {
       });
     }
   }, [showSuccess]);
-
-  const onMediaTypeChange = (newValue: string) => {
-    abortable.current?.abort();
-    abortable.current = new AbortController();
-    setMediaType(newValue as MediaType);
-  };
 
   return mediaType === "movie" ? (
     <MovieGrid

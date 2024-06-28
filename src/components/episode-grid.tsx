@@ -37,6 +37,7 @@ export const EpisodeGrid = ({
     },
   );
   const { checkInEpisodeMutation, error, success } = useEpisodeMutations(abortable);
+
   const handleAction = useCallback(
     async (episode: TraktEpisodeListItem, action: (episode: TraktEpisodeListItem) => Promise<void>) => {
       setActionLoading(true);
