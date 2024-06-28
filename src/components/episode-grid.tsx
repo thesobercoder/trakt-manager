@@ -2,7 +2,7 @@ import { Grid, Toast, showToast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getEpisodes } from "../api/shows";
-import { useEpisodes } from "../hooks/useEpisodes";
+import { useEpisodeMutations } from "../hooks/useEpisodeMutations";
 import { EpisodeGridItem } from "./episode-grid-item";
 
 export const EpisodeGrid = ({
@@ -36,7 +36,7 @@ export const EpisodeGrid = ({
       },
     },
   );
-  const { checkInEpisodeMutation, error, success } = useEpisodes(abortable);
+  const { checkInEpisodeMutation, error, success } = useEpisodeMutations(abortable);
   const handleAction = useCallback(
     async (episode: TraktEpisodeListItem, action: (episode: TraktEpisodeListItem) => Promise<void>) => {
       setActionLoading(true);

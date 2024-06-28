@@ -1,8 +1,17 @@
 import { AbortError } from "node-fetch";
 import { MutableRefObject, useCallback, useState } from "react";
-import { addNewShowProgress, addShowToHistory, addShowToWatchlist, checkInEpisode, getEpisodes } from "../api/shows";
+import {
+  addNewShowProgress,
+  addShowToHistory,
+  addShowToWatchlist,
+  checkInEpisode,
+  getEpisodes,
+  removeShowFromHistory,
+  removeShowFromWatchlist,
+  updateShowProgress,
+} from "../api/shows";
 
-export function useShows(abortable: MutableRefObject<AbortController | undefined>) {
+export const useShowMutations = (abortable: MutableRefObject<AbortController | undefined>) => {
   const [error, setError] = useState<Error | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
 
@@ -28,6 +37,42 @@ export function useShows(abortable: MutableRefObject<AbortController | undefined
     }
   }, []);
 
+  const removeShowFromHistoryMutation = async (show: TraktShowListItem) => {
+    try {
+      await removeShowFromHistory(show.show.ids.trakt, abortable.current?.signal);
+      setSuccess("Show removed from history");
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        setError(e as Error);
+      }
+    }
+  };
+
+  const removeShowFromWatchlistMutation = async (show: TraktShowListItem) => {
+    try {
+      await removeShowFromWatchlist(show.show.ids.trakt, abortable.current?.signal);
+      setSuccess("Show removed from watchlist");
+    } catch (e) {
+      if (!(e instanceof AbortError)) {
+        setError(e as Error);
+      }
+    }
+  };
+
+  const checkInNextEpisodeMutation = async (show: TraktShowListItem) => {
+    if (show.show.progress?.next_episode) {
+      try {
+        await checkInEpisode(show.show.progress?.next_episode.ids.trakt, abortable.current?.signal);
+        await updateShowProgress(show.show.ids.trakt, abortable.current?.signal);
+        setSuccess("Episode checked in");
+      } catch (e) {
+        if (!(e instanceof AbortError)) {
+          setError(e as Error);
+        }
+      }
+    }
+  };
+
   const checkInFirstEpisodeMutation = useCallback(async (show: TraktShowListItem) => {
     try {
       const episodes = await getEpisodes(show.show.ids.trakt, 1, abortable.current?.signal);
@@ -51,8 +96,11 @@ export function useShows(abortable: MutableRefObject<AbortController | undefined
   return {
     addShowToWatchlistMutation,
     addShowToHistoryMutation,
+    removeShowFromHistoryMutation,
+    removeShowFromWatchlistMutation,
+    checkInNextEpisodeMutation,
     checkInFirstEpisodeMutation,
     error,
     success,
   };
-}
+};

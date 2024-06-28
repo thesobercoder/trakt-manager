@@ -6,9 +6,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getWatchlistMovies } from "./api/movies";
 import { getWatchlistShows } from "./api/shows";
 import { MovieGrid } from "./components/movie-grid";
-import { ShowGridItems } from "./components/show-grid";
-import { useWatchlistMovies } from "./hooks/useWatchlistMovies";
-import { useWatchlistShows } from "./hooks/useWatchlistShows";
+import { ShowGrid } from "./components/show-grid";
+import { useMovieMutations } from "./hooks/useMovieMutations";
+import { useShowMutations } from "./hooks/useShowMutations";
 
 export default function Command() {
   const abortable = useRef<AbortController>();
@@ -19,7 +19,13 @@ export default function Command() {
     checkInMovieMutation,
     error: movieError,
     success: movieSuccess,
-  } = useWatchlistMovies(abortable);
+  } = useMovieMutations(abortable);
+  const {
+    removeShowFromWatchlistMutation,
+    checkInFirstEpisodeMutation,
+    error: showError,
+    success: showSuccess,
+  } = useShowMutations(abortable);
   const {
     isLoading: isMovieLoading,
     data: movies,
@@ -74,12 +80,6 @@ export default function Command() {
       },
     },
   );
-  const {
-    removeShowFromWatchlistMutation,
-    checkInFirstEpisodeMutation,
-    error: showError,
-    success: showSuccess,
-  } = useWatchlistShows(abortable);
 
   const handleMovieAction = useCallback(
     async (movie: TraktMovieListItem, action: (movie: TraktMovieListItem) => Promise<void>) => {
@@ -172,32 +172,27 @@ export default function Command() {
       secondaryAction={(movie) => handleMovieAction(movie, checkInMovieMutation)}
     />
   ) : (
-    <Grid
+    <ShowGrid
       isLoading={isShowsLoading || actionLoading}
-      aspectRatio="9/16"
-      fit={Grid.Fit.Fill}
+      emptyViewTitle="No shows in your watchlist"
       searchBarPlaceholder="Search watchlist"
-      pagination={showPagination}
       searchBarAccessory={
         <Grid.Dropdown onChange={onMediaTypeChange} tooltip="Media Type">
           <Grid.Dropdown.Item value="movie" title="Movies" />
           <Grid.Dropdown.Item value="show" title="Shows" />
         </Grid.Dropdown>
       }
-    >
-      <Grid.EmptyView title="No shows in your watchlist" />
-      <ShowGridItems
-        shows={shows as TraktShowList}
-        subtitle={(show) => show.show.year?.toString() || ""}
-        primaryActionTitle="Remove from Watchlist"
-        primaryActionIcon={Icon.Trash}
-        primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-        primaryAction={(show) => handleShowAction(show, removeShowFromWatchlistMutation)}
-        secondaryActionTitle="Check-in first episode"
-        secondaryActionIcon={Icon.Checkmark}
-        secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-        secondaryAction={(show) => handleShowAction(show, checkInFirstEpisodeMutation)}
-      />
-    </Grid>
+      pagination={showPagination}
+      shows={shows as TraktShowList}
+      subtitle={(show) => show.show.year?.toString() || ""}
+      primaryActionTitle="Remove from Watchlist"
+      primaryActionIcon={Icon.Trash}
+      primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
+      primaryAction={(show) => handleShowAction(show, removeShowFromWatchlistMutation)}
+      secondaryActionTitle="Check-in first episode"
+      secondaryActionIcon={Icon.Checkmark}
+      secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
+      secondaryAction={(show) => handleShowAction(show, checkInFirstEpisodeMutation)}
+    />
   );
 }

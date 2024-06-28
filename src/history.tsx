@@ -6,16 +6,16 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getHistoryMovies } from "./api/movies";
 import { getHistoryShows } from "./api/shows";
 import { MovieGrid } from "./components/movie-grid";
-import { ShowGridItems } from "./components/show-grid";
-import { useHistoryMovies } from "./hooks/useHistoryMovies";
-import { useHistoryShows } from "./hooks/useHistoryShows";
+import { ShowGrid } from "./components/show-grid";
+import { useMovieMutations } from "./hooks/useMovieMutations";
+import { useShowMutations } from "./hooks/useShowMutations";
 
 export default function Command() {
   const abortable = useRef<AbortController>();
   const [mediaType, setMediaType] = useState<MediaType>("movie");
   const [actionLoading, setActionLoading] = useState(false);
-  const { removeMovieFromHistoryMutation, error: movieError, success: movieSuccess } = useHistoryMovies(abortable);
-  const { removeShowFromHistoryMutation, error: showError, success: showSuccess } = useHistoryShows(abortable);
+  const { removeMovieFromHistoryMutation, error: movieError, success: movieSuccess } = useMovieMutations(abortable);
+  const { removeShowFromHistoryMutation, error: showError, success: showSuccess } = useShowMutations(abortable);
   const {
     isLoading: isMovieLoading,
     data: movies,
@@ -158,28 +158,23 @@ export default function Command() {
       primaryAction={(movie) => handleMovieAction(movie, removeMovieFromHistoryMutation)}
     />
   ) : (
-    <Grid
+    <ShowGrid
       isLoading={isShowsLoading || actionLoading}
-      aspectRatio="9/16"
-      fit={Grid.Fit.Fill}
+      emptyViewTitle="No shows in your history"
       searchBarPlaceholder="Search history"
-      pagination={showPagination}
       searchBarAccessory={
         <Grid.Dropdown onChange={onMediaTypeChange} tooltip="Media Type">
           <Grid.Dropdown.Item value="movie" title="Movies" />
           <Grid.Dropdown.Item value="show" title="Shows" />
         </Grid.Dropdown>
       }
-    >
-      <Grid.EmptyView title="No shows in your history" />
-      <ShowGridItems
-        shows={shows as TraktShowList}
-        subtitle={(show) => show.show.year?.toString() || ""}
-        primaryActionTitle="Remove from history"
-        primaryActionIcon={Icon.Trash}
-        primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-        primaryAction={(show) => handleShowAction(show, removeShowFromHistoryMutation)}
-      />
-    </Grid>
+      pagination={showPagination}
+      shows={shows as TraktShowList}
+      subtitle={(show) => show.show.year?.toString() || ""}
+      primaryActionTitle="Remove from history"
+      primaryActionIcon={Icon.Trash}
+      primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
+      primaryAction={(show) => handleShowAction(show, removeShowFromHistoryMutation)}
+    />
   );
 }

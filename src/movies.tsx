@@ -5,14 +5,14 @@ import { setTimeout } from "node:timers/promises";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { searchMovies } from "./api/movies";
 import { MovieGrid } from "./components/movie-grid";
-import { useMovies } from "./hooks/useMovies";
+import { useMovieMutations } from "./hooks/useMovieMutations";
 
 export default function Command() {
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string>("");
   const [actionLoading, setActionLoading] = useState(false);
   const { addMovieToWatchlistMutation, checkInMovieMutation, addMovieToHistoryMutation, error, success } =
-    useMovies(abortable);
+    useMovieMutations(abortable);
   const {
     isLoading,
     data: movies,

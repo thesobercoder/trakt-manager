@@ -1,14 +1,14 @@
-import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { Icon, Keyboard, Toast, showToast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getUpNextShows } from "./api/shows";
-import { ShowGridItems } from "./components/show-grid";
-import { useUpNextShows } from "./hooks/useUpNextShows";
+import { ShowGrid } from "./components/show-grid";
+import { useShowMutations } from "./hooks/useShowMutations";
 
 export default function Command() {
   const abortable = useRef<AbortController>();
   const [actionLoading, setActionLoading] = useState(false);
-  const { checkInNextEpisodeMutation, error, success } = useUpNextShows(abortable);
+  const { checkInNextEpisodeMutation, error, success } = useShowMutations(abortable);
   const {
     isLoading,
     data: shows,
@@ -64,24 +64,19 @@ export default function Command() {
   }, [success]);
 
   return (
-    <Grid
+    <ShowGrid
       isLoading={isLoading || actionLoading}
-      aspectRatio="9/16"
-      fit={Grid.Fit.Fill}
+      emptyViewTitle="No up next shows"
       searchBarPlaceholder="Search for shows that are up next"
-      throttle={true}
       pagination={pagination}
-    >
-      <ShowGridItems
-        shows={shows as TraktShowList}
-        subtitle={(show) =>
-          `${show.show.progress?.next_episode?.season}x${show.show.progress?.next_episode?.number.toString().padStart(2, "0")}`
-        }
-        primaryActionTitle="Check-in Next Episode"
-        primaryActionIcon={Icon.Checkmark}
-        primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-        primaryAction={(show) => handleAction(show, checkInNextEpisodeMutation)}
-      />
-    </Grid>
+      shows={shows as TraktShowList}
+      subtitle={(show) =>
+        `${show.show.progress?.next_episode?.season}x${show.show.progress?.next_episode?.number.toString().padStart(2, "0")}`
+      }
+      primaryActionTitle="Check-in Next Episode"
+      primaryActionIcon={Icon.Checkmark}
+      primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
+      primaryAction={(show) => handleAction(show, checkInNextEpisodeMutation)}
+    />
   );
 }

@@ -1,18 +1,18 @@
-import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { Icon, Keyboard, Toast, showToast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { searchShows } from "./api/shows";
-import { ShowGridItems } from "./components/show-grid";
-import { useShows } from "./hooks/useShows";
+import { ShowGrid } from "./components/show-grid";
+import { useShowMutations } from "./hooks/useShowMutations";
 
 export default function Command() {
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string>("");
   const [actionLoading, setActionLoading] = useState(false);
   const { addShowToWatchlistMutation, addShowToHistoryMutation, checkInFirstEpisodeMutation, error, success } =
-    useShows(abortable);
+    useShowMutations(abortable);
   const {
     isLoading,
     data: shows,
@@ -77,32 +77,27 @@ export default function Command() {
   }, [success]);
 
   return (
-    <Grid
+    <ShowGrid
       isLoading={isLoading || actionLoading}
-      aspectRatio="9/16"
-      fit={Grid.Fit.Fill}
       searchBarPlaceholder="Search for shows"
       onSearchTextChange={handleSearchTextChange}
       throttle={true}
       pagination={pagination}
-    >
-      <Grid.EmptyView title="Search for shows" />
-      <ShowGridItems
-        shows={shows as TraktShowList}
-        subtitle={(show) => show.show.year?.toString() || ""}
-        primaryActionTitle="Add to Watchlist"
-        primaryActionIcon={Icon.Bookmark}
-        primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-        primaryAction={(show) => handleAction(show, addShowToWatchlistMutation)}
-        secondaryActionTitle="Add to History"
-        secondaryActionIcon={Icon.Clock}
-        secondaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-        secondaryAction={(show) => handleAction(show, addShowToHistoryMutation)}
-        tertiaryActionTitle="Check-in first episode"
-        tertiaryActionIcon={Icon.Checkmark}
-        tertiaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-        tertiaryAction={(show) => handleAction(show, checkInFirstEpisodeMutation)}
-      />
-    </Grid>
+      emptyViewTitle="Search for shows"
+      shows={shows as TraktShowList}
+      subtitle={(show) => show.show.year?.toString() || ""}
+      primaryActionTitle="Add to Watchlist"
+      primaryActionIcon={Icon.Bookmark}
+      primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
+      primaryAction={(show) => handleAction(show, addShowToWatchlistMutation)}
+      secondaryActionTitle="Add to History"
+      secondaryActionIcon={Icon.Clock}
+      secondaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+      secondaryAction={(show) => handleAction(show, addShowToHistoryMutation)}
+      tertiaryActionTitle="Check-in first episode"
+      tertiaryActionIcon={Icon.Checkmark}
+      tertiaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
+      tertiaryAction={(show) => handleAction(show, checkInFirstEpisodeMutation)}
+    />
   );
 }
