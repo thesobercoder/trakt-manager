@@ -53,18 +53,18 @@
     }
   ],
   "dependencies": {
-    "@raycast/api": "^1.77.1",
-    "@raycast/utils": "^1.16.1",
+    "@raycast/api": "^1.88.4",
+    "@raycast/utils": "^1.18.1",
     "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@raycast/eslint-config": "^1.0.6",
+    "@raycast/eslint-config": "^1.0.11",
     "@types/node": "20.8.10",
     "@types/react": "18.3.3",
-    "eslint": "^8.51.0",
-    "prettier-plugin-organize-imports": "^3.2.4",
-    "syncpack": "^12.3.2",
-    "typescript": "^5.2.2"
+    "eslint": "^8.57.1",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "syncpack": "^13.0.0",
+    "typescript": "^5.7.2"
   },
   "icon": "trakt.png",
   "license": "MIT",
