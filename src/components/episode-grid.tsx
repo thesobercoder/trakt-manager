@@ -51,7 +51,7 @@ export const EpisodeGrid = ({
     },
   );
 
-  const checkInEpisodeMutation = useCallback(async (episode: TraktEpisodeListItem) => {
+  const checkInEpisode = useCallback(async (episode: TraktEpisodeListItem) => {
     await traktClient.shows.checkInEpisode({
       body: {
         episode: [
@@ -105,7 +105,7 @@ export const EpisodeGrid = ({
             episode={episode}
             seasonNumber={seasonNumber}
             slug={slug}
-            checkInEpisodeMutation={() => handleAction(episode, checkInEpisodeMutation, "Checked in")}
+            checkInEpisode={() => handleAction(episode, checkInEpisode, "Checked in")}
           />
         ))}
     </Grid>

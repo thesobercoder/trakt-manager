@@ -102,7 +102,7 @@ export default function Command() {
     },
   );
 
-  const removeShowFromWatchlistMutation = useCallback(async (show: TraktShowListItem) => {
+  const removeShowFromWatchlist = useCallback(async (show: TraktShowListItem) => {
     await traktClient.shows.removeShowFromWatchlist({
       body: { shows: [{ ids: { trakt: show.show.ids.trakt } }] },
     });
@@ -245,7 +245,7 @@ export default function Command() {
       primaryActionTitle="Remove from Watchlist"
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(show) => handleShowAction(show, removeShowFromWatchlistMutation, "Show removed from watchlist")}
+      primaryAction={(show) => handleShowAction(show, removeShowFromWatchlist, "Show removed from watchlist")}
     />
   );
 }

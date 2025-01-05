@@ -9,12 +9,12 @@ export const EpisodeGridItem = ({
   episode,
   seasonNumber,
   slug,
-  checkInEpisodeMutation,
+  checkInEpisode,
 }: {
   episode: TraktEpisodeListItem;
   seasonNumber: number;
   slug: string;
-  checkInEpisodeMutation: (episode: TraktEpisodeListItem) => Promise<void>;
+  checkInEpisode: (episode: TraktEpisodeListItem) => Promise<void>;
 }) => {
   return (
     <Grid.Item
@@ -41,7 +41,7 @@ export const EpisodeGridItem = ({
               icon={Icon.Checkmark}
               title="Check-in Episode"
               shortcut={Keyboard.Shortcut.Common.Edit}
-              onAction={() => checkInEpisodeMutation(episode)}
+              onAction={() => checkInEpisode(episode)}
             />
           </ActionPanel.Section>
         </ActionPanel>

@@ -110,7 +110,7 @@ export default function Command() {
     });
   }, []);
 
-  const removeShowFromHistoryMutation = useCallback(async (show: TraktShowListItem) => {
+  const removeShowFromHistory = useCallback(async (show: TraktShowListItem) => {
     await traktClient.shows.removeShowFromHistory({
       body: { shows: [{ ids: { trakt: show.show.ids.trakt } }] },
     });
@@ -201,7 +201,7 @@ export default function Command() {
       primaryActionTitle="Remove from history"
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(show) => handleShowAction(show, removeShowFromHistoryMutation, "Show removed from history")}
+      primaryAction={(show) => handleShowAction(show, removeShowFromHistory, "Show removed from history")}
     />
   );
 }

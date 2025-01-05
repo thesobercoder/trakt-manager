@@ -56,7 +56,7 @@ export default function Command() {
     },
   );
 
-  const checkInNextEpisodeMutation = useCallback(async (show: TraktShowListItem) => {
+  const checkInNextEpisode = useCallback(async (show: TraktShowListItem) => {
     await traktClient.shows.checkInEpisode({
       body: {
         episode: [
@@ -97,7 +97,7 @@ export default function Command() {
       primaryActionTitle="Check-in Next Episode"
       primaryActionIcon={Icon.Checkmark}
       primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-      primaryAction={(show) => handleAction(show, checkInNextEpisodeMutation)}
+      primaryAction={(show) => handleAction(show, checkInNextEpisode)}
     />
   );
 }
