@@ -4,19 +4,19 @@ import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getHistoryMovies } from "./api/movies";
 import { getHistoryShows } from "./api/shows";
 import { MovieGrid } from "./components/movie-grid";
 import { ShowGrid } from "./components/show-grid";
-import { useMovieMutations } from "./hooks/useMovieMutations";
 import { useShowMutations } from "./hooks/useShowMutations";
+import { initTraktClient } from "./lib/client";
 import { APP_MAX_LISTENERS } from "./lib/constants";
+import { TraktMovieListItem, withPagination } from "./lib/schema";
 
 export default function Command() {
   const abortable = useRef<AbortController>();
   const [mediaType, setMediaType] = useState<MediaType>("movie");
   const [actionLoading, setActionLoading] = useState(false);
-  const { removeMovieFromHistoryMutation, error: movieError, success: movieSuccess } = useMovieMutations(abortable);
+  const traktClient = initTraktClient(abortable.current);
   const { removeShowFromHistoryMutation, error: showError, success: showSuccess } = useShowMutations(abortable);
   const {
     isLoading: isMovieLoading,
@@ -31,8 +31,22 @@ export default function Command() {
       }
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      const pagedMovies = await getHistoryMovies(options.page + 1, abortable.current?.signal);
-      return { data: pagedMovies, hasMore: options.page < pagedMovies.total_pages };
+
+      const response = await traktClient.movies.getMovieHistory({
+        query: { page: options.page + 1 },
+      });
+
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch movies");
+      }
+
+      const paginatedResponse = withPagination(response);
+
+      return {
+        data: paginatedResponse.data,
+        hasMore:
+          paginatedResponse.pagination["x-pagination-page"] < paginatedResponse.pagination["x-pagination-page-count"],
+      };
     },
     [mediaType],
     {
@@ -77,6 +91,12 @@ export default function Command() {
     },
   );
 
+  const removeMovieFromHistory = useCallback(async (movie: TraktMovieListItem) => {
+    await traktClient.movies.removeMovieFromHistory({
+      body: { movies: [{ ids: { trakt: movie.movie.ids.trakt } }] },
+    });
+  }, []);
+
   const onMediaTypeChange = useCallback((newValue: string) => {
     abortable.current?.abort();
     abortable.current = new AbortController();
@@ -84,11 +104,20 @@ export default function Command() {
   }, []);
 
   const handleMovieAction = useCallback(
-    async (movie: TraktMovieListItem, action: (movie: TraktMovieListItem) => Promise<void>) => {
+    async (movie: TraktMovieListItem, action: (movie: TraktMovieListItem) => Promise<void>, message: string) => {
       setActionLoading(true);
       try {
         await action(movie);
         revalidateMovie();
+        showToast({
+          title: message,
+          style: Toast.Style.Success,
+        });
+      } catch (error) {
+        showToast({
+          title: (error as Error).message,
+          style: Toast.Style.Failure,
+        });
       } finally {
         setActionLoading(false);
       }
@@ -108,24 +137,6 @@ export default function Command() {
     },
     [],
   );
-
-  useEffect(() => {
-    if (movieError) {
-      showToast({
-        title: movieError.message,
-        style: Toast.Style.Failure,
-      });
-    }
-  }, [movieError]);
-
-  useEffect(() => {
-    if (movieSuccess) {
-      showToast({
-        title: movieSuccess,
-        style: Toast.Style.Success,
-      });
-    }
-  }, [movieSuccess]);
 
   useEffect(() => {
     if (showError) {
@@ -157,11 +168,11 @@ export default function Command() {
         </Grid.Dropdown>
       }
       pagination={moviePagination}
-      movies={movies as TraktMovieList}
+      movies={movies}
       primaryActionTitle="Remove from history"
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(movie) => handleMovieAction(movie, removeMovieFromHistoryMutation)}
+      primaryAction={(movie) => handleMovieAction(movie, removeMovieFromHistory, "Movie removed from history")}
     />
   ) : (
     <ShowGrid

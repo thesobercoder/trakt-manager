@@ -1,4 +1,5 @@
 import { Grid, Image, Keyboard } from "@raycast/api";
+import { TraktMovieList, TraktMovieListItem } from "../lib/schema";
 import { MovieGridItem } from "./movie-grid-item";
 
 export const MovieGrid = ({

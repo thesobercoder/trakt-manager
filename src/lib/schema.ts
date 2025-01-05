@@ -1,233 +1,168 @@
 import { z } from "zod";
 
-export const MovieDetailsSchema = z.object({
-  adult: z.boolean(),
-  backdrop_path: z.string(),
-  belongs_to_collection: z.string(),
-  budget: z.number(),
-  genres: z.array(
-    z.object({
-      id: z.number(),
-      name: z.string(),
+export const TraktMovieListItem = z.object({
+  type: z.string(),
+  score: z.number(),
+  plays: z.number().optional(),
+  last_watched_at: z.string().optional(),
+  last_updated_at: z.string().optional(),
+  movie: z.object({
+    title: z.string(),
+    year: z.number().optional(),
+    ids: z.object({
+      trakt: z.number(),
+      slug: z.string(),
+      imdb: z.string(),
+      tmdb: z.number(),
     }),
-  ),
-  homepage: z.string(),
-  id: z.number(),
-  imdb_id: z.string(),
-  original_language: z.string(),
-  original_title: z.string(),
-  overview: z.string(),
-  popularity: z.number(),
-  poster_path: z.string().optional(),
-  production_companies: z.array(
-    z.object({
-      id: z.number(),
-      logo_path: z.string(),
-      name: z.string(),
-      origin_country: z.string(),
-    }),
-  ),
-  production_countries: z.array(
-    z.object({
-      iso_3166_1: z.string(),
-      name: z.string(),
-    }),
-  ),
-  release_date: z.string(),
-  revenue: z.number(),
-  runtime: z.number(),
-  spoken_languages: z.array(
-    z.object({
-      english_name: z.string(),
-      iso_639_1: z.string(),
-      name: z.string(),
-    }),
-  ),
-  status: z.string(),
-  tagline: z.string(),
-  title: z.string(),
-  video: z.boolean(),
-  vote_average: z.number(),
-  vote_count: z.number(),
+  }),
 });
 
-export const ShowDetailsSchema = z.object({
-  adult: z.boolean(),
-  backdrop_path: z.string(),
-  created_by: z.array(
-    z.object({
-      id: z.number(),
-      credit_id: z.string(),
-      name: z.string(),
-      gender: z.number(),
-      profile_path: z.string().optional(),
-    }),
-  ),
-  episode_run_time: z.array(z.number()),
-  first_air_date: z.string(),
-  genres: z.array(
-    z.object({
-      id: z.number(),
-      name: z.string(),
-    }),
-  ),
-  homepage: z.string(),
-  id: z.number(),
-  in_production: z.boolean(),
-  languages: z.array(z.string()),
-  last_air_date: z.string(),
-  last_episode_to_air: z.object({
-    id: z.number(),
-    overview: z.string(),
-    name: z.string(),
-    vote_average: z.number(),
-    vote_count: z.number(),
-    air_date: z.string(),
-    episode_number: z.number(),
-    episode_type: z.string(),
-    production_code: z.string(),
-    runtime: z.number(),
-    season_number: z.number(),
-    show_id: z.number(),
-    still_path: z.string().optional(),
-  }),
-  name: z.string(),
-  next_episode_to_air: z.string().optional(),
-  networks: z.array(
-    z.object({
-      id: z.number(),
-      logo_path: z.string(),
-      name: z.string(),
-      origin_country: z.string(),
-    }),
-  ),
-  number_of_episodes: z.number(),
-  number_of_seasons: z.number(),
-  origin_country: z.array(z.string()),
-  original_language: z.string(),
-  original_name: z.string(),
-  overview: z.string(),
-  popularity: z.number(),
-  poster_path: z.string().optional(),
-  production_companies: z.array(
-    z.object({
-      id: z.number(),
-      logo_path: z.string().optional(),
-      name: z.string(),
-      origin_country: z.string(),
-    }),
-  ),
-  production_countries: z.array(
-    z.object({
-      iso_3166_1: z.string(),
-      name: z.string(),
-    }),
-  ),
+export const TraktMovieList = z.array(TraktMovieListItem);
+
+const TraktShowProgress = z.object({
+  aired: z.number(),
+  completed: z.number(),
+  last_watched_at: z.string(),
+  reset_at: z.string().optional(),
   seasons: z.array(
     z.object({
-      air_date: z.string(),
-      episode_count: z.number(),
-      id: z.number(),
-      name: z.string(),
-      overview: z.string(),
-      poster_path: z.string().optional(),
-      season_number: z.number(),
-      vote_average: z.number(),
+      number: z.number(),
+      title: z.string(),
+      aired: z.number(),
+      completed: z.number(),
+      episodes: z.array(
+        z.object({
+          number: z.number(),
+          completed: z.boolean(),
+          last_watched_at: z.string().optional(),
+        }),
+      ),
     }),
   ),
-  spoken_languages: z.array(
+  hidden_seasons: z.array(
     z.object({
-      english_name: z.string(),
-      iso_639_1: z.string(),
-      name: z.string(),
+      number: z.number(),
+      ids: z.object({
+        trakt: z.number(),
+        tvdb: z.number(),
+        tmdb: z.number(),
+      }),
     }),
   ),
-  status: z.string(),
-  tagline: z.string(),
+  next_episode: z
+    .object({
+      season: z.number(),
+      number: z.number(),
+      title: z.string(),
+      ids: z.object({
+        trakt: z.number(),
+        tvdb: z.number(),
+        imdb: z.string(),
+        tmdb: z.number(),
+      }),
+    })
+    .optional(),
+  last_episode: z.object({
+    season: z.number(),
+    number: z.number(),
+    title: z.string(),
+    ids: z.object({
+      trakt: z.number(),
+      tvdb: z.number(),
+      imdb: z.string(),
+      tmdb: z.number(),
+    }),
+  }),
+});
+
+export const TraktShowListItem = z.object({
   type: z.string(),
-  vote_average: z.number(),
-  vote_count: z.number(),
-});
-
-const CrewMemberSchema = z.object({
-  department: z.string(),
-  job: z.string(),
-  credit_id: z.string(),
-  adult: z.boolean(),
-  gender: z.number(),
-  id: z.number(),
-  known_for_department: z.string(),
-  name: z.string(),
-  original_name: z.string(),
-  popularity: z.number(),
-  profile_path: z.string().optional(),
-});
-
-const GuestStarSchema = z.object({
-  character: z.string(),
-  credit_id: z.string(),
-  order: z.number(),
-  adult: z.boolean(),
-  gender: z.number(),
-  id: z.number(),
-  known_for_department: z.string(),
-  name: z.string(),
-  original_name: z.string(),
-  popularity: z.number(),
-  profile_path: z.string().optional(),
-});
-
-export const SeasonDetailsSchema = z.object({
-  _id: z.string(),
-  air_date: z.string(),
-  episodes: z.array(
-    z.object({
-      air_date: z.string(),
-      episode_number: z.number(),
-      id: z.number(),
-      name: z.string(),
-      overview: z.string(),
-      production_code: z.string(),
-      runtime: z.number(),
-      season_number: z.number(),
-      show_id: z.number(),
-      still_path: z.string().optional(),
-      vote_average: z.number(),
-      vote_count: z.number(),
-      crew: z.array(CrewMemberSchema),
-      guest_stars: z.array(GuestStarSchema),
+  score: z.number(),
+  plays: z.number().optional(),
+  last_watched_at: z.string().optional(),
+  last_updated_at: z.string().optional(),
+  show: z.object({
+    title: z.string(),
+    year: z.number().optional(),
+    progress: TraktShowProgress.optional(),
+    ids: z.object({
+      trakt: z.number(),
+      slug: z.string(),
+      tvdb: z.number(),
+      imdb: z.string(),
+      tmdb: z.number(),
     }),
-  ),
-  name: z.string(),
-  overview: z.string(),
-  id: z.number(),
-  poster_path: z.string().optional(),
-  season_number: z.number(),
-  vote_average: z.number(),
+  }),
 });
 
-export const EpisodeDetailsSchema = z.object({
-  air_date: z.string(),
-  crew: z.array(CrewMemberSchema),
-  episode_number: z.number(),
-  guest_stars: z.array(GuestStarSchema),
-  name: z.string(),
-  overview: z.string(),
-  id: z.number(),
-  production_code: z.string(),
+export const TraktShowList = z.array(TraktShowListItem);
+
+export const TraktSeasonListItem = z.object({
+  number: z.number(),
+  ids: z.object({
+    trakt: z.number(),
+    tvdb: z.number(),
+    tmdb: z.number(),
+  }),
+  rating: z.number(),
+  votes: z.number(),
+  episode_count: z.number(),
+  aired_episodes: z.number(),
+  title: z.string(),
+  overview: z.string().optional(),
+  first_aired: z.string().optional(),
+  udpated_at: z.string(),
+  network: z.string(),
+});
+
+export const TraktSeasonList = z.array(TraktSeasonListItem);
+
+export const TraktEpisodeList = z.object({
+  season: z.number(),
+  number: z.number(),
+  title: z.string(),
+  ids: z.object({
+    trakt: z.number(),
+    tvdb: z.number(),
+    imdb: z.string(),
+    tmdb: z.number(),
+  }),
+  number_abs: z.number().optional(),
+  overview: z.string().optional(),
+  rating: z.number(),
+  votes: z.number(),
+  comment_count: z.number(),
+  first_aired: z.string(),
+  updated_at: z.string(),
+  available_translations: z.array(z.string()),
   runtime: z.number(),
-  season_number: z.number(),
-  still_path: z.string().optional(),
-  vote_average: z.number(),
-  vote_count: z.number(),
+  episode_type: z.string(),
 });
 
-const PaginationsSchema = z.object({
-  "X-Pagination-Page": z.number(),
-  "X-Pagination-Page-Count": z.number(),
-  "X-Pagination-Item-Count": z.number(),
+export const TraktEpisodeListSchema = z.array(TraktEpisodeList);
+
+export type TraktMovieListItem = z.infer<typeof TraktMovieListItem>;
+export type TraktMovieList = z.infer<typeof TraktMovieList>;
+export type TraktShowListItem = z.infer<typeof TraktShowListItem>;
+export type TraktShowList = z.infer<typeof TraktShowList>;
+export type TraktSeasonListItem = z.infer<typeof TraktSeasonListItem>;
+export type TraktSeasonList = z.infer<typeof TraktSeasonList>;
+export type TraktEpisodeListItem = z.infer<typeof TraktEpisodeList>;
+export type TraktEpisodeList = z.infer<typeof TraktEpisodeListSchema>;
+
+export const TraktPaginationSchema = z.object({
+  "x-pagination-page": z.coerce.number().default(0),
+  "x-pagination-limit": z.coerce.number().default(0),
+  "x-pagination-page-count": z.coerce.number().default(0),
+  "x-pagination-item-count": z.coerce.number().default(0),
 });
 
-export const TraktMovieListSchema = z.array(MovieDetailsSchema).and(PaginationsSchema);
+export const withPagination = <T>(args: { status: number; body: T; headers: Headers }) => {
+  const parsedHeaders = TraktPaginationSchema.parse(args.headers);
 
-export const TraktShowListSchema = z.array(ShowDetailsSchema).and(PaginationsSchema);
+  return {
+    data: args.body as T,
+    pagination: parsedHeaders,
+  };
+};

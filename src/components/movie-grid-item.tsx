@@ -3,6 +3,7 @@ import { getFavicon, useCachedPromise } from "@raycast/utils";
 import { useRef } from "react";
 import { getTMDBMovieDetails } from "../api/tmdb";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
+import { TraktMovieListItem } from "../lib/schema";
 
 export const MovieGridItem = ({
   movie,

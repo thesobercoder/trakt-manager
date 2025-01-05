@@ -1,27 +1,3 @@
-declare type TraktMovieList = Array<{
-  type: string;
-  score: number;
-  plays?: number;
-  last_watched_at?: string;
-  last_updated_at?: string;
-  movie: {
-    title: string;
-    year?: number;
-    ids: {
-      trakt: number;
-      slug: string;
-      imdb: string;
-      tmdb: number;
-    };
-  };
-}> & {
-  page: number;
-  total_pages: number;
-  total_results: number;
-};
-
-declare type TraktMovieListItem = ArrayElementType<TraktMovieList>;
-
 declare type TraktShowList = Array<{
   type: string;
   score: number;

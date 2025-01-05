@@ -4,43 +4,34 @@ import { TRAKT_API_URL, TRAKT_CLIENT_ID } from "./constants";
 import { TraktContract } from "./contract";
 import { oauthProvider } from "./oauth";
 
-export const initializeTraktClient = async () => {
-  const accessToken = await oauthProvider.authorize();
-
+export const initTraktClient = (controller: AbortController | undefined) => {
   return initClient(TraktContract, {
     baseUrl: TRAKT_API_URL,
     baseHeaders: {
       "Content-Type": "application/json; charset=utf-8",
       "trakt-api-version": "2",
       "trakt-api-key": TRAKT_CLIENT_ID,
-      Authorization: `Bearer ${accessToken}`,
     },
     api: async ({ path, method, body, headers }) => {
-      const result = await fetch(path, {
+      const accessToken = await oauthProvider.authorize();
+
+      const response = await fetch(path, {
         method,
-        headers,
+        headers: {
+          ...headers,
+          Authorization: `Bearer ${accessToken}`,
+        },
         body,
+        signal: controller?.signal,
       });
 
-      const compatHeaders = new Headers(Object.fromEntries(result.headers.entries()));
-
-      return {
-        headers: compatHeaders,
-        ok: result.ok,
-        redirected: result.redirected,
-        status: result.status,
-        statusText: result.statusText,
-        type: result.type,
-        url: result.url,
-        body: result.body,
-        bodyUsed: result.bodyUsed,
-        size: result.size,
-        text: () => result.text(),
-        json: () => result.json(),
-        blob: () => result.blob(),
-        formData: () => result.formData(),
-        arrayBuffer: () => result.arrayBuffer(),
+      const res = {
+        status: response.status,
+        body: await response.json(),
+        headers: Object.fromEntries(response.headers.entries()) as unknown as Headers,
       };
+
+      return res;
     },
   });
 };
