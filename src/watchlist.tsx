@@ -3,41 +3,33 @@ import { useCachedPromise } from "@raycast/utils";
 import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { getWatchlistShows } from "./api/shows";
+import { useCallback, useRef, useState } from "react";
 import { MovieGrid } from "./components/movie-grid";
 import { ShowGrid } from "./components/show-grid";
-import { useShowMutations } from "./hooks/useShowMutations";
 import { initTraktClient } from "./lib/client";
 import { APP_MAX_LISTENERS } from "./lib/constants";
-import { TraktMovieListItem, withPagination } from "./lib/schema";
+import { TraktMediaType, TraktMovieListItem, TraktShowList, TraktShowListItem, withPagination } from "./lib/schema";
 
 export default function Command() {
   const abortable = useRef<AbortController>();
-  const [mediaType, setMediaType] = useState<MediaType>("movie");
+  const [mediaType, setMediaType] = useState<TraktMediaType>("movie");
   const [actionLoading, setActionLoading] = useState(false);
   const traktClient = initTraktClient();
-  const {
-    removeShowFromWatchlistMutation,
-    checkInFirstEpisodeMutation,
-    error: showError,
-    success: showSuccess,
-  } = useShowMutations(abortable);
   const {
     isLoading: isMovieLoading,
     data: movies,
     pagination: moviePagination,
     revalidate: revalidateMovie,
   } = useCachedPromise(
-    (mediaType: MediaType) => async (options: PaginationOptions) => {
-      await setTimeout(100);
+    (mediaType: TraktMediaType) => async (options: PaginationOptions) => {
       if (mediaType === "show") return { data: [], hasMore: false };
+      await setTimeout(100);
 
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.movies.getWatchlistMovies({
-        query: { page: options.page + 1, limit: 10 },
+        query: { page: options.page + 1, limit: 10, extended: "full,cloud9" },
         fetchOptions: { signal: abortable.current.signal },
       });
 
@@ -72,13 +64,29 @@ export default function Command() {
     pagination: showPagination,
     revalidate: revalidateShow,
   } = useCachedPromise(
-    (mediaType: MediaType) => async (options: PaginationOptions) => {
+    (mediaType: TraktMediaType) => async (options: PaginationOptions) => {
       if (mediaType === "movie") return { data: [], hasMore: false };
+      await setTimeout(100);
 
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      const pagedMovies = await getWatchlistShows(options.page + 1, abortable.current?.signal);
-      return { data: pagedMovies, hasMore: options.page < pagedMovies.total_pages };
+
+      const response = await traktClient.shows.getWatchlistShows({
+        query: { page: options.page + 1, limit: 10, extended: "full,cloud9" },
+        fetchOptions: { signal: abortable.current.signal },
+      });
+
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch shows");
+      }
+
+      const paginatedResponse = withPagination(response);
+
+      return {
+        data: paginatedResponse.data,
+        hasMore:
+          paginatedResponse.pagination["x-pagination-page"] < paginatedResponse.pagination["x-pagination-page-count"],
+      };
     },
     [mediaType],
     {
@@ -94,7 +102,13 @@ export default function Command() {
     },
   );
 
-  const removeMovieFromWatchlistMutation = useCallback(async (movie: TraktMovieListItem) => {
+  const removeShowFromWatchlistMutation = useCallback(async (show: TraktShowListItem) => {
+    await traktClient.shows.removeShowFromWatchlist({
+      body: { shows: [{ ids: { trakt: show.show.ids.trakt } }] },
+    });
+  }, []);
+
+  const removeMovieFromWatchlist = useCallback(async (movie: TraktMovieListItem) => {
     await traktClient.movies.removeMovieFromWatchlist({
       body: { movies: [{ ids: { trakt: movie.movie.ids.trakt } }] },
     });
@@ -109,7 +123,7 @@ export default function Command() {
   const onMediaTypeChange = useCallback((newValue: string) => {
     abortable.current?.abort();
     abortable.current = new AbortController();
-    setMediaType(newValue as MediaType);
+    setMediaType(newValue as TraktMediaType);
   }, []);
 
   const handleMovieAction = useCallback(
@@ -135,11 +149,20 @@ export default function Command() {
   );
 
   const handleShowAction = useCallback(
-    async (show: TraktShowListItem, action: (show: TraktShowListItem) => Promise<void>) => {
+    async (show: TraktShowListItem, action: (show: TraktShowListItem) => Promise<void>, message: string) => {
       setActionLoading(true);
       try {
         await action(show);
         revalidateShow();
+        showToast({
+          title: message,
+          style: Toast.Style.Success,
+        });
+      } catch (error) {
+        showToast({
+          title: (error as Error).message,
+          style: Toast.Style.Failure,
+        });
       } finally {
         setActionLoading(false);
       }
@@ -156,14 +179,14 @@ export default function Command() {
   //   }
   // }, [movieError]);
 
-  useEffect(() => {
-    if (showError) {
-      showToast({
-        title: showError.message,
-        style: Toast.Style.Failure,
-      });
-    }
-  }, [showError]);
+  // useEffect(() => {
+  //   if (showError) {
+  //     showToast({
+  //       title: showError.message,
+  //       style: Toast.Style.Failure,
+  //     });
+  //   }
+  // }, [showError]);
 
   // useEffect(() => {
   //   if (movieSuccess) {
@@ -174,14 +197,14 @@ export default function Command() {
   //   }
   // }, [movieSuccess]);
 
-  useEffect(() => {
-    if (showSuccess) {
-      showToast({
-        title: showSuccess,
-        style: Toast.Style.Success,
-      });
-    }
-  }, [showSuccess]);
+  // useEffect(() => {
+  //   if (showSuccess) {
+  //     showToast({
+  //       title: showSuccess,
+  //       style: Toast.Style.Success,
+  //     });
+  //   }
+  // }, [showSuccess]);
 
   return mediaType === "movie" ? (
     <MovieGrid
@@ -199,9 +222,7 @@ export default function Command() {
       primaryActionTitle="Remove from Watchlist"
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(movie) =>
-        handleMovieAction(movie, removeMovieFromWatchlistMutation, "Movie removed from watchlist")
-      }
+      primaryAction={(movie) => handleMovieAction(movie, removeMovieFromWatchlist, "Movie removed from watchlist")}
       secondaryActionTitle="Check-in Movie"
       secondaryActionIcon={Icon.Checkmark}
       secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
@@ -224,11 +245,7 @@ export default function Command() {
       primaryActionTitle="Remove from Watchlist"
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(show) => handleShowAction(show, removeShowFromWatchlistMutation)}
-      secondaryActionTitle="Check-in first episode"
-      secondaryActionIcon={Icon.Checkmark}
-      secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-      secondaryAction={(show) => handleShowAction(show, checkInFirstEpisodeMutation)}
+      primaryAction={(show) => handleShowAction(show, removeShowFromWatchlistMutation, "Show removed from watchlist")}
     />
   );
 }

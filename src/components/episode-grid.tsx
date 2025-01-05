@@ -1,8 +1,7 @@
 import { Grid, Toast, showToast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { setMaxListeners } from "node:events";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useEpisodeMutations } from "../hooks/useEpisodeMutations";
+import { useCallback, useRef, useState } from "react";
 import { initTraktClient } from "../lib/client";
 import { APP_MAX_LISTENERS } from "../lib/constants";
 import { TraktEpisodeListItem } from "../lib/schema";
@@ -10,7 +9,6 @@ import { EpisodeGridItem } from "./episode-grid-item";
 
 export const EpisodeGrid = ({
   showId,
-  tmdbId,
   seasonNumber,
   slug,
 }: {
@@ -28,7 +26,7 @@ export const EpisodeGrid = ({
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.shows.getEpisodes({
-        query: { extended: "full" },
+        query: { extended: "full,cloud9" },
         params: { showid: showId, seasonNumber: seasonNumber },
         fetchOptions: { signal: abortable.current.signal },
       });
@@ -52,37 +50,45 @@ export const EpisodeGrid = ({
       },
     },
   );
-  const { checkInEpisodeMutation, error, success } = useEpisodeMutations(abortable);
+
+  const checkInEpisodeMutation = useCallback(async (episode: TraktEpisodeListItem) => {
+    await traktClient.shows.checkInEpisode({
+      body: {
+        episode: [
+          {
+            ids: {
+              trakt: episode.ids.trakt,
+            },
+          },
+        ],
+      },
+    });
+  }, []);
 
   const handleAction = useCallback(
-    async (episode: TraktEpisodeListItem, action: (episode: TraktEpisodeListItem) => Promise<void>) => {
+    async (
+      episode: TraktEpisodeListItem,
+      action: (episode: TraktEpisodeListItem) => Promise<void>,
+      message: string,
+    ) => {
       setActionLoading(true);
       try {
         await action(episode);
+        showToast({
+          title: message,
+          style: Toast.Style.Success,
+        });
+      } catch (e) {
+        showToast({
+          title: (e as Error).message,
+          style: Toast.Style.Failure,
+        });
       } finally {
         setActionLoading(false);
       }
     },
     [],
   );
-
-  useEffect(() => {
-    if (success) {
-      showToast({
-        title: success,
-        style: Toast.Style.Success,
-      });
-    }
-  }, [success]);
-
-  useEffect(() => {
-    if (error) {
-      showToast({
-        title: error.message,
-        style: Toast.Style.Failure,
-      });
-    }
-  }, [error]);
 
   return (
     <Grid
@@ -97,10 +103,9 @@ export const EpisodeGrid = ({
           <EpisodeGridItem
             key={episode.ids.trakt}
             episode={episode}
-            tmdbId={tmdbId}
             seasonNumber={seasonNumber}
             slug={slug}
-            checkInEpisodeMutation={() => handleAction(episode, checkInEpisodeMutation)}
+            checkInEpisodeMutation={() => handleAction(episode, checkInEpisodeMutation, "Checked in")}
           />
         ))}
     </Grid>

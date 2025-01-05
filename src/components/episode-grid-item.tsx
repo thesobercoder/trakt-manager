@@ -1,40 +1,27 @@
 import { Action, ActionPanel, Grid, Icon, Keyboard } from "@raycast/api";
-import { getFavicon, useCachedPromise } from "@raycast/utils";
-import { useRef } from "react";
-import { getTMDBEpisodeDetails } from "../api/tmdb";
-import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
+import { getFavicon } from "@raycast/utils";
+import { getIMDbUrl, getScreenshotUrl, getTraktUrl } from "../lib/helper";
 import { TraktEpisodeListItem } from "../lib/schema";
 
 const formatter = new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "2-digit" });
 
 export const EpisodeGridItem = ({
   episode,
-  tmdbId,
   seasonNumber,
   slug,
   checkInEpisodeMutation,
 }: {
   episode: TraktEpisodeListItem;
-  tmdbId: number;
   seasonNumber: number;
   slug: string;
   checkInEpisodeMutation: (episode: TraktEpisodeListItem) => Promise<void>;
 }) => {
-  const abortable = useRef<AbortController>();
-  const { data: episodeDetail } = useCachedPromise(
-    async (tmdbId: number, seasonNumber: number, episodeNumber: number) => {
-      return await getTMDBEpisodeDetails(tmdbId, seasonNumber, episodeNumber, abortable.current?.signal);
-    },
-    [tmdbId, seasonNumber, episode.number],
-    { abortable },
-  );
-
   return (
     <Grid.Item
       key={episode.ids.trakt}
       title={`${episode.number}. ${episode.title}`}
       subtitle={formatter.format(new Date(episode.first_aired))}
-      content={getPosterUrl(episodeDetail?.still_path, "episode.png")}
+      content={getScreenshotUrl(episode.images, "episode.png")}
       actions={
         <ActionPanel>
           <ActionPanel.Section>

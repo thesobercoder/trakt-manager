@@ -3,32 +3,45 @@ import { useCachedPromise } from "@raycast/utils";
 import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { searchShows } from "./api/shows";
+import { useCallback, useRef, useState } from "react";
 import { ShowGrid } from "./components/show-grid";
-import { useShowMutations } from "./hooks/useShowMutations";
+import { initTraktClient } from "./lib/client";
 import { APP_MAX_LISTENERS } from "./lib/constants";
+import { TraktShowListItem, withPagination } from "./lib/schema";
 
 export default function Command() {
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string>("");
   const [actionLoading, setActionLoading] = useState(false);
-  const { addShowToWatchlistMutation, addShowToHistoryMutation, checkInFirstEpisodeMutation, error, success } =
-    useShowMutations(abortable);
+  const traktClient = initTraktClient();
   const {
     isLoading,
     data: shows,
     pagination,
   } = useCachedPromise(
     (searchText: string) => async (options: PaginationOptions) => {
-      if (!searchText) {
-        return { data: [], hasMore: false };
-      }
+      if (!searchText) return { data: [], hasMore: false };
       await setTimeout(200);
+
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      const pagedShows = await searchShows(searchText, options.page + 1, abortable.current?.signal);
-      return { data: pagedShows, hasMore: options.page < pagedShows.total_pages };
+
+      const response = await traktClient.shows.searchShows({
+        query: { query: searchText, page: options.page + 1, limit: 10, fields: "title", extended: "full,cloud9" },
+        fetchOptions: { signal: abortable.current.signal },
+      });
+
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch shows");
+      }
+
+      const paginatedResponse = withPagination(response);
+
+      return {
+        data: paginatedResponse.data,
+        hasMore:
+          paginatedResponse.pagination["x-pagination-page"] < paginatedResponse.pagination["x-pagination-page-count"],
+      };
     },
     [searchText],
     {
@@ -43,6 +56,18 @@ export default function Command() {
       },
     },
   );
+
+  const addShowToWatchlist = useCallback(async (show: TraktShowListItem) => {
+    await traktClient.shows.addShowToWatchlist({
+      body: { shows: [{ ids: { trakt: show.show.ids.trakt } }] },
+    });
+  }, []);
+
+  const addShowToHistory = useCallback(async (show: TraktShowListItem) => {
+    await traktClient.shows.addShowToHistory({
+      body: { shows: [{ ids: { trakt: show.show.ids.trakt } }] },
+    });
+  }, []);
 
   const handleSearchTextChange = useCallback((text: string): void => {
     abortable.current?.abort();
@@ -62,24 +87,6 @@ export default function Command() {
     [],
   );
 
-  useEffect(() => {
-    if (error) {
-      showToast({
-        title: error.message,
-        style: Toast.Style.Failure,
-      });
-    }
-  }, [error]);
-
-  useEffect(() => {
-    if (success) {
-      showToast({
-        title: success,
-        style: Toast.Style.Success,
-      });
-    }
-  }, [success]);
-
   return (
     <ShowGrid
       isLoading={isLoading || actionLoading}
@@ -88,20 +95,16 @@ export default function Command() {
       throttle={true}
       pagination={pagination}
       emptyViewTitle="Search for shows"
-      shows={shows as TraktShowList}
+      shows={shows}
       subtitle={(show) => show.show.year?.toString() || ""}
       primaryActionTitle="Add to Watchlist"
       primaryActionIcon={Icon.Bookmark}
       primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-      primaryAction={(show) => handleAction(show, addShowToWatchlistMutation)}
+      primaryAction={(show) => handleAction(show, addShowToWatchlist)}
       secondaryActionTitle="Add to History"
       secondaryActionIcon={Icon.Clock}
       secondaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-      secondaryAction={(show) => handleAction(show, addShowToHistoryMutation)}
-      tertiaryActionTitle="Check-in first episode"
-      tertiaryActionIcon={Icon.Checkmark}
-      tertiaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-      tertiaryAction={(show) => handleAction(show, checkInFirstEpisodeMutation)}
+      secondaryAction={(show) => handleAction(show, addShowToHistory)}
     />
   );
 }

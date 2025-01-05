@@ -3,28 +3,25 @@ import { useCachedPromise } from "@raycast/utils";
 import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { getHistoryShows } from "./api/shows";
+import { useCallback, useRef, useState } from "react";
 import { MovieGrid } from "./components/movie-grid";
 import { ShowGrid } from "./components/show-grid";
-import { useShowMutations } from "./hooks/useShowMutations";
 import { initTraktClient } from "./lib/client";
 import { APP_MAX_LISTENERS } from "./lib/constants";
-import { TraktMovieListItem, withPagination } from "./lib/schema";
+import { TraktMediaType, TraktMovieListItem, TraktShowList, TraktShowListItem, withPagination } from "./lib/schema";
 
 export default function Command() {
   const abortable = useRef<AbortController>();
-  const [mediaType, setMediaType] = useState<MediaType>("movie");
+  const [mediaType, setMediaType] = useState<TraktMediaType>("movie");
   const [actionLoading, setActionLoading] = useState(false);
   const traktClient = initTraktClient();
-  const { removeShowFromHistoryMutation, error: showError, success: showSuccess } = useShowMutations(abortable);
   const {
     isLoading: isMovieLoading,
     data: movies,
     pagination: moviePagination,
     revalidate: revalidateMovie,
   } = useCachedPromise(
-    (mediaType: MediaType) => async (options: PaginationOptions) => {
+    (mediaType: TraktMediaType) => async (options: PaginationOptions) => {
       await setTimeout(100);
       if (mediaType === "show") {
         return { data: [], hasMore: false };
@@ -33,7 +30,7 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.movies.getMovieHistory({
-        query: { page: options.page + 1, limit: 10 },
+        query: { page: options.page + 1, limit: 10, extended: "full,cloud9" },
         fetchOptions: { signal: abortable.current.signal },
       });
 
@@ -68,15 +65,30 @@ export default function Command() {
     pagination: showPagination,
     revalidate: revalidateShow,
   } = useCachedPromise(
-    (mediaType: MediaType) => async (options: PaginationOptions) => {
+    (mediaType: TraktMediaType) => async (options: PaginationOptions) => {
       await setTimeout(100);
       if (mediaType === "movie") {
         return { data: [], hasMore: false };
       }
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      const pagedShows = await getHistoryShows(options.page + 1, abortable.current?.signal);
-      return { data: pagedShows, hasMore: options.page < pagedShows.total_pages };
+
+      const response = await traktClient.shows.getShowHistory({
+        query: { page: options.page + 1, limit: 10, extended: "full,cloud9" },
+        fetchOptions: { signal: abortable.current.signal },
+      });
+
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch movies");
+      }
+
+      const paginatedResponse = withPagination(response);
+
+      return {
+        data: paginatedResponse.data,
+        hasMore:
+          paginatedResponse.pagination["x-pagination-page"] < paginatedResponse.pagination["x-pagination-page-count"],
+      };
     },
     [mediaType],
     {
@@ -98,10 +110,16 @@ export default function Command() {
     });
   }, []);
 
+  const removeShowFromHistoryMutation = useCallback(async (show: TraktShowListItem) => {
+    await traktClient.shows.removeShowFromHistory({
+      body: { shows: [{ ids: { trakt: show.show.ids.trakt } }] },
+    });
+  }, []);
+
   const onMediaTypeChange = useCallback((newValue: string) => {
     abortable.current?.abort();
     abortable.current = new AbortController();
-    setMediaType(newValue as MediaType);
+    setMediaType(newValue as TraktMediaType);
   }, []);
 
   const handleMovieAction = useCallback(
@@ -127,35 +145,26 @@ export default function Command() {
   );
 
   const handleShowAction = useCallback(
-    async (show: TraktShowListItem, action: (show: TraktShowListItem) => Promise<void>) => {
+    async (show: TraktShowListItem, action: (show: TraktShowListItem) => Promise<void>, message: string) => {
       setActionLoading(true);
       try {
         await action(show);
         revalidateShow();
+        showToast({
+          title: message,
+          style: Toast.Style.Success,
+        });
+      } catch (error) {
+        showToast({
+          title: (error as Error).message,
+          style: Toast.Style.Failure,
+        });
       } finally {
         setActionLoading(false);
       }
     },
     [],
   );
-
-  useEffect(() => {
-    if (showError) {
-      showToast({
-        title: showError.message,
-        style: Toast.Style.Failure,
-      });
-    }
-  }, [showError]);
-
-  useEffect(() => {
-    if (showSuccess) {
-      showToast({
-        title: showSuccess,
-        style: Toast.Style.Success,
-      });
-    }
-  }, [showSuccess]);
 
   return mediaType === "movie" ? (
     <MovieGrid
@@ -192,7 +201,7 @@ export default function Command() {
       primaryActionTitle="Remove from history"
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(show) => handleShowAction(show, removeShowFromHistoryMutation)}
+      primaryAction={(show) => handleShowAction(show, removeShowFromHistoryMutation, "Show removed from history")}
     />
   );
 }

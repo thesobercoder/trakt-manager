@@ -1,8 +1,7 @@
 import { Action, ActionPanel, Grid, Icon, Image, Keyboard } from "@raycast/api";
-import { getFavicon, useCachedPromise } from "@raycast/utils";
-import { useRef } from "react";
-import { getTMDBShowDetails } from "../api/tmdb";
+import { getFavicon } from "@raycast/utils";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
+import { TraktShowListItem } from "../lib/schema";
 import { SeasonGrid } from "./season-grid";
 
 export const ShowGridItem = ({
@@ -36,26 +35,12 @@ export const ShowGridItem = ({
   tertiaryActionShortcut?: Keyboard.Shortcut;
   tertiaryAction?: (show: TraktShowListItem) => void;
 }) => {
-  const abortable = useRef<AbortController>();
-  const { data: detail } = useCachedPromise(
-    async (show: TraktShowListItem) => {
-      const detail = await getTMDBShowDetails(show.show.ids.tmdb, abortable.current?.signal);
-      return detail;
-    },
-    [show],
-    {
-      initialData: undefined,
-      keepPreviousData: true,
-      abortable,
-    },
-  );
-
   return (
     <Grid.Item
       key={show.show.ids.trakt}
       title={show.show.title}
       subtitle={subtitle(show)}
-      content={getPosterUrl(detail?.poster_path, "poster.png")}
+      content={getPosterUrl(show.show.images, "poster.png")}
       actions={
         <ActionPanel>
           <ActionPanel.Section>

@@ -1,7 +1,5 @@
 import { Action, ActionPanel, Grid, Icon, Image, Keyboard } from "@raycast/api";
-import { getFavicon, useCachedPromise } from "@raycast/utils";
-import { useRef } from "react";
-import { getTMDBMovieDetails } from "../api/tmdb";
+import { getFavicon } from "@raycast/utils";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
 import { TraktMovieListItem } from "../lib/schema";
 
@@ -34,26 +32,12 @@ export const MovieGridItem = ({
   tertiaryActionShortcut?: Keyboard.Shortcut;
   tertiaryAction?: (movie: TraktMovieListItem) => void;
 }) => {
-  const abortable = useRef<AbortController>();
-  const { data: detail } = useCachedPromise(
-    async (movie: TraktMovieListItem) => {
-      const detail = await getTMDBMovieDetails(movie.movie.ids.tmdb, abortable.current?.signal);
-      return detail;
-    },
-    [movie],
-    {
-      initialData: undefined,
-      keepPreviousData: true,
-      abortable,
-    },
-  );
-
   return (
     <Grid.Item
       key={movie.movie.ids.trakt}
       title={movie.movie.title}
       subtitle={movie.movie.year?.toString() || ""}
-      content={getPosterUrl(detail?.poster_path, "poster.png")}
+      content={getPosterUrl(movie.movie.images, "poster.png")}
       actions={
         <ActionPanel>
           <ActionPanel.Section>

@@ -27,7 +27,7 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.movies.searchMovies({
-        query: { query: searchText, page: options.page + 1, limit: 10, fields: "title" },
+        query: { query: searchText, page: options.page + 1, limit: 10, fields: "title", extended: "full,cloud9" },
         fetchOptions: { signal: abortable.current.signal },
       });
 

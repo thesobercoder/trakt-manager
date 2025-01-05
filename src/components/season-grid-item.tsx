@@ -1,7 +1,5 @@
-import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
-import { getFavicon, useCachedPromise } from "@raycast/utils";
-import { useRef } from "react";
-import { getTMDBSeasonDetails } from "../api/tmdb";
+import { Action, ActionPanel, Grid, Icon, Keyboard } from "@raycast/api";
+import { getFavicon } from "@raycast/utils";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
 import { TraktSeasonListItem } from "../lib/schema";
 import { EpisodeGrid } from "./episode-grid";
@@ -19,31 +17,12 @@ export const SeasonGridItem = ({
   imdbId: string;
   showId: number;
 }) => {
-  const abortable = useRef<AbortController>();
-  const { data: seasonDetail } = useCachedPromise(
-    async (tmdbId: number, season: TraktSeasonListItem) => {
-      return await getTMDBSeasonDetails(tmdbId, season.number, abortable.current?.signal);
-    },
-    [tmdbId, season],
-    {
-      initialData: undefined,
-      keepPreviousData: true,
-      abortable,
-      onError(error) {
-        showToast({
-          title: error.message,
-          style: Toast.Style.Failure,
-        });
-      },
-    },
-  );
-
   return (
     <Grid.Item
       key={season.ids.trakt}
       title={season.title}
       subtitle={season.first_aired ? new Date(season.first_aired).getFullYear().toString() : "Not Aired"}
-      content={getPosterUrl(seasonDetail?.poster_path, "poster.png")}
+      content={getPosterUrl(season.images, "poster.png")}
       actions={
         <ActionPanel>
           <ActionPanel.Section>

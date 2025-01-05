@@ -42,14 +42,22 @@
       "subtitle": "Trakt Manager",
       "description": "Lists movies and shows that are in your history",
       "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "clientId",
+      "title": "Trakt Client ID",
+      "description": "Your Trakt API Client ID",
+      "type": "password",
+      "required": true
     },
     {
-      "name": "refresh",
-      "title": "Refresh",
-      "subtitle": "Trakt Manager",
-      "description": "Refreshes the cache from API",
-      "mode": "no-view",
-      "interval": "6h"
+      "name": "token",
+      "title": "Trakt Token",
+      "description": "Your Trakt API Access Token",
+      "type": "password",
+      "required": true
     }
   ],
   "dependencies": {

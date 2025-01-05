@@ -1,4 +1,5 @@
 import { Grid, Image, Keyboard } from "@raycast/api";
+import { TraktShowList, TraktShowListItem } from "../lib/schema";
 import { ShowGridItem } from "./show-grid-item";
 
 export const ShowGrid = ({

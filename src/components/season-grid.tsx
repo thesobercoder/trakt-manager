@@ -25,7 +25,7 @@ export const SeasonGrid = ({
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.shows.getSeasons({
-        query: { extended: "full" },
+        query: { extended: "full,cloud9" },
         params: { showid: showId },
         fetchOptions: { signal: abortable.current.signal },
       });
