@@ -4,6 +4,28 @@ import { TraktEpisodeList, TraktMovieList, TraktSeasonList, TraktShowList } from
 
 const c = initContract();
 
+const PaginationSchema = z.object({
+  page: z.coerce.number(),
+  limit: z.coerce.number(),
+});
+
+const ExtendedSchema = z.object({
+  extended: z.enum(["full", "cloud9", "full,cloud9"]),
+});
+
+const SearchSchema = PaginationSchema.extend({
+  query: z.string(),
+  fields: z.enum(["title"]),
+}).merge(ExtendedSchema);
+
+const TraktIdSchema = z.object({
+  ids: z.object({
+    trakt: z.number(),
+  }),
+});
+
+const HistoryQuerySchema = PaginationSchema.merge(ExtendedSchema);
+
 const TraktMovieContract = c.router({
   searchMovies: {
     method: "GET",
@@ -11,13 +33,7 @@ const TraktMovieContract = c.router({
     responses: {
       200: TraktMovieList,
     },
-    query: z.object({
-      query: z.string(),
-      page: z.coerce.number(),
-      limit: z.coerce.number(),
-      fields: z.enum(["title"]).default("title"),
-      extended: z.enum(["full", "cloud9", "full,cloud9"]),
-    }),
+    query: SearchSchema,
     summary: "Search for movies",
   },
   getWatchlistMovies: {
@@ -26,11 +42,7 @@ const TraktMovieContract = c.router({
     responses: {
       200: TraktMovieList,
     },
-    query: z.object({
-      page: z.coerce.number(),
-      limit: z.coerce.number(),
-      extended: z.enum(["full", "cloud9", "full,cloud9"]),
-    }),
+    query: HistoryQuerySchema,
     summary: "Get movies in watchlist",
   },
   addMovieToWatchlist: {
@@ -40,13 +52,7 @@ const TraktMovieContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      movies: z.array(
-        z.object({
-          ids: z.object({
-            trakt: z.number(),
-          }),
-        }),
-      ),
+      movies: z.array(TraktIdSchema),
     }),
     summary: "Add movie to watchlist",
   },
@@ -57,13 +63,7 @@ const TraktMovieContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      movies: z.array(
-        z.object({
-          ids: z.object({
-            trakt: z.number(),
-          }),
-        }),
-      ),
+      movies: z.array(TraktIdSchema),
     }),
     summary: "Remove movie from watchlist",
   },
@@ -74,13 +74,7 @@ const TraktMovieContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      movies: z.array(
-        z.object({
-          ids: z.object({
-            trakt: z.number(),
-          }),
-        }),
-      ),
+      movies: z.array(TraktIdSchema),
     }),
     summary: "Check-in movie",
   },
@@ -91,13 +85,7 @@ const TraktMovieContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      movies: z.array(
-        z.object({
-          ids: z.object({
-            trakt: z.number(),
-          }),
-        }),
-      ),
+      movies: z.array(TraktIdSchema),
     }),
     summary: "Add movie to history",
   },
@@ -107,11 +95,7 @@ const TraktMovieContract = c.router({
     responses: {
       200: TraktMovieList,
     },
-    query: z.object({
-      page: z.coerce.number(),
-      limit: z.coerce.number(),
-      extended: z.enum(["full", "cloud9", "full,cloud9"]),
-    }),
+    query: HistoryQuerySchema,
     summary: "Get movie history",
   },
   removeMovieFromHistory: {
@@ -121,13 +105,7 @@ const TraktMovieContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      movies: z.array(
-        z.object({
-          ids: z.object({
-            trakt: z.number(),
-          }),
-        }),
-      ),
+      movies: z.array(TraktIdSchema),
     }),
     summary: "Remove movie from history",
   },
@@ -140,13 +118,7 @@ const TraktShowContract = c.router({
     responses: {
       200: TraktShowList,
     },
-    query: z.object({
-      query: z.string(),
-      page: z.coerce.number(),
-      limit: z.coerce.number(),
-      fields: z.enum(["title"]),
-      extended: z.enum(["full", "cloud9", "full,cloud9"]),
-    }),
+    query: SearchSchema,
     summary: "Search for shows",
   },
   getWatchlistShows: {
@@ -155,11 +127,7 @@ const TraktShowContract = c.router({
     responses: {
       200: TraktShowList,
     },
-    query: z.object({
-      page: z.coerce.number(),
-      limit: z.coerce.number(),
-      extended: z.enum(["full", "cloud9", "full,cloud9"]),
-    }),
+    query: HistoryQuerySchema,
     summary: "Get shows in watchlist",
   },
   addShowToWatchlist: {
@@ -169,13 +137,7 @@ const TraktShowContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      shows: z.array(
-        z.object({
-          ids: z.object({
-            trakt: z.number(),
-          }),
-        }),
-      ),
+      shows: z.array(TraktIdSchema),
     }),
     summary: "Add show to watchlist",
   },
@@ -186,13 +148,7 @@ const TraktShowContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      shows: z.array(
-        z.object({
-          ids: z.object({
-            trakt: z.number(),
-          }),
-        }),
-      ),
+      shows: z.array(TraktIdSchema),
     }),
     summary: "Remove show from watchlist",
   },
@@ -203,13 +159,7 @@ const TraktShowContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      episode: z.array(
-        z.object({
-          ids: z.object({
-            trakt: z.number(),
-          }),
-        }),
-      ),
+      episode: z.array(TraktIdSchema),
     }),
     summary: "Check-in episode",
   },
@@ -220,13 +170,7 @@ const TraktShowContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      shows: z.array(
-        z.object({
-          ids: z.object({
-            trakt: z.number(),
-          }),
-        }),
-      ),
+      shows: z.array(TraktIdSchema),
     }),
     summary: "Add show to history",
   },
@@ -236,11 +180,7 @@ const TraktShowContract = c.router({
     responses: {
       200: TraktMovieList,
     },
-    query: z.object({
-      page: z.coerce.number(),
-      limit: z.coerce.number(),
-      extended: z.enum(["full", "cloud9", "full,cloud9"]),
-    }),
+    query: HistoryQuerySchema,
     summary: "Get show history",
   },
   removeShowFromHistory: {
@@ -250,13 +190,7 @@ const TraktShowContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      shows: z.array(
-        z.object({
-          ids: z.object({
-            trakt: z.number(),
-          }),
-        }),
-      ),
+      shows: z.array(TraktIdSchema),
     }),
     summary: "Remove show from history",
   },
@@ -270,9 +204,7 @@ const TraktShowContract = c.router({
       showid: z.coerce.number(),
       seasonNumber: z.coerce.number(),
     }),
-    query: z.object({
-      extended: z.enum(["full", "cloud9", "full,cloud9"]),
-    }),
+    query: ExtendedSchema,
     summary: "Get episodes for a season",
   },
   getSeasons: {
@@ -284,9 +216,7 @@ const TraktShowContract = c.router({
     pathParams: z.object({
       showid: z.coerce.number(),
     }),
-    query: z.object({
-      extended: z.enum(["full", "cloud9", "full,cloud9"]),
-    }),
+    query: ExtendedSchema,
     summary: "Get seasons for a show",
   },
   getUpNextShows: {

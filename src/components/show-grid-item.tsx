@@ -45,7 +45,7 @@ export const ShowGridItem = ({
         <ActionPanel>
           <ActionPanel.Section>
             <Action.OpenInBrowser
-              icon={getFavicon("https://trakt.tv")}
+              icon={getFavicon("https://app.trakt.tv")}
               title="Open in Trakt"
               url={getTraktUrl("shows", show.show.ids.slug)}
             />

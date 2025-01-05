@@ -42,13 +42,13 @@ export const getScreenshotUrl = (images: ImagesResponse | undefined, fallback: "
 };
 
 export const getTraktUrl = (
-  type: "movie" | "shows" | "season" | "episode",
+  type: "movies" | "shows" | "season" | "episode",
   slug: string,
   seasonNumber: number = 0,
   episodeNumber: number = 0,
 ) => {
   switch (type) {
-    case "movie":
+    case "movies":
     case "shows":
       return `${TRAKT_APP_URL}/${type}/${slug}`;
     case "season":

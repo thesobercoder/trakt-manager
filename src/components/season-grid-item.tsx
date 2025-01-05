@@ -27,7 +27,7 @@ export const SeasonGridItem = ({
         <ActionPanel>
           <ActionPanel.Section>
             <Action.OpenInBrowser
-              icon={getFavicon("https://trakt.tv")}
+              icon={getFavicon("https://app.trakt.tv")}
               title="Open in Trakt"
               url={getTraktUrl("season", slug, season.number)}
             />

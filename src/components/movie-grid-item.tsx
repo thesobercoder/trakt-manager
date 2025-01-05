@@ -42,9 +42,9 @@ export const MovieGridItem = ({
         <ActionPanel>
           <ActionPanel.Section>
             <Action.OpenInBrowser
-              icon={getFavicon("https://trakt.tv")}
+              icon={getFavicon("https://app.trakt.tv")}
               title="Open in Trakt"
-              url={getTraktUrl("movie", movie.movie.ids.slug)}
+              url={getTraktUrl("movies", movie.movie.ids.slug)}
             />
             <Action.OpenInBrowser
               icon={getFavicon("https://www.imdb.com")}
