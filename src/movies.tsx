@@ -13,22 +13,22 @@ export default function Command() {
   const abortable = useRef<AbortController>();
   const [searchText, setSearchText] = useState<string>("");
   const [actionLoading, setActionLoading] = useState(false);
-  const traktClient = initTraktClient(abortable.current);
+  const traktClient = initTraktClient();
   const {
     isLoading,
     data: movies,
     pagination,
   } = useCachedPromise(
     (searchText: string) => async (options: PaginationOptions) => {
-      if (!searchText) {
-        return { data: [], hasMore: false };
-      }
-      await setTimeout(200);
+      if (!searchText) return { data: [], hasMore: false };
+      await setTimeout(100);
+
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.movies.searchMovies({
-        query: { query: searchText, page: options.page + 1 },
+        query: { query: searchText, page: options.page + 1, limit: 10, fields: "title" },
+        fetchOptions: { signal: abortable.current.signal },
       });
 
       if (response.status !== 200) {

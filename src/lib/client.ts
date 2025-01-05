@@ -4,7 +4,7 @@ import { TRAKT_API_URL, TRAKT_CLIENT_ID } from "./constants";
 import { TraktContract } from "./contract";
 import { oauthProvider } from "./oauth";
 
-export const initTraktClient = (controller: AbortController | undefined) => {
+export const initTraktClient = () => {
   return initClient(TraktContract, {
     baseUrl: TRAKT_API_URL,
     baseHeaders: {
@@ -12,8 +12,23 @@ export const initTraktClient = (controller: AbortController | undefined) => {
       "trakt-api-version": "2",
       "trakt-api-key": TRAKT_CLIENT_ID,
     },
-    api: async ({ path, method, body, headers }) => {
+    api: async ({ path, method, body, headers, fetchOptions }) => {
       const accessToken = await oauthProvider.authorize();
+
+      console.log(
+        "[API Request]",
+        JSON.stringify(
+          {
+            method,
+            path,
+            accessToken,
+            body,
+            headers,
+          },
+          null,
+          2,
+        ),
+      );
 
       const response = await fetch(path, {
         method,
@@ -22,7 +37,7 @@ export const initTraktClient = (controller: AbortController | undefined) => {
           Authorization: `Bearer ${accessToken}`,
         },
         body,
-        signal: controller?.signal,
+        ...fetchOptions,
       });
 
       const res = {

@@ -16,13 +16,7 @@ export default function Command() {
   const abortable = useRef<AbortController>();
   const [mediaType, setMediaType] = useState<MediaType>("movie");
   const [actionLoading, setActionLoading] = useState(false);
-  const traktClient = initTraktClient(abortable.current);
-  // const {
-  //   removeMovieFromWatchlistMutation,
-  //   checkInMovieMutation,
-  //   error: movieError,
-  //   success: movieSuccess,
-  // } = useMovieMutations(abortable);
+  const traktClient = initTraktClient();
   const {
     removeShowFromWatchlistMutation,
     checkInFirstEpisodeMutation,
@@ -36,15 +30,15 @@ export default function Command() {
     revalidate: revalidateMovie,
   } = useCachedPromise(
     (mediaType: MediaType) => async (options: PaginationOptions) => {
-      await setTimeout(200);
-      if (mediaType === "show") {
-        return { data: [], hasMore: false };
-      }
+      await setTimeout(100);
+      if (mediaType === "show") return { data: [], hasMore: false };
+
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.movies.getWatchlistMovies({
-        query: { page: options.page + 1 },
+        query: { page: options.page + 1, limit: 10 },
+        fetchOptions: { signal: abortable.current.signal },
       });
 
       if (response.status !== 200) {
@@ -79,10 +73,8 @@ export default function Command() {
     revalidate: revalidateShow,
   } = useCachedPromise(
     (mediaType: MediaType) => async (options: PaginationOptions) => {
-      await setTimeout(200);
-      if (mediaType === "movie") {
-        return { data: [], hasMore: false };
-      }
+      if (mediaType === "movie") return { data: [], hasMore: false };
+
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
       const pagedMovies = await getWatchlistShows(options.page + 1, abortable.current?.signal);
