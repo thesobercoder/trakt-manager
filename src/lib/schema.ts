@@ -1,5 +1,28 @@
 import { z } from "zod";
 
+export const TraktPaginationQuerySchema = z.object({
+  page: z.coerce.number(),
+  limit: z.coerce.number(),
+});
+
+export const TraktExtendedSearchSchema = z.object({
+  sort_by: z.enum(["added"]),
+  sort_how: z.enum(["asc", "desc"]),
+  extended: z.enum(["full", "cloud9", "full,cloud9"]),
+});
+
+export const TraktBasicSearchSchema = TraktPaginationQuerySchema.extend({
+  query: z.string(),
+  fields: z.enum(["title"]),
+  extended: z.enum(["full", "cloud9", "full,cloud9"]),
+});
+
+export const TraktIdSchema = z.object({
+  ids: z.object({
+    trakt: z.number(),
+  }),
+});
+
 export const TraktImageListItem = z.object({
   fanart: z.array(z.string()),
   poster: z.array(z.string()),
@@ -122,7 +145,7 @@ export type TraktEpisodeList = z.infer<typeof TraktEpisodeList>;
 export type ImagesResponse = z.infer<typeof TraktImageListItem>;
 export type TraktMediaType = z.infer<typeof TraktMediaType>;
 
-export const TraktPaginationSchema = z.object({
+export const TraktPaginationHeaderSchema = z.object({
   "x-pagination-page": z.coerce.number().default(0),
   "x-pagination-limit": z.coerce.number().default(0),
   "x-pagination-page-count": z.coerce.number().default(0),
@@ -130,7 +153,7 @@ export const TraktPaginationSchema = z.object({
 });
 
 export const withPagination = <T>(args: { status: number; body: T; headers: Headers }) => {
-  const parsedHeaders = TraktPaginationSchema.parse(args.headers);
+  const parsedHeaders = TraktPaginationHeaderSchema.parse(args.headers);
 
   return {
     data: args.body as T,

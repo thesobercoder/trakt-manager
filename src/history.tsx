@@ -30,7 +30,7 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.movies.getMovieHistory({
-        query: { page: options.page + 1, limit: 10, extended: "full,cloud9" },
+        query: { page: options.page + 1, limit: 10, extended: "full,cloud9", sort_by: "added", sort_how: "asc" },
         fetchOptions: { signal: abortable.current.signal },
       });
 
@@ -74,7 +74,7 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.shows.getShowHistory({
-        query: { page: options.page + 1, limit: 10, extended: "full,cloud9" },
+        query: { page: options.page + 1, limit: 10, extended: "full,cloud9", sort_by: "added", sort_how: "asc" },
         fetchOptions: { signal: abortable.current.signal },
       });
 
