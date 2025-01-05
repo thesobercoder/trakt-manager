@@ -118,7 +118,7 @@ export const TraktSeasonListItem = z.object({
 
 export const TraktSeasonList = z.array(TraktSeasonListItem);
 
-export const TraktEpisodeList = z.object({
+export const TraktEpisodeListItem = z.object({
   season: z.number(),
   number: z.number(),
   title: z.string(),
@@ -140,7 +140,7 @@ export const TraktEpisodeList = z.object({
   episode_type: z.string(),
 });
 
-export const TraktEpisodeListSchema = z.array(TraktEpisodeList);
+export const TraktEpisodeList = z.array(TraktEpisodeListItem);
 
 export type TraktMovieListItem = z.infer<typeof TraktMovieListItem>;
 export type TraktMovieList = z.infer<typeof TraktMovieList>;
@@ -148,8 +148,8 @@ export type TraktShowListItem = z.infer<typeof TraktShowListItem>;
 export type TraktShowList = z.infer<typeof TraktShowList>;
 export type TraktSeasonListItem = z.infer<typeof TraktSeasonListItem>;
 export type TraktSeasonList = z.infer<typeof TraktSeasonList>;
-export type TraktEpisodeListItem = z.infer<typeof TraktEpisodeList>;
-export type TraktEpisodeList = z.infer<typeof TraktEpisodeListSchema>;
+export type TraktEpisodeListItem = z.infer<typeof TraktEpisodeListItem>;
+export type TraktEpisodeList = z.infer<typeof TraktEpisodeList>;
 
 export const TraktPaginationSchema = z.object({
   "x-pagination-page": z.coerce.number().default(0),

@@ -24,49 +24,49 @@ declare type TraktShowList = Array<{
 
 declare type TraktShowListItem = ArrayElementType<TraktShowList>;
 
-declare type TraktSeasonList = Array<{
-  number: number;
-  ids: {
-    trakt: number;
-    tvdb: number;
-    tmdb: number;
-  };
-  rating: number;
-  votes: number;
-  episode_count: number;
-  aired_episodes: number;
-  title: string;
-  overview?: string;
-  first_aired?: string;
-  udpated_at: string;
-  network: string;
-}>;
+// declare type TraktSeasonList = Array<{
+//   number: number;
+//   ids: {
+//     trakt: number;
+//     tvdb: number;
+//     tmdb: number;
+//   };
+//   rating: number;
+//   votes: number;
+//   episode_count: number;
+//   aired_episodes: number;
+//   title: string;
+//   overview?: string;
+//   first_aired?: string;
+//   udpated_at: string;
+//   network: string;
+// }>;
 
-declare type TraktSeasonListItem = ArrayElementType<TraktSeasonList>;
+// declare type TraktSeasonListItem = ArrayElementType<TraktSeasonList>;
 
-declare type TraktEpisodeList = Array<{
-  season: number;
-  number: number;
-  title: string;
-  ids: {
-    trakt: number;
-    tvdb: number;
-    imdb: string;
-    tmdb: number;
-  };
-  number_abs?: number;
-  overview?: string;
-  rating: number;
-  votes: number;
-  comment_count: number;
-  first_aired: string;
-  updated_at: string;
-  available_translations: Array<string>;
-  runtime: number;
-  episode_type: string;
-}>;
+// declare type TraktEpisodeList = Array<{
+//   season: number;
+//   number: number;
+//   title: string;
+//   ids: {
+//     trakt: number;
+//     tvdb: number;
+//     imdb: string;
+//     tmdb: number;
+//   };
+//   number_abs?: number;
+//   overview?: string;
+//   rating: number;
+//   votes: number;
+//   comment_count: number;
+//   first_aired: string;
+//   updated_at: string;
+//   available_translations: Array<string>;
+//   runtime: number;
+//   episode_type: string;
+// }>;
 
-declare type TraktEpisodeListItem = ArrayElementType<TraktEpisodeList>;
+// declare type TraktEpisodeListItem = ArrayElementType<TraktEpisodeList>;
 
 declare type TraktShowProgress = {
   aired: number;

@@ -3,6 +3,7 @@ import { getFavicon, useCachedPromise } from "@raycast/utils";
 import { useRef } from "react";
 import { getTMDBEpisodeDetails } from "../api/tmdb";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
+import { TraktEpisodeListItem } from "../lib/schema";
 
 const formatter = new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "2-digit" });
 

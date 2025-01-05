@@ -3,6 +3,7 @@ import { getFavicon, useCachedPromise } from "@raycast/utils";
 import { useRef } from "react";
 import { getTMDBSeasonDetails } from "../api/tmdb";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
+import { TraktSeasonListItem } from "../lib/schema";
 import { EpisodeGrid } from "./episode-grid";
 
 export const SeasonGridItem = ({

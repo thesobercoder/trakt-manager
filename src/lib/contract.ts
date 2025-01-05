@@ -1,6 +1,6 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
-import { TraktEpisodeListSchema, TraktMovieList, TraktShowListItem } from "./schema";
+import { TraktEpisodeList, TraktMovieList, TraktSeasonList, TraktShowListItem } from "./schema";
 
 const c = initContract();
 
@@ -13,8 +13,8 @@ const TraktMovieContract = c.router({
     },
     query: z.object({
       query: z.string(),
-      page: z.coerce.number().default(1),
-      limit: z.coerce.number().default(10),
+      page: z.coerce.number(),
+      limit: z.coerce.number(),
       fields: z.enum(["title"]).default("title"),
     }),
     summary: "Search for movies",
@@ -26,8 +26,8 @@ const TraktMovieContract = c.router({
       200: TraktMovieList,
     },
     query: z.object({
-      page: z.coerce.number().default(1),
-      limit: z.coerce.number().default(10),
+      page: z.coerce.number(),
+      limit: z.coerce.number(),
     }),
     summary: "Get movies in watchlist",
   },
@@ -106,8 +106,8 @@ const TraktMovieContract = c.router({
       200: TraktMovieList,
     },
     query: z.object({
-      page: z.coerce.number().default(1),
-      limit: z.coerce.number().default(10),
+      page: z.coerce.number(),
+      limit: z.coerce.number(),
     }),
     summary: "Get movie history",
   },
@@ -139,8 +139,8 @@ const TraktShowContract = c.router({
     },
     query: z.object({
       query: z.string(),
-      page: z.string().transform(Number),
-      limit: z.string().transform(Number),
+      page: z.coerce.number(),
+      limit: z.coerce.number(),
       fields: z.enum(["title"]),
     }),
     summary: "Search for shows",
@@ -152,8 +152,9 @@ const TraktShowContract = c.router({
       200: TraktShowListItem,
     },
     query: z.object({
-      page: z.coerce.number().default(1),
-      limit: z.coerce.number().default(10),
+      page: z.coerce.number(),
+      limit: z.coerce.number(),
+      extended: z.enum(["noseasons"]),
     }),
     summary: "Get shows in watchlist",
   },
@@ -232,9 +233,9 @@ const TraktShowContract = c.router({
       200: TraktMovieList,
     },
     query: z.object({
-      page: z.number().default(1),
-      limit: z.number().default(10),
-      extended: z.string().default("noseasons"),
+      page: z.coerce.number(),
+      limit: z.coerce.number(),
+      extended: z.enum(["noseasons"]),
     }),
     summary: "Get show history",
   },
@@ -259,14 +260,14 @@ const TraktShowContract = c.router({
     method: "GET",
     path: "/shows/:showid/seasons/:seasonNumber/episodes",
     responses: {
-      200: TraktEpisodeListSchema,
+      200: TraktEpisodeList,
     },
     pathParams: z.object({
       showid: z.coerce.number(),
       seasonNumber: z.coerce.number(),
     }),
     query: z.object({
-      extended: z.string().default("full"),
+      extended: z.enum(["full", "metadata"]),
     }),
     summary: "Get episodes for a season",
   },
@@ -274,14 +275,13 @@ const TraktShowContract = c.router({
     method: "GET",
     path: "/shows/:showid/seasons",
     responses: {
-      200: TraktEpisodeListSchema,
+      200: TraktSeasonList,
     },
     pathParams: z.object({
       showid: z.coerce.number(),
-      seasonNumber: z.coerce.number(),
     }),
     query: z.object({
-      extended: z.string().default("full"),
+      extended: z.enum(["full", "metadata"]),
     }),
     summary: "Get seasons for a show",
   },

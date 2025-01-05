@@ -2,9 +2,10 @@ import { Grid, Toast, showToast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { setMaxListeners } from "node:events";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getEpisodes } from "../api/shows";
 import { useEpisodeMutations } from "../hooks/useEpisodeMutations";
+import { initTraktClient } from "../lib/client";
 import { APP_MAX_LISTENERS } from "../lib/constants";
+import { TraktEpisodeListItem } from "../lib/schema";
 import { EpisodeGridItem } from "./episode-grid-item";
 
 export const EpisodeGrid = ({
@@ -19,12 +20,24 @@ export const EpisodeGrid = ({
   slug: string;
 }) => {
   const abortable = useRef<AbortController>();
+  const traktClient = initTraktClient();
   const [actionLoading, setActionLoading] = useState(false);
   const { isLoading, data: episodes } = useCachedPromise(
     async (showId: number, seasonNumber: number) => {
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      return await getEpisodes(showId, seasonNumber, abortable.current?.signal);
+
+      const response = await traktClient.shows.getEpisodes({
+        query: { extended: "full" },
+        params: { showid: showId, seasonNumber: seasonNumber },
+        fetchOptions: { signal: abortable.current.signal },
+      });
+
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch seasons");
+      }
+
+      return response.body;
     },
     [showId, seasonNumber],
     {

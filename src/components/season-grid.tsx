@@ -2,7 +2,7 @@ import { Grid, showToast, Toast } from "@raycast/api";
 import { useCachedPromise } from "@raycast/utils";
 import { setMaxListeners } from "node:events";
 import { useRef } from "react";
-import { getSeasons } from "../api/shows";
+import { initTraktClient } from "../lib/client";
 import { APP_MAX_LISTENERS } from "../lib/constants";
 import { SeasonGridItem } from "./season-grid-item";
 
@@ -18,11 +18,23 @@ export const SeasonGrid = ({
   imdbId: string;
 }) => {
   const abortable = useRef<AbortController>();
+  const traktClient = initTraktClient();
   const { isLoading, data: seasons } = useCachedPromise(
     async (showId: number) => {
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
-      return await getSeasons(showId, abortable.current?.signal);
+
+      const response = await traktClient.shows.getSeasons({
+        query: { extended: "full" },
+        params: { showid: showId },
+        fetchOptions: { signal: abortable.current.signal },
+      });
+
+      if (response.status !== 200) {
+        throw new Error("Failed to fetch seasons");
+      }
+
+      return response.body;
     },
     [showId],
     {
