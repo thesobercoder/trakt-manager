@@ -1,5 +1,6 @@
 import { Action, ActionPanel, Grid, Icon, Image, Keyboard } from "@raycast/api";
 import { getFavicon } from "@raycast/utils";
+import { IMDB_APP_URL, TRAKT_APP_URL } from "../lib/constants";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "../lib/helper";
 import { TraktMovieListItem } from "../lib/schema";
 
@@ -42,12 +43,12 @@ export const MovieGridItem = ({
         <ActionPanel>
           <ActionPanel.Section>
             <Action.OpenInBrowser
-              icon={getFavicon("https://app.trakt.tv")}
+              icon={getFavicon(TRAKT_APP_URL)}
               title="Open in Trakt"
               url={getTraktUrl("movies", movie.movie.ids.slug)}
             />
             <Action.OpenInBrowser
-              icon={getFavicon("https://www.imdb.com")}
+              icon={getFavicon(IMDB_APP_URL)}
               title="Open in IMDb"
               url={getIMDbUrl(movie.movie.ids.imdb)}
             />
