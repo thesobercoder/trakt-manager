@@ -37,23 +37,32 @@ export const TraktImageListItem = z.object({
   screenshot: z.array(z.string()),
 });
 
+export const TraktHistoryItemBase = z.object({
+  id: z.number(),
+  watched_at: z.string(),
+  action: z.string(),
+  type: z.string(),
+});
+
+const TraktInnerMovieItem = z.object({
+  title: z.string(),
+  year: z.number().optional(),
+  ids: z.object({
+    trakt: z.number(),
+    slug: z.string(),
+    imdb: z.string(),
+    tmdb: z.number(),
+  }),
+  images: TraktImageListItem.optional(),
+});
+
 export const TraktMovieListItem = z.object({
   type: z.string(),
   score: z.number(),
   plays: z.number().optional(),
   last_watched_at: z.string().optional(),
   last_updated_at: z.string().optional(),
-  movie: z.object({
-    title: z.string(),
-    year: z.number().optional(),
-    ids: z.object({
-      trakt: z.number(),
-      slug: z.string(),
-      imdb: z.string(),
-      tmdb: z.number(),
-    }),
-    images: TraktImageListItem.optional(),
-  }),
+  movie: TraktInnerMovieItem,
 });
 
 export const TraktMovieList = z.array(TraktMovieListItem);
@@ -92,24 +101,26 @@ const TraktShowProgress = z.object({
   last_episode: TraktEpisodeListItem,
 });
 
+const TraktInnerShowItem = z.object({
+  title: z.string(),
+  year: z.number().optional(),
+  ids: z.object({
+    trakt: z.number(),
+    slug: z.string(),
+    tvdb: z.number(),
+    imdb: z.string(),
+    tmdb: z.number(),
+  }),
+  images: TraktImageListItem.optional(),
+});
+
 export const TraktShowListItem = z.object({
   type: z.string(),
   score: z.number(),
   plays: z.number().optional(),
   last_watched_at: z.string().optional(),
   last_updated_at: z.string().optional(),
-  show: z.object({
-    title: z.string(),
-    year: z.number().optional(),
-    ids: z.object({
-      trakt: z.number(),
-      slug: z.string(),
-      tvdb: z.number(),
-      imdb: z.string(),
-      tmdb: z.number(),
-    }),
-    images: TraktImageListItem.optional(),
-  }),
+  show: TraktInnerShowItem,
   progress: TraktShowProgress,
 });
 
@@ -136,6 +147,19 @@ export const TraktSeasonListItem = z.object({
 
 export const TraktSeasonList = z.array(TraktSeasonListItem);
 
+export const TraktShowHistoryListItem = TraktHistoryItemBase.extend({
+  show: TraktInnerShowItem,
+  episode: TraktEpisodeListItem,
+});
+
+export const TraktShowHistoryList = z.array(TraktShowHistoryListItem);
+
+export const TraktMovieHistoryListItem = TraktHistoryItemBase.extend({
+  movie: TraktInnerMovieItem,
+});
+
+export const TraktMovieHistoryList = z.array(TraktMovieHistoryListItem);
+
 export const TraktMediaType = z.enum(["movie", "show"]);
 
 export type TraktMovieListItem = z.infer<typeof TraktMovieListItem>;
@@ -148,6 +172,10 @@ export type TraktEpisodeListItem = z.infer<typeof TraktEpisodeListItem>;
 export type TraktEpisodeList = z.infer<typeof TraktEpisodeList>;
 export type ImagesResponse = z.infer<typeof TraktImageListItem>;
 export type TraktMediaType = z.infer<typeof TraktMediaType>;
+export type TraktShowHistoryListItem = z.infer<typeof TraktShowHistoryListItem>;
+export type TraktShowHistoryList = z.infer<typeof TraktShowHistoryList>;
+export type TraktMovieHistoryListItem = z.infer<typeof TraktMovieHistoryListItem>;
+export type TraktMovieHistoryList = z.infer<typeof TraktMovieHistoryList>;
 
 export const TraktPaginationHeaderSchema = z.object({
   "x-pagination-page": z.coerce.number().default(0),

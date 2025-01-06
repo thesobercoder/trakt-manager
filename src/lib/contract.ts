@@ -4,10 +4,12 @@ import {
   TraktEpisodeList,
   TraktExtendedSchema,
   TraktIdSchema,
+  TraktMovieHistoryList,
   TraktMovieList,
   TraktPaginationWithSortingSchema,
   TraktSearchSchema,
   TraktSeasonList,
+  TraktShowHistoryList,
   TraktShowList,
 } from "./schema";
 
@@ -80,7 +82,7 @@ const TraktMovieContract = c.router({
     method: "GET",
     path: "/sync/history/movies",
     responses: {
-      200: TraktMovieList,
+      200: TraktMovieHistoryList,
     },
     query: TraktPaginationWithSortingSchema,
     summary: "Get movie history",
@@ -165,7 +167,7 @@ const TraktShowContract = c.router({
     method: "GET",
     path: "/sync/history/shows",
     responses: {
-      200: TraktShowList,
+      200: TraktShowHistoryList,
     },
     query: TraktPaginationWithSortingSchema,
     summary: "Get show history",
