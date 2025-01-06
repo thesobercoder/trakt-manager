@@ -60,7 +60,7 @@ export const getTraktUrl = (
 
 export const getIMDbUrl = (imdbId: string, seasonNumber?: number): string => {
   if (seasonNumber) {
-    return `${IMDB_APP_URL}/${imdbId}/episodes?season=${seasonNumber}`;
+    return `${IMDB_APP_URL}/title/${imdbId}/episodes?season=${seasonNumber}`;
   }
-  return `${IMDB_APP_URL}/${imdbId}`;
+  return `${IMDB_APP_URL}/title/${imdbId}`;
 };

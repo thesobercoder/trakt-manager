@@ -44,22 +44,6 @@
       "mode": "view"
     }
   ],
-  "preferences": [
-    {
-      "name": "clientId",
-      "title": "Trakt Client ID",
-      "description": "Your Trakt API Client ID",
-      "type": "password",
-      "required": true
-    },
-    {
-      "name": "token",
-      "title": "Trakt Token",
-      "description": "Your Trakt API Access Token",
-      "type": "password",
-      "required": true
-    }
-  ],
   "dependencies": {
     "@raycast/api": "^1.88.4",
     "@raycast/utils": "^1.18.1",
@@ -76,6 +60,22 @@
   },
   "icon": "trakt.png",
   "license": "MIT",
+  "preferences": [
+    {
+      "name": "clientId",
+      "title": "Trakt Client ID",
+      "description": "Your Trakt API Client ID",
+      "type": "password",
+      "required": true
+    },
+    {
+      "name": "token",
+      "title": "Trakt Token",
+      "description": "Your Trakt API Access Token",
+      "type": "password",
+      "required": true
+    }
+  ],
   "scripts": {
     "build": "ray build -e dist",
     "dev": "ray develop",

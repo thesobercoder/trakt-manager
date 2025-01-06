@@ -4,7 +4,7 @@ import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useRef, useState } from "react";
-import { HistoryGrid } from "./components/history-grid";
+import { MovieHistoryGrid, ShowHistoryGrid } from "./components/history-grid";
 import { initTraktClient } from "./lib/client";
 import { APP_MAX_LISTENERS } from "./lib/constants";
 import { TraktMediaType, TraktMovieHistoryListItem, TraktShowHistoryListItem, withPagination } from "./lib/schema";
@@ -215,7 +215,7 @@ export default function Command() {
   );
 
   return mediaType === "movie" ? (
-    <HistoryGrid
+    <MovieHistoryGrid
       isLoading={isMovieLoading || actionLoading}
       emptyViewTitle="No shows in your history"
       searchBarPlaceholder="Search history"
@@ -226,25 +226,16 @@ export default function Command() {
         </Grid.Dropdown>
       }
       pagination={moviePagination}
-      episodes={movies}
-      title={(item) => {
-        const movie = item as TraktMovieHistoryListItem;
-        return movie.movie.title;
-      }}
-      subtitle={(item) => {
-        const movie = item as TraktMovieHistoryListItem;
-        return formatter.format(new Date(movie.watched_at));
-      }}
+      movies={movies}
+      title={(item) => item.movie.title}
+      subtitle={(item) => formatter.format(new Date(item.watched_at))}
       primaryActionTitle="Remove from history"
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(item) => {
-        const movie = item as TraktMovieHistoryListItem;
-        handleMovieAction(movie, removeMovieFromHistory, "Movie removed from history");
-      }}
+      primaryAction={(item) => handleMovieAction(item, removeMovieFromHistory, "Movie removed from history")}
     />
   ) : (
-    <HistoryGrid
+    <ShowHistoryGrid
       isLoading={isShowsLoading || actionLoading}
       emptyViewTitle="No shows in your history"
       searchBarPlaceholder="Search history"
@@ -257,22 +248,17 @@ export default function Command() {
       pagination={showPagination}
       episodes={shows}
       title={(item) => {
-        const episode = item as TraktShowHistoryListItem;
-        return `${episode.show.title} - ${episode.episode.title}`;
+        return `${item.show.title} - ${item.episode.title}`;
       }}
-      subtitle={(item) => {
-        const episode = item as TraktShowHistoryListItem;
-        return `${episode.episode.season}x${episode.episode.number.toString().padStart(2, "0")} (${formatter.format(
-          new Date(episode.watched_at),
-        )})`;
-      }}
+      subtitle={(item) =>
+        `${item.episode.season}x${item.episode.number.toString().padStart(2, "0")} (${formatter.format(
+          new Date(item.watched_at),
+        )})`
+      }
       primaryActionTitle="Remove from history"
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(item) => {
-        const episode = item as TraktShowHistoryListItem;
-        handleShowAction(episode, removeEpisodeFromHistory, "Episode removed from history");
-      }}
+      primaryAction={(item) => handleShowAction(item, removeEpisodeFromHistory, "Episode removed from history")}
     />
   );
 }
