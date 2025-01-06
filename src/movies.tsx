@@ -27,8 +27,16 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.movies.searchMovies({
-        query: { query: searchText, page: options.page + 1, limit: 10, fields: "title", extended: "full,cloud9" },
-        fetchOptions: { signal: abortable.current.signal },
+        query: {
+          query: searchText,
+          page: options.page + 1,
+          limit: 10,
+          fields: "title",
+          extended: "full,cloud9",
+        },
+        fetchOptions: {
+          signal: abortable.current.signal,
+        },
       });
 
       if (response.status !== 200) {
@@ -59,19 +67,32 @@ export default function Command() {
 
   const addMovieToWatchlist = useCallback(async (movie: TraktMovieListItem) => {
     await traktClient.movies.addMovieToWatchlist({
-      body: { movies: [{ ids: { trakt: movie.movie.ids.trakt } }] },
+      body: {
+        movies: [
+          {
+            ids: { trakt: movie.movie.ids.trakt },
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
     });
   }, []);
 
   const addMovieToHistory = useCallback(async (movie: TraktMovieListItem) => {
     await traktClient.movies.addMovieToHistory({
-      body: { movies: [{ ids: { trakt: movie.movie.ids.trakt } }] },
-    });
-  }, []);
-
-  const checkInMovie = useCallback(async (movie: TraktMovieListItem) => {
-    await traktClient.movies.checkInMovie({
-      body: { movies: [{ ids: { trakt: movie.movie.ids.trakt } }] },
+      body: {
+        movies: [
+          {
+            ids: { trakt: movie.movie.ids.trakt },
+            watched_at: new Date().toISOString(),
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
     });
   }, []);
 
@@ -118,14 +139,10 @@ export default function Command() {
       primaryActionIcon={Icon.Bookmark}
       primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
       primaryAction={(movie) => handleAction(movie, addMovieToWatchlist, "Movie added to watchlist")}
-      secondaryActionTitle="Check-in Movie"
-      secondaryActionIcon={Icon.Checkmark}
+      secondaryActionTitle="Add to History"
+      secondaryActionIcon={Icon.Clock}
       secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-      secondaryAction={(movie) => handleAction(movie, checkInMovie, "Movie checked in")}
-      tertiaryActionTitle="Add to History"
-      tertiaryActionIcon={Icon.Clock}
-      tertiaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-      tertiaryAction={(movie) => handleAction(movie, addMovieToHistory, "Movie added to history")}
+      secondaryAction={(movie) => handleAction(movie, addMovieToHistory, "Movie added to history")}
     />
   );
 }

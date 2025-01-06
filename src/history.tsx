@@ -31,8 +31,16 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.movies.getMovieHistory({
-        query: { page: options.page + 1, limit: 10, extended: "full,cloud9", sort_by: "added", sort_how: "asc" },
-        fetchOptions: { signal: abortable.current.signal },
+        query: {
+          page: options.page + 1,
+          limit: 10,
+          extended: "full,cloud9",
+          sort_by: "added",
+          sort_how: "asc",
+        },
+        fetchOptions: {
+          signal: abortable.current.signal,
+        },
       });
 
       if (response.status !== 200) {
@@ -75,8 +83,16 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.shows.getShowHistory({
-        query: { page: options.page + 1, limit: 10, extended: "full,cloud9", sort_by: "added", sort_how: "asc" },
-        fetchOptions: { signal: abortable.current.signal },
+        query: {
+          page: options.page + 1,
+          limit: 10,
+          extended: "full,cloud9",
+          sort_by: "added",
+          sort_how: "asc",
+        },
+        fetchOptions: {
+          signal: abortable.current.signal,
+        },
       });
 
       if (response.status !== 200) {
@@ -107,14 +123,36 @@ export default function Command() {
 
   const removeMovieFromHistory = useCallback(async (movie: TraktMovieHistoryListItem) => {
     await traktClient.movies.removeMovieFromHistory({
-      body: { movies: [{ ids: { trakt: movie.movie.ids.trakt } }] },
+      body: {
+        movies: [
+          {
+            ids: {
+              trakt: movie.movie.ids.trakt,
+            },
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
     });
   }, []);
 
   const removeEpisodeFromHistory = useCallback(async (episode: TraktShowHistoryListItem) => {
-    // await traktClient.shows.removeShowFromHistory({
-    //   body: { shows: [{ ids: { trakt: show.show.ids.trakt } }] },
-    // });
+    await traktClient.shows.removeEpisodeFromHistory({
+      body: {
+        episodes: [
+          {
+            ids: {
+              trakt: episode.episode.ids.trakt,
+            },
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
+    });
     console.log("Remove episode from history", episode);
   }, []);
 

@@ -20,12 +20,20 @@ export const TraktIdSchema = z.object({
   }),
 });
 
+export const TraktIdSchemaWithTime = TraktIdSchema.extend({
+  watched_at: z.string().date(),
+});
+
 export const TraktSearchSchema = TraktPaginationSchema.merge(TraktExtendedSchema).extend({
   query: z.string(),
   fields: z.enum(["title"]),
 });
 
 export const TraktPaginationWithSortingSchema = TraktPaginationSchema.merge(TraktSortingSchema);
+
+export const TraktUpNextQuerySchema = TraktPaginationWithSortingSchema.extend({
+  include_stats: z.coerce.boolean(),
+});
 
 export const TraktImageListItem = z.object({
   fanart: z.array(z.string()),

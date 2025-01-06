@@ -27,8 +27,16 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.shows.searchShows({
-        query: { query: searchText, page: options.page + 1, limit: 10, fields: "title", extended: "full,cloud9" },
-        fetchOptions: { signal: abortable.current.signal },
+        query: {
+          query: searchText,
+          page: options.page + 1,
+          limit: 10,
+          fields: "title",
+          extended: "full,cloud9",
+        },
+        fetchOptions: {
+          signal: abortable.current.signal,
+        },
       });
 
       if (response.status !== 200) {
@@ -59,13 +67,36 @@ export default function Command() {
 
   const addShowToWatchlist = useCallback(async (show: TraktShowListItem) => {
     await traktClient.shows.addShowToWatchlist({
-      body: { shows: [{ ids: { trakt: show.show.ids.trakt } }] },
+      body: {
+        shows: [
+          {
+            ids: {
+              trakt: show.show.ids.trakt,
+            },
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
     });
   }, []);
 
   const addShowToHistory = useCallback(async (show: TraktShowListItem) => {
     await traktClient.shows.addShowToHistory({
-      body: { shows: [{ ids: { trakt: show.show.ids.trakt } }] },
+      body: {
+        shows: [
+          {
+            ids: {
+              trakt: show.show.ids.trakt,
+            },
+            watched_at: new Date().toISOString(),
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
     });
   }, []);
 

@@ -4,6 +4,7 @@ import {
   TraktEpisodeList,
   TraktExtendedSchema,
   TraktIdSchema,
+  TraktIdSchemaWithTime,
   TraktMovieHistoryList,
   TraktMovieList,
   TraktPaginationWithSortingSchema,
@@ -11,6 +12,7 @@ import {
   TraktSeasonList,
   TraktShowHistoryList,
   TraktShowList,
+  TraktUpNextQuerySchema,
 } from "./schema";
 
 const c = initContract();
@@ -56,17 +58,6 @@ const TraktMovieContract = c.router({
     }),
     summary: "Remove movie from watchlist",
   },
-  checkInMovie: {
-    method: "POST",
-    path: "/checkin",
-    responses: {
-      200: c.type<unknown>(),
-    },
-    body: z.object({
-      movies: z.array(TraktIdSchema),
-    }),
-    summary: "Check-in movie",
-  },
   addMovieToHistory: {
     method: "POST",
     path: "/sync/history",
@@ -74,7 +65,7 @@ const TraktMovieContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      movies: z.array(TraktIdSchema),
+      movies: z.array(TraktIdSchemaWithTime),
     }),
     summary: "Add movie to history",
   },
@@ -141,17 +132,6 @@ const TraktShowContract = c.router({
     }),
     summary: "Remove show from watchlist",
   },
-  checkInEpisode: {
-    method: "POST",
-    path: "/checkin",
-    responses: {
-      200: c.type<unknown>(),
-    },
-    body: z.object({
-      episode: z.array(TraktIdSchema),
-    }),
-    summary: "Check-in episode",
-  },
   addShowToHistory: {
     method: "POST",
     path: "/sync/history",
@@ -159,9 +139,20 @@ const TraktShowContract = c.router({
       200: c.type<unknown>(),
     },
     body: z.object({
-      shows: z.array(TraktIdSchema),
+      shows: z.array(TraktIdSchemaWithTime),
     }),
     summary: "Add show to history",
+  },
+  addEpisodeToHistory: {
+    method: "POST",
+    path: "/sync/history",
+    responses: {
+      200: c.type<unknown>(),
+    },
+    body: z.object({
+      episodes: z.array(TraktIdSchemaWithTime),
+    }),
+    summary: "Add episode to history",
   },
   getShowHistory: {
     method: "GET",
@@ -182,6 +173,17 @@ const TraktShowContract = c.router({
       shows: z.array(TraktIdSchema),
     }),
     summary: "Remove show from history",
+  },
+  removeEpisodeFromHistory: {
+    method: "POST",
+    path: "/sync/history/remove",
+    responses: {
+      200: c.type<unknown>(),
+    },
+    body: z.object({
+      episodes: z.array(TraktIdSchema),
+    }),
+    summary: "Remove episode from history",
   },
   getEpisodes: {
     method: "GET",
@@ -214,7 +216,7 @@ const TraktShowContract = c.router({
     responses: {
       200: TraktShowList,
     },
-    query: TraktPaginationWithSortingSchema,
+    query: TraktUpNextQuerySchema,
     summary: "Get up next shows",
   },
 });

@@ -26,8 +26,17 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.shows.getUpNextShows({
-        query: { page: options.page + 1, limit: 10, extended: "full,cloud9", sort_by: "added", sort_how: "asc" },
-        fetchOptions: { signal: abortable.current.signal },
+        query: {
+          page: options.page + 1,
+          limit: 10,
+          extended: "full,cloud9",
+          sort_by: "added",
+          sort_how: "asc",
+          include_stats: true,
+        },
+        fetchOptions: {
+          signal: abortable.current.signal,
+        },
       });
 
       if (response.status !== 200) {
@@ -56,18 +65,21 @@ export default function Command() {
     },
   );
 
-  const checkInNextEpisode = useCallback(async (show: TraktShowListItem) => {
-    await traktClient.shows.checkInEpisode({
+  const addEpisodeToHistory = useCallback(async (show: TraktShowListItem) => {
+    await traktClient.shows.addEpisodeToHistory({
       body: {
-        episode: [
+        episodes: [
           {
             ids: {
               trakt: show.progress.next_episode.ids.trakt,
             },
+            watched_at: new Date().toISOString(),
           },
         ],
       },
-      fetchOptions: { signal: abortable.current?.signal },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
     });
   }, []);
 
@@ -92,12 +104,12 @@ export default function Command() {
       pagination={pagination}
       shows={shows}
       subtitle={(show) =>
-        `${show.progress?.next_episode?.season}x${show.progress?.next_episode?.number.toString().padStart(2, "0")}`
+        `${show.progress.next_episode.season}x${show.progress.next_episode.number.toString().padStart(2, "0")}`
       }
-      primaryActionTitle="Check-in Next Episode"
+      primaryActionTitle="Add to History"
       primaryActionIcon={Icon.Checkmark}
       primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-      primaryAction={(show) => handleAction(show, checkInNextEpisode)}
+      primaryAction={(show) => handleAction(show, addEpisodeToHistory)}
     />
   );
 }

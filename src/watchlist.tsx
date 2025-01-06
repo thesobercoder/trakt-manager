@@ -29,8 +29,16 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.movies.getWatchlistMovies({
-        query: { page: options.page + 1, limit: 10, extended: "full,cloud9", sort_by: "added", sort_how: "asc" },
-        fetchOptions: { signal: abortable.current.signal },
+        query: {
+          page: options.page + 1,
+          limit: 10,
+          extended: "full,cloud9",
+          sort_by: "added",
+          sort_how: "asc",
+        },
+        fetchOptions: {
+          signal: abortable.current.signal,
+        },
       });
 
       if (response.status !== 200) {
@@ -72,8 +80,16 @@ export default function Command() {
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
       const response = await traktClient.shows.getWatchlistShows({
-        query: { page: options.page + 1, limit: 10, extended: "full,cloud9", sort_by: "added", sort_how: "asc" },
-        fetchOptions: { signal: abortable.current.signal },
+        query: {
+          page: options.page + 1,
+          limit: 10,
+          extended: "full,cloud9",
+          sort_by: "added",
+          sort_how: "asc",
+        },
+        fetchOptions: {
+          signal: abortable.current.signal,
+        },
       });
 
       if (response.status !== 200) {
@@ -104,19 +120,71 @@ export default function Command() {
 
   const removeShowFromWatchlist = useCallback(async (show: TraktShowListItem) => {
     await traktClient.shows.removeShowFromWatchlist({
-      body: { shows: [{ ids: { trakt: show.show.ids.trakt } }] },
+      body: {
+        shows: [
+          {
+            ids: {
+              trakt: show.show.ids.trakt,
+            },
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
     });
   }, []);
 
   const removeMovieFromWatchlist = useCallback(async (movie: TraktMovieListItem) => {
     await traktClient.movies.removeMovieFromWatchlist({
-      body: { movies: [{ ids: { trakt: movie.movie.ids.trakt } }] },
+      body: {
+        movies: [
+          {
+            ids: {
+              trakt: movie.movie.ids.trakt,
+            },
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
     });
   }, []);
 
-  const checkInMovie = useCallback(async (movie: TraktMovieListItem) => {
-    await traktClient.movies.checkInMovie({
-      body: { movies: [{ ids: { trakt: movie.movie.ids.trakt } }] },
+  const addMovieToHistory = useCallback(async (movie: TraktMovieListItem) => {
+    await traktClient.movies.addMovieToHistory({
+      body: {
+        movies: [
+          {
+            ids: {
+              trakt: movie.movie.ids.trakt,
+            },
+            watched_at: new Date().toISOString(),
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
+    });
+  }, []);
+
+  const addShowToHistory = useCallback(async (show: TraktShowListItem) => {
+    await traktClient.shows.addShowToHistory({
+      body: {
+        shows: [
+          {
+            ids: {
+              trakt: show.show.ids.trakt,
+            },
+            watched_at: new Date().toISOString(),
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
     });
   }, []);
 
@@ -170,42 +238,6 @@ export default function Command() {
     [],
   );
 
-  // useEffect(() => {
-  //   if (movieError) {
-  //     showToast({
-  //       title: movieError.message,
-  //       style: Toast.Style.Failure,
-  //     });
-  //   }
-  // }, [movieError]);
-
-  // useEffect(() => {
-  //   if (showError) {
-  //     showToast({
-  //       title: showError.message,
-  //       style: Toast.Style.Failure,
-  //     });
-  //   }
-  // }, [showError]);
-
-  // useEffect(() => {
-  //   if (movieSuccess) {
-  //     showToast({
-  //       title: movieSuccess,
-  //       style: Toast.Style.Success,
-  //     });
-  //   }
-  // }, [movieSuccess]);
-
-  // useEffect(() => {
-  //   if (showSuccess) {
-  //     showToast({
-  //       title: showSuccess,
-  //       style: Toast.Style.Success,
-  //     });
-  //   }
-  // }, [showSuccess]);
-
   return mediaType === "movie" ? (
     <MovieGrid
       isLoading={isMovieLoading || actionLoading}
@@ -223,10 +255,10 @@ export default function Command() {
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
       primaryAction={(movie) => handleMovieAction(movie, removeMovieFromWatchlist, "Movie removed from watchlist")}
-      secondaryActionTitle="Check-in Movie"
-      secondaryActionIcon={Icon.Checkmark}
+      secondaryActionTitle="Add to History"
+      secondaryActionIcon={Icon.Clock}
       secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-      secondaryAction={(movie) => handleMovieAction(movie, checkInMovie, "Movie checked in")}
+      secondaryAction={(movie) => handleMovieAction(movie, addMovieToHistory, "Movie added to history")}
     />
   ) : (
     <ShowGrid
@@ -246,6 +278,10 @@ export default function Command() {
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
       primaryAction={(show) => handleShowAction(show, removeShowFromWatchlist, "Show removed from watchlist")}
+      secondaryActionTitle="Add to History"
+      secondaryActionIcon={Icon.Clock}
+      secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
+      secondaryAction={(movie) => handleShowAction(movie, addShowToHistory, "Show added to history")}
     />
   );
 }
