@@ -1,19 +1,17 @@
 import { initContract } from "@ts-rest/core";
 import { z } from "zod";
 import {
-  TraktBasicSearchSchema,
   TraktEpisodeList,
-  TraktExtendedSearchSchema,
+  TraktExtendedSchema,
   TraktIdSchema,
   TraktMovieList,
-  TraktPaginationQuerySchema,
+  TraktPaginationWithSortingSchema,
+  TraktSearchSchema,
   TraktSeasonList,
   TraktShowList,
 } from "./schema";
 
 const c = initContract();
-
-const HistoryQuerySchema = TraktPaginationQuerySchema.merge(TraktExtendedSearchSchema);
 
 const TraktMovieContract = c.router({
   searchMovies: {
@@ -22,7 +20,7 @@ const TraktMovieContract = c.router({
     responses: {
       200: TraktMovieList,
     },
-    query: TraktBasicSearchSchema,
+    query: TraktSearchSchema,
     summary: "Search for movies",
   },
   getWatchlistMovies: {
@@ -31,7 +29,7 @@ const TraktMovieContract = c.router({
     responses: {
       200: TraktMovieList,
     },
-    query: HistoryQuerySchema,
+    query: TraktPaginationWithSortingSchema,
     summary: "Get movies in watchlist",
   },
   addMovieToWatchlist: {
@@ -84,7 +82,7 @@ const TraktMovieContract = c.router({
     responses: {
       200: TraktMovieList,
     },
-    query: HistoryQuerySchema,
+    query: TraktPaginationWithSortingSchema,
     summary: "Get movie history",
   },
   removeMovieFromHistory: {
@@ -107,7 +105,7 @@ const TraktShowContract = c.router({
     responses: {
       200: TraktShowList,
     },
-    query: TraktBasicSearchSchema,
+    query: TraktSearchSchema,
     summary: "Search for shows",
   },
   getWatchlistShows: {
@@ -116,7 +114,7 @@ const TraktShowContract = c.router({
     responses: {
       200: TraktShowList,
     },
-    query: HistoryQuerySchema,
+    query: TraktPaginationWithSortingSchema,
     summary: "Get shows in watchlist",
   },
   addShowToWatchlist: {
@@ -169,7 +167,7 @@ const TraktShowContract = c.router({
     responses: {
       200: TraktShowList,
     },
-    query: HistoryQuerySchema,
+    query: TraktPaginationWithSortingSchema,
     summary: "Get show history",
   },
   removeShowFromHistory: {
@@ -193,7 +191,7 @@ const TraktShowContract = c.router({
       showid: z.coerce.number(),
       seasonNumber: z.coerce.number(),
     }),
-    query: TraktExtendedSearchSchema,
+    query: TraktExtendedSchema,
     summary: "Get episodes for a season",
   },
   getSeasons: {
@@ -205,7 +203,7 @@ const TraktShowContract = c.router({
     pathParams: z.object({
       showid: z.coerce.number(),
     }),
-    query: TraktExtendedSearchSchema,
+    query: TraktExtendedSchema,
     summary: "Get seasons for a show",
   },
   getUpNextShows: {
@@ -214,7 +212,7 @@ const TraktShowContract = c.router({
     responses: {
       200: TraktShowList,
     },
-    query: HistoryQuerySchema,
+    query: TraktPaginationWithSortingSchema,
     summary: "Get up next shows",
   },
 });

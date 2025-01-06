@@ -1,20 +1,17 @@
 import { z } from "zod";
 
-export const TraktPaginationQuerySchema = z.object({
+export const TraktPaginationSchema = z.object({
   page: z.coerce.number(),
   limit: z.coerce.number(),
 });
 
-export const TraktExtendedSearchSchema = z.object({
-  sort_by: z.enum(["added"]),
-  sort_how: z.enum(["asc", "desc"]),
+export const TraktExtendedSchema = z.object({
   extended: z.enum(["full", "cloud9", "full,cloud9"]),
 });
 
-export const TraktBasicSearchSchema = TraktPaginationQuerySchema.extend({
-  query: z.string(),
-  fields: z.enum(["title"]),
-  extended: z.enum(["full", "cloud9", "full,cloud9"]),
+export const TraktSortingSchema = TraktExtendedSchema.extend({
+  sort_by: z.enum(["added"]),
+  sort_how: z.enum(["asc", "desc"]),
 });
 
 export const TraktIdSchema = z.object({
@@ -22,6 +19,13 @@ export const TraktIdSchema = z.object({
     trakt: z.number(),
   }),
 });
+
+export const TraktSearchSchema = TraktPaginationSchema.merge(TraktExtendedSchema).extend({
+  query: z.string(),
+  fields: z.enum(["title"]),
+});
+
+export const TraktPaginationWithSortingSchema = TraktPaginationSchema.merge(TraktSortingSchema);
 
 export const TraktImageListItem = z.object({
   fanart: z.array(z.string()),
