@@ -228,7 +228,7 @@ export default function Command() {
       pagination={moviePagination}
       movies={movies}
       title={(item) => item.movie.title}
-      subtitle={(item) => formatter.format(new Date(item.watched_at))}
+      subtitle={(item) => (item.watched_at ? ` (${formatter.format(new Date(item.watched_at))})` : "")}
       primaryActionTitle="Remove from history"
       primaryActionIcon={Icon.Trash}
       primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
@@ -251,9 +251,7 @@ export default function Command() {
         return `${item.show.title} - ${item.episode.title}`;
       }}
       subtitle={(item) =>
-        `${item.episode.season}x${item.episode.number.toString().padStart(2, "0")} (${formatter.format(
-          new Date(item.watched_at),
-        )})`
+        `${item.episode.season}x${item.episode.number.toString().padStart(2, "0")}${item.watched_at ? ` (${formatter.format(new Date(item.watched_at))})` : ""}`
       }
       primaryActionTitle="Remove from history"
       primaryActionIcon={Icon.Trash}

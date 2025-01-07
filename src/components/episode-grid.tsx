@@ -51,14 +51,15 @@ export const EpisodeGrid = ({
     },
   );
 
-  const checkInEpisode = useCallback(async (episode: TraktEpisodeListItem) => {
-    await traktClient.shows.checkInEpisode({
+  const addEpisodeToHistory = useCallback(async (episode: TraktEpisodeListItem) => {
+    await traktClient.shows.addEpisodeToHistory({
       body: {
-        episode: [
+        episodes: [
           {
             ids: {
               trakt: episode.ids.trakt,
             },
+            watched_at: new Date().toISOString(),
           },
         ],
       },
@@ -105,7 +106,7 @@ export const EpisodeGrid = ({
             episode={episode}
             seasonNumber={seasonNumber}
             slug={slug}
-            checkInEpisode={() => handleAction(episode, checkInEpisode, "Checked in")}
+            checkInEpisode={() => handleAction(episode, addEpisodeToHistory, "Episode added to history")}
           />
         ))}
     </Grid>

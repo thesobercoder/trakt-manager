@@ -23,6 +23,13 @@
       "mode": "view"
     },
     {
+      "name": "episodes",
+      "title": "Search Episodes",
+      "subtitle": "Trakt Manager",
+      "description": "Search for episodes by title",
+      "mode": "view"
+    },
+    {
       "name": "watchlist",
       "title": "Watchlist",
       "subtitle": "Trakt Manager",

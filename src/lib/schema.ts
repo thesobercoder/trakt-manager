@@ -46,10 +46,11 @@ export const TraktImageListItem = z.object({
 });
 
 export const TraktHistoryItemBase = z.object({
-  id: z.number(),
-  watched_at: z.string(),
-  action: z.string(),
+  id: z.number().optional(),
+  watched_at: z.string().optional(),
+  action: z.string().optional(),
   type: z.string(),
+  score: z.number().optional(),
 });
 
 const TraktInnerMovieItem = z.object({

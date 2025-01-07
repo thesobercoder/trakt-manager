@@ -19,21 +19,6 @@ export const initTraktClient = () => {
       const accessToken = preferences.token;
       const traktClientId = preferences.clientId;
 
-      console.log(
-        "[API Request]",
-        JSON.stringify(
-          {
-            method,
-            path,
-            accessToken,
-            body,
-            headers,
-          },
-          null,
-          2,
-        ),
-      );
-
       const response = await fetch(path, {
         method,
         headers: {
@@ -44,6 +29,23 @@ export const initTraktClient = () => {
         body,
         ...fetchOptions,
       });
+
+      console.log(
+        "[API Request]",
+        JSON.stringify(
+          {
+            method,
+            path,
+            accessToken,
+            body,
+            headers,
+            status: response.status,
+            statusText: response.statusText,
+          },
+          null,
+          2,
+        ),
+      );
 
       const compatResponse = {
         status: response.status,

@@ -101,6 +101,15 @@ const TraktShowContract = c.router({
     query: TraktSearchSchema,
     summary: "Search for shows",
   },
+  searchEpisodes: {
+    method: "GET",
+    path: "/search/episode",
+    responses: {
+      200: TraktShowHistoryList,
+    },
+    query: TraktSearchSchema,
+    summary: "Search for episodes",
+  },
   getWatchlistShows: {
     method: "GET",
     path: "/sync/watchlist/shows/added",
