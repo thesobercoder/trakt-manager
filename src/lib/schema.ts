@@ -53,7 +53,7 @@ export const TraktHistoryItemBase = z.object({
   score: z.number().optional(),
 });
 
-const TraktInnerMovieItem = z.object({
+const TraktMovieBaseItem = z.object({
   title: z.string(),
   year: z.number().optional(),
   ids: z.object({
@@ -71,7 +71,7 @@ export const TraktMovieListItem = z.object({
   plays: z.number().optional(),
   last_watched_at: z.string().optional(),
   last_updated_at: z.string().optional(),
-  movie: TraktInnerMovieItem,
+  movie: TraktMovieBaseItem,
 });
 
 export const TraktMovieList = z.array(TraktMovieListItem);
@@ -110,7 +110,7 @@ const TraktShowProgress = z.object({
   last_episode: TraktEpisodeListItem,
 });
 
-const TraktInnerShowItem = z.object({
+const TraktShowBaseItem = z.object({
   title: z.string(),
   year: z.number().optional(),
   ids: z.object({
@@ -129,7 +129,7 @@ export const TraktShowListItem = z.object({
   plays: z.number().optional(),
   last_watched_at: z.string().optional(),
   last_updated_at: z.string().optional(),
-  show: TraktInnerShowItem,
+  show: TraktShowBaseItem,
   progress: TraktShowProgress,
 });
 
@@ -157,14 +157,14 @@ export const TraktSeasonListItem = z.object({
 export const TraktSeasonList = z.array(TraktSeasonListItem);
 
 export const TraktShowHistoryListItem = TraktHistoryItemBase.extend({
-  show: TraktInnerShowItem,
+  show: TraktShowBaseItem,
   episode: TraktEpisodeListItem,
 });
 
 export const TraktShowHistoryList = z.array(TraktShowHistoryListItem);
 
 export const TraktMovieHistoryListItem = TraktHistoryItemBase.extend({
-  movie: TraktInnerMovieItem,
+  movie: TraktMovieBaseItem,
 });
 
 export const TraktMovieHistoryList = z.array(TraktMovieHistoryListItem);
