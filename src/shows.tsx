@@ -160,14 +160,7 @@ export default function Command() {
               icon={Icon.Switch}
               title="Seasons"
               shortcut={Keyboard.Shortcut.Common.Open}
-              target={
-                <SeasonGrid
-                  showId={item.show.ids.trakt}
-                  tmdbId={item.show.ids.tmdb}
-                  slug={item.show.ids.slug}
-                  imdbId={item.show.ids.imdb}
-                />
-              }
+              target={<SeasonGrid showId={item.show.ids.trakt} slug={item.show.ids.slug} imdbId={item.show.ids.imdb} />}
             />
             <Action
               title="Add to Watchlist"

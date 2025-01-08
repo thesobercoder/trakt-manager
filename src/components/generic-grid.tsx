@@ -3,6 +3,7 @@ import { Grid } from "@raycast/api";
 export const GenericGrid = <T,>({
   actions,
   aspectRatio,
+  columns,
   emptyViewTitle,
   fit,
   isLoading,
@@ -18,9 +19,10 @@ export const GenericGrid = <T,>({
   title,
 }: {
   actions: (item: T) => Grid.Item.Props["actions"];
-  aspectRatio?: Grid.Props["aspectRatio"];
+  aspectRatio: Grid.Props["aspectRatio"];
+  columns?: Grid.Props["columns"];
   emptyViewTitle?: Grid.EmptyView.Props["title"];
-  fit?: Grid.Props["fit"];
+  fit: Grid.Props["fit"];
   isLoading: Grid.Props["isLoading"];
   items: T[] | undefined;
   keyFn: (item: T, index: number) => React.Key;
@@ -37,6 +39,7 @@ export const GenericGrid = <T,>({
     <Grid
       isLoading={isLoading}
       aspectRatio={aspectRatio}
+      columns={columns}
       fit={fit}
       searchBarPlaceholder={searchBarPlaceholder}
       onSearchTextChange={onSearchTextChange}

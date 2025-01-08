@@ -5,6 +5,7 @@ import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useRef, useState } from "react";
 import { GenericGrid } from "./components/generic-grid";
+import { SeasonGrid } from "./components/season-grid";
 import { initTraktClient } from "./lib/client";
 import { APP_MAX_LISTENERS, IMDB_APP_URL, TRAKT_APP_URL } from "./lib/constants";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
@@ -316,6 +317,12 @@ export default function Command() {
             />
           </ActionPanel.Section>
           <ActionPanel.Section>
+            <Action.Push
+              icon={Icon.Switch}
+              title="Seasons"
+              shortcut={Keyboard.Shortcut.Common.Open}
+              target={<SeasonGrid showId={item.show.ids.trakt} slug={item.show.ids.slug} imdbId={item.show.ids.imdb} />}
+            />
             <Action
               title="Remove from Watchlist"
               icon={Icon.Trash}
