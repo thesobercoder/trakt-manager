@@ -1,12 +1,14 @@
-import { Icon, Keyboard, Toast, showToast } from "@raycast/api";
-import { useCachedPromise } from "@raycast/utils";
+import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { getFavicon, useCachedPromise } from "@raycast/utils";
 import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useRef, useState } from "react";
-import { ShowGrid } from "./components/show-grid";
+import { GenericGrid } from "./components/generic-grid";
+import { SeasonGrid } from "./components/season-grid";
 import { initTraktClient } from "./lib/client";
-import { APP_MAX_LISTENERS } from "./lib/constants";
+import { APP_MAX_LISTENERS, IMDB_APP_URL, TRAKT_APP_URL } from "./lib/constants";
+import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
 import { TraktShowListItem, withPagination } from "./lib/schema";
 
 export default function Command() {
@@ -107,10 +109,19 @@ export default function Command() {
   }, []);
 
   const handleAction = useCallback(
-    async (show: TraktShowListItem, action: (show: TraktShowListItem) => Promise<void>) => {
+    async (show: TraktShowListItem, action: (show: TraktShowListItem) => Promise<void>, message: string) => {
       setActionLoading(true);
       try {
         await action(show);
+        showToast({
+          title: message,
+          style: Toast.Style.Success,
+        });
+      } catch (e) {
+        showToast({
+          title: (e as Error).message,
+          style: Toast.Style.Failure,
+        });
       } finally {
         setActionLoading(false);
       }
@@ -119,23 +130,63 @@ export default function Command() {
   );
 
   return (
-    <ShowGrid
+    <GenericGrid
       isLoading={isLoading || actionLoading}
+      emptyViewTitle="Search for shows"
       searchBarPlaceholder="Search for shows"
       onSearchTextChange={handleSearchTextChange}
       throttle={true}
       pagination={pagination}
-      emptyViewTitle="Search for shows"
-      shows={shows}
-      subtitle={(show) => show.show.year?.toString() || ""}
-      primaryActionTitle="Add to Watchlist"
-      primaryActionIcon={Icon.Bookmark}
-      primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-      primaryAction={(show) => handleAction(show, addShowToWatchlist)}
-      secondaryActionTitle="Add to History"
-      secondaryActionIcon={Icon.Clock}
-      secondaryActionShortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-      secondaryAction={(show) => handleAction(show, addShowToHistory)}
+      items={shows}
+      aspectRatio="9/16"
+      fit={Grid.Fit.Fill}
+      title={(item) => item.show.title}
+      subtitle={(item) => item.show.year?.toString() || ""}
+      poster={(item) => getPosterUrl(item.show.images, "poster.png")}
+      keyFn={(item, index) => `${item.show.ids.trakt}-${index}`}
+      actions={(item) => (
+        <ActionPanel>
+          <ActionPanel.Section>
+            <Action.OpenInBrowser
+              icon={getFavicon(TRAKT_APP_URL)}
+              title="Open in Trakt"
+              url={getTraktUrl("shows", item.show.ids.slug)}
+            />
+            <Action.OpenInBrowser
+              icon={getFavicon(IMDB_APP_URL)}
+              title="Open in IMDb"
+              url={getIMDbUrl(item.show.ids.imdb)}
+            />
+          </ActionPanel.Section>
+          <ActionPanel.Section>
+            <Action.Push
+              icon={Icon.Switch}
+              title="Seasons"
+              shortcut={Keyboard.Shortcut.Common.Open}
+              target={
+                <SeasonGrid
+                  showId={item.show.ids.trakt}
+                  tmdbId={item.show.ids.tmdb}
+                  slug={item.show.ids.slug}
+                  imdbId={item.show.ids.imdb}
+                />
+              }
+            />
+            <Action
+              title="Add to Watchlist"
+              icon={Icon.Bookmark}
+              shortcut={Keyboard.Shortcut.Common.Edit}
+              onAction={() => handleAction(item, addShowToWatchlist, "Show added to watchlist")}
+            />
+            <Action
+              title="Add to History"
+              icon={Icon.Clock}
+              shortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+              onAction={() => handleAction(item, addShowToHistory, "Show added to history")}
+            />
+          </ActionPanel.Section>
+        </ActionPanel>
+      )}
     />
   );
 }
