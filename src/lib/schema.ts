@@ -24,7 +24,10 @@ export const TraktIdSchemaWithTime = TraktIdSchema.extend({
   watched_at: z.string().date(),
 });
 
-export const TraktPaginationWithExtendedSchema = TraktPaginationSchema.merge(TraktExtendedSchema);
+export const TraktRecommendationRequestSchema = TraktPaginationSchema.merge(TraktExtendedSchema).extend({
+  ignore_collected: z.coerce.boolean(),
+  ignore_watchlisted: z.coerce.boolean(),
+});
 
 export const TraktSearchSchema = TraktPaginationSchema.merge(TraktExtendedSchema).extend({
   query: z.string(),

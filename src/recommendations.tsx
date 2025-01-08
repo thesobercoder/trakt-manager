@@ -33,6 +33,8 @@ export default function Command() {
           page: options.page + 1,
           limit: 10,
           extended: "full,cloud9",
+          ignore_collected: true,
+          ignore_watchlisted: true,
         },
         fetchOptions: {
           signal: abortable.current.signal,
@@ -82,6 +84,8 @@ export default function Command() {
           page: options.page + 1,
           limit: 10,
           extended: "full,cloud9",
+          ignore_collected: true,
+          ignore_watchlisted: true,
         },
         fetchOptions: {
           signal: abortable.current.signal,
@@ -249,9 +253,9 @@ export default function Command() {
       items={movies}
       aspectRatio="9/16"
       fit={Grid.Fit.Fill}
-      title={(movie) => movie.title}
-      poster={(movie) => getPosterUrl(movie.images, "poster.png")}
-      keyFn={(movie) => movie.ids.trakt}
+      title={(item) => item.title}
+      poster={(item) => getPosterUrl(item.images, "poster.png")}
+      keyFn={(item, index) => `${item.ids.trakt}-${index}`}
       actions={(item) => (
         <ActionPanel>
           <ActionPanel.Section>

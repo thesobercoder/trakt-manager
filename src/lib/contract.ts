@@ -8,8 +8,8 @@ import {
   TraktMovieHistoryList,
   TraktMovieList,
   TraktMovieRecommendationList,
-  TraktPaginationWithExtendedSchema,
   TraktPaginationWithSortingSchema,
+  TraktRecommendationRequestSchema,
   TraktSearchSchema,
   TraktSeasonList,
   TraktShowHistoryList,
@@ -45,7 +45,7 @@ const TraktMovieContract = c.router({
     responses: {
       200: TraktMovieRecommendationList,
     },
-    query: TraktPaginationWithExtendedSchema,
+    query: TraktRecommendationRequestSchema,
     summary: "Get recommended movies",
   },
   addMovieToWatchlist: {
@@ -137,7 +137,7 @@ const TraktShowContract = c.router({
     responses: {
       200: TraktShowRecommendationList,
     },
-    query: TraktPaginationWithExtendedSchema,
+    query: TraktRecommendationRequestSchema,
     summary: "Get recommended shows",
   },
   addShowToWatchlist: {
