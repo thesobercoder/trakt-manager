@@ -171,7 +171,7 @@ export default function Command() {
             <Action
               title="Add to History"
               icon={Icon.Clock}
-              shortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+              shortcut={Keyboard.Shortcut.Common.Duplicate}
               onAction={() => handleAction(item, addShowToHistory, "Show added to history")}
             />
           </ActionPanel.Section>

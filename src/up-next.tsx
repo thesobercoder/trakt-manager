@@ -135,8 +135,8 @@ export default function Command() {
           <ActionPanel.Section>
             <Action
               title="Add to History"
-              icon={Icon.Checkmark}
-              shortcut={Keyboard.Shortcut.Common.Edit}
+              icon={Icon.Clock}
+              shortcut={Keyboard.Shortcut.Common.Duplicate}
               onAction={() => handleAction(item, addEpisodeToHistory, "Episode added to history")}
             />
           </ActionPanel.Section>
