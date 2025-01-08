@@ -1,12 +1,13 @@
-import { Icon, Keyboard, showToast, Toast } from "@raycast/api";
-import { useCachedPromise } from "@raycast/utils";
+import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { getFavicon, useCachedPromise } from "@raycast/utils";
 import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useRef, useState } from "react";
-import { MovieGrid } from "./components/movie-grid";
+import { GenericGrid } from "./components/generic-grid";
 import { initTraktClient } from "./lib/client";
-import { APP_MAX_LISTENERS } from "./lib/constants";
+import { APP_MAX_LISTENERS, IMDB_APP_URL, TRAKT_APP_URL } from "./lib/constants";
+import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
 import { TraktMovieListItem, withPagination } from "./lib/schema";
 
 export default function Command() {
@@ -127,22 +128,49 @@ export default function Command() {
   );
 
   return (
-    <MovieGrid
+    <GenericGrid
       isLoading={isLoading || actionLoading}
       emptyViewTitle="Search for movies"
       searchBarPlaceholder="Search for movies"
       onSearchTextChange={handleSearchTextChange}
       throttle={true}
       pagination={pagination}
-      movies={movies}
-      primaryActionTitle="Add to Watchlist"
-      primaryActionIcon={Icon.Bookmark}
-      primaryActionShortcut={Keyboard.Shortcut.Common.Edit}
-      primaryAction={(movie) => handleAction(movie, addMovieToWatchlist, "Movie added to watchlist")}
-      secondaryActionTitle="Add to History"
-      secondaryActionIcon={Icon.Clock}
-      secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-      secondaryAction={(movie) => handleAction(movie, addMovieToHistory, "Movie added to history")}
+      items={movies}
+      aspectRatio="9/16"
+      fit={Grid.Fit.Fill}
+      title={(item) => item.movie.title}
+      poster={(item) => getPosterUrl(item.movie.images, "poster.png")}
+      keyFn={(item, index) => `${item.movie.ids.trakt}-${index}`}
+      actions={(item) => (
+        <ActionPanel>
+          <ActionPanel.Section>
+            <Action.OpenInBrowser
+              icon={getFavicon(TRAKT_APP_URL)}
+              title="Open in Trakt"
+              url={getTraktUrl("movies", item.movie.ids.slug)}
+            />
+            <Action.OpenInBrowser
+              icon={getFavicon(IMDB_APP_URL)}
+              title="Open in IMDb"
+              url={getIMDbUrl(item.movie.ids.imdb)}
+            />
+          </ActionPanel.Section>
+          <ActionPanel.Section>
+            <Action
+              title="Add to Watchlist"
+              icon={Icon.Bookmark}
+              shortcut={Keyboard.Shortcut.Common.Edit}
+              onAction={() => handleAction(item, addMovieToWatchlist, "Movie added to watchlist")}
+            />
+            <Action
+              title="Add to History"
+              icon={Icon.Clock}
+              shortcut={Keyboard.Shortcut.Common.Duplicate}
+              onAction={() => handleAction(item, addMovieToHistory, "Movie added to history")}
+            />
+          </ActionPanel.Section>
+        </ActionPanel>
+      )}
     />
   );
 }
