@@ -1,12 +1,13 @@
-import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
-import { useCachedPromise } from "@raycast/utils";
+import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { getFavicon, useCachedPromise } from "@raycast/utils";
 import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useRef, useState } from "react";
-import { MovieHistoryGrid, ShowHistoryGrid } from "./components/history-grid";
+import { GenericGrid } from "./components/generic-grid";
 import { initTraktClient } from "./lib/client";
-import { APP_MAX_LISTENERS } from "./lib/constants";
+import { APP_MAX_LISTENERS, IMDB_APP_URL, TRAKT_APP_URL } from "./lib/constants";
+import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
 import { TraktMediaType, TraktMovieHistoryListItem, TraktShowHistoryListItem, withPagination } from "./lib/schema";
 
 const formatter = new Intl.DateTimeFormat(undefined, { year: "numeric", month: "short", day: "2-digit" });
@@ -24,9 +25,8 @@ export default function Command() {
   } = useCachedPromise(
     (mediaType: TraktMediaType) => async (options: PaginationOptions) => {
       await setTimeout(100);
-      if (mediaType === "show") {
-        return { data: [], hasMore: false };
-      }
+      if (mediaType === "show") return { data: [], hasMore: false };
+
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
@@ -36,17 +36,14 @@ export default function Command() {
           limit: 10,
           extended: "full,cloud9",
           sort_by: "added",
-          sort_how: "asc",
+          sort_how: "desc",
         },
         fetchOptions: {
           signal: abortable.current.signal,
         },
       });
 
-      if (response.status !== 200) {
-        throw new Error("Failed to fetch movies");
-      }
-
+      if (response.status !== 200) throw new Error("Failed to fetch history");
       const paginatedResponse = withPagination(response);
 
       return {
@@ -76,9 +73,8 @@ export default function Command() {
   } = useCachedPromise(
     (mediaType: TraktMediaType) => async (options: PaginationOptions) => {
       await setTimeout(100);
-      if (mediaType === "movie") {
-        return { data: [], hasMore: false };
-      }
+      if (mediaType === "movie") return { data: [], hasMore: false };
+
       abortable.current = new AbortController();
       setMaxListeners(APP_MAX_LISTENERS, abortable.current?.signal);
 
@@ -88,17 +84,14 @@ export default function Command() {
           limit: 10,
           extended: "full,cloud9",
           sort_by: "added",
-          sort_how: "asc",
+          sort_how: "desc",
         },
         fetchOptions: {
           signal: abortable.current.signal,
         },
       });
 
-      if (response.status !== 200) {
-        throw new Error("Failed to fetch movies");
-      }
-
+      if (response.status !== 200) throw new Error("Failed to fetch history");
       const paginatedResponse = withPagination(response);
 
       return {
@@ -153,7 +146,6 @@ export default function Command() {
         signal: abortable.current?.signal,
       },
     });
-    console.log("Remove episode from history", episode);
   }, []);
 
   const onMediaTypeChange = useCallback((newValue: string) => {
@@ -215,7 +207,7 @@ export default function Command() {
   );
 
   return mediaType === "movie" ? (
-    <MovieHistoryGrid
+    <GenericGrid
       isLoading={isMovieLoading || actionLoading}
       emptyViewTitle="No shows in your history"
       searchBarPlaceholder="Search history"
@@ -226,16 +218,40 @@ export default function Command() {
         </Grid.Dropdown>
       }
       pagination={moviePagination}
-      movies={movies}
+      items={movies}
+      aspectRatio="9/16"
+      fit={Grid.Fit.Fill}
+      poster={(item) => getPosterUrl(item.movie.images, "poster.png")}
       title={(item) => item.movie.title}
       subtitle={(item) => (item.watched_at ? ` (${formatter.format(new Date(item.watched_at))})` : "")}
-      primaryActionTitle="Remove from history"
-      primaryActionIcon={Icon.Trash}
-      primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(item) => handleMovieAction(item, removeMovieFromHistory, "Movie removed from history")}
+      keyFn={(item, index) => `${item.movie.ids.trakt}-${index}`}
+      actions={(item) => (
+        <ActionPanel>
+          <ActionPanel.Section>
+            <Action.OpenInBrowser
+              icon={getFavicon(TRAKT_APP_URL)}
+              title="Open in Trakt"
+              url={getTraktUrl("movies", item.movie.ids.slug)}
+            />
+            <Action.OpenInBrowser
+              icon={getFavicon(IMDB_APP_URL)}
+              title="Open in IMDb"
+              url={getIMDbUrl(item.movie.ids.imdb)}
+            />
+          </ActionPanel.Section>
+          <ActionPanel.Section>
+            <Action
+              title="Remove from History"
+              icon={Icon.Trash}
+              shortcut={Keyboard.Shortcut.Common.Remove}
+              onAction={() => handleMovieAction(item, removeMovieFromHistory, "Movie removed from history")}
+            />
+          </ActionPanel.Section>
+        </ActionPanel>
+      )}
     />
   ) : (
-    <ShowHistoryGrid
+    <GenericGrid
       isLoading={isShowsLoading || actionLoading}
       emptyViewTitle="No shows in your history"
       searchBarPlaceholder="Search history"
@@ -246,17 +262,41 @@ export default function Command() {
         </Grid.Dropdown>
       }
       pagination={showPagination}
-      episodes={shows}
-      title={(item) => {
-        return `${item.show.title} - ${item.episode.title}`;
-      }}
+      items={shows}
+      aspectRatio="9/16"
+      fit={Grid.Fit.Fill}
+      poster={(item) => getPosterUrl(item.show.images, "poster.png")}
+      title={(item) => `${item.show.title} - ${item.episode.title}`}
       subtitle={(item) =>
-        `${item.episode.season}x${item.episode.number.toString().padStart(2, "0")}${item.watched_at ? ` (${formatter.format(new Date(item.watched_at))})` : ""}`
+        `${item.episode.season}x${item.episode.number.toString().padStart(2, "0")}${
+          item.watched_at ? ` (${formatter.format(new Date(item.watched_at))})` : ""
+        }`
       }
-      primaryActionTitle="Remove from history"
-      primaryActionIcon={Icon.Trash}
-      primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(item) => handleShowAction(item, removeEpisodeFromHistory, "Episode removed from history")}
+      keyFn={(item, index) => `${item.show.ids.trakt}-${item.episode.ids.trakt}-${index}`}
+      actions={(item) => (
+        <ActionPanel>
+          <ActionPanel.Section>
+            <Action.OpenInBrowser
+              icon={getFavicon(TRAKT_APP_URL)}
+              title="Open in Trakt"
+              url={getTraktUrl("episode", item.show.ids.slug, item.episode.season, item.episode.number)}
+            />
+            <Action.OpenInBrowser
+              icon={getFavicon(IMDB_APP_URL)}
+              title="Open in IMDb"
+              url={getIMDbUrl(item.show.ids.imdb)}
+            />
+          </ActionPanel.Section>
+          <ActionPanel.Section>
+            <Action
+              title="Remove from History"
+              icon={Icon.Trash}
+              shortcut={Keyboard.Shortcut.Common.Remove}
+              onAction={() => handleShowAction(item, removeEpisodeFromHistory, "Episode removed from history")}
+            />
+          </ActionPanel.Section>
+        </ActionPanel>
+      )}
     />
   );
 }
