@@ -1,14 +1,14 @@
-import { Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
-import { useCachedPromise } from "@raycast/utils";
+import { Action, ActionPanel, Grid, Icon, Keyboard, Toast, showToast } from "@raycast/api";
+import { getFavicon, useCachedPromise } from "@raycast/utils";
 import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useRef, useState } from "react";
-import { MovieGrid } from "./components/movie-grid";
-import { ShowGrid } from "./components/show-grid";
+import { GenericGrid } from "./components/generic-grid";
 import { initTraktClient } from "./lib/client";
-import { APP_MAX_LISTENERS } from "./lib/constants";
-import { TraktMediaType, TraktMovieListItem, TraktShowList, TraktShowListItem, withPagination } from "./lib/schema";
+import { APP_MAX_LISTENERS, IMDB_APP_URL, TRAKT_APP_URL } from "./lib/constants";
+import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
+import { TraktMediaType, TraktMovieListItem, TraktShowListItem, withPagination } from "./lib/schema";
 
 export default function Command() {
   const abortable = useRef<AbortController>();
@@ -41,10 +41,7 @@ export default function Command() {
         },
       });
 
-      if (response.status !== 200) {
-        throw new Error("Failed to fetch movies");
-      }
-
+      if (response.status !== 200) throw new Error("Failed to fetch movies");
       const paginatedResponse = withPagination(response);
 
       return {
@@ -92,10 +89,7 @@ export default function Command() {
         },
       });
 
-      if (response.status !== 200) {
-        throw new Error("Failed to fetch shows");
-      }
-
+      if (response.status !== 200) throw new Error("Failed to fetch shows");
       const paginatedResponse = withPagination(response);
 
       return {
@@ -239,9 +233,9 @@ export default function Command() {
   );
 
   return mediaType === "movie" ? (
-    <MovieGrid
+    <GenericGrid
       isLoading={isMovieLoading || actionLoading}
-      emptyViewTitle="No movies in your watchlist"
+      emptyViewTitle="No watchlist available"
       searchBarPlaceholder="Search watchlist"
       searchBarAccessory={
         <Grid.Dropdown onChange={onMediaTypeChange} tooltip="Media Type">
@@ -250,20 +244,48 @@ export default function Command() {
         </Grid.Dropdown>
       }
       pagination={moviePagination}
-      movies={movies}
-      primaryActionTitle="Remove from Watchlist"
-      primaryActionIcon={Icon.Trash}
-      primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(movie) => handleMovieAction(movie, removeMovieFromWatchlist, "Movie removed from watchlist")}
-      secondaryActionTitle="Add to History"
-      secondaryActionIcon={Icon.Clock}
-      secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-      secondaryAction={(movie) => handleMovieAction(movie, addMovieToHistory, "Movie added to history")}
+      items={movies}
+      aspectRatio="9/16"
+      fit={Grid.Fit.Fill}
+      poster={(item) => getPosterUrl(item.movie.images, "poster.png")}
+      title={(item) => item.movie.title}
+      subtitle={(item) => item.movie.year?.toString() || ""}
+      keyFn={(item, index) => `${item.movie.ids.trakt}-${index}`}
+      actions={(item) => (
+        <ActionPanel>
+          <ActionPanel.Section>
+            <Action.OpenInBrowser
+              icon={getFavicon(TRAKT_APP_URL)}
+              title="Open in Trakt"
+              url={getTraktUrl("movies", item.movie.ids.slug)}
+            />
+            <Action.OpenInBrowser
+              icon={getFavicon(IMDB_APP_URL)}
+              title="Open in IMDb"
+              url={getIMDbUrl(item.movie.ids.imdb)}
+            />
+          </ActionPanel.Section>
+          <ActionPanel.Section>
+            <Action
+              title="Remove from Watchlist"
+              icon={Icon.Trash}
+              shortcut={Keyboard.Shortcut.Common.Remove}
+              onAction={() => handleMovieAction(item, removeMovieFromWatchlist, "Movie removed from watchlist")}
+            />
+            <Action
+              title="Add to History"
+              icon={Icon.Clock}
+              shortcut={Keyboard.Shortcut.Common.Duplicate}
+              onAction={() => handleMovieAction(item, addMovieToHistory, "Movie added to history")}
+            />
+          </ActionPanel.Section>
+        </ActionPanel>
+      )}
     />
   ) : (
-    <ShowGrid
+    <GenericGrid
       isLoading={isShowsLoading || actionLoading}
-      emptyViewTitle="No shows in your watchlist"
+      emptyViewTitle="No watchlist available"
       searchBarPlaceholder="Search watchlist"
       searchBarAccessory={
         <Grid.Dropdown onChange={onMediaTypeChange} tooltip="Media Type">
@@ -272,16 +294,43 @@ export default function Command() {
         </Grid.Dropdown>
       }
       pagination={showPagination}
-      shows={shows as TraktShowList}
-      subtitle={(show) => show.show.year?.toString() || ""}
-      primaryActionTitle="Remove from Watchlist"
-      primaryActionIcon={Icon.Trash}
-      primaryActionShortcut={Keyboard.Shortcut.Common.Remove}
-      primaryAction={(show) => handleShowAction(show, removeShowFromWatchlist, "Show removed from watchlist")}
-      secondaryActionTitle="Add to History"
-      secondaryActionIcon={Icon.Clock}
-      secondaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-      secondaryAction={(movie) => handleShowAction(movie, addShowToHistory, "Show added to history")}
+      items={shows}
+      aspectRatio="9/16"
+      fit={Grid.Fit.Fill}
+      poster={(item) => getPosterUrl(item.show.images, "poster.png")}
+      title={(item) => item.show.title}
+      subtitle={(item) => item.show.year?.toString() || ""}
+      keyFn={(item, index) => `${item.show.ids.trakt}-${index}`}
+      actions={(item) => (
+        <ActionPanel>
+          <ActionPanel.Section>
+            <Action.OpenInBrowser
+              icon={getFavicon(TRAKT_APP_URL)}
+              title="Open in Trakt"
+              url={getTraktUrl("shows", item.show.ids.slug)}
+            />
+            <Action.OpenInBrowser
+              icon={getFavicon(IMDB_APP_URL)}
+              title="Open in IMDb"
+              url={getIMDbUrl(item.show.ids.imdb)}
+            />
+          </ActionPanel.Section>
+          <ActionPanel.Section>
+            <Action
+              title="Remove from Watchlist"
+              icon={Icon.Trash}
+              shortcut={Keyboard.Shortcut.Common.Remove}
+              onAction={() => handleShowAction(item, removeShowFromWatchlist, "Show removed from watchlist")}
+            />
+            <Action
+              title="Add to History"
+              icon={Icon.Clock}
+              shortcut={Keyboard.Shortcut.Common.Duplicate}
+              onAction={() => handleShowAction(item, addShowToHistory, "Show added to history")}
+            />
+          </ActionPanel.Section>
+        </ActionPanel>
+      )}
     />
   );
 }
