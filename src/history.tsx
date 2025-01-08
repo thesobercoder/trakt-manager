@@ -209,7 +209,7 @@ export default function Command() {
   return mediaType === "movie" ? (
     <GenericGrid
       isLoading={isMovieLoading || actionLoading}
-      emptyViewTitle="No shows in your history"
+      emptyViewTitle="No history available"
       searchBarPlaceholder="Search history"
       searchBarAccessory={
         <Grid.Dropdown onChange={onMediaTypeChange} tooltip="Media Type">
@@ -223,7 +223,7 @@ export default function Command() {
       fit={Grid.Fit.Fill}
       poster={(item) => getPosterUrl(item.movie.images, "poster.png")}
       title={(item) => item.movie.title}
-      subtitle={(item) => (item.watched_at ? ` (${formatter.format(new Date(item.watched_at))})` : "")}
+      subtitle={(item) => (item.watched_at ? `${formatter.format(new Date(item.watched_at))}` : "")}
       keyFn={(item, index) => `${item.movie.ids.trakt}-${index}`}
       actions={(item) => (
         <ActionPanel>
@@ -253,7 +253,7 @@ export default function Command() {
   ) : (
     <GenericGrid
       isLoading={isShowsLoading || actionLoading}
-      emptyViewTitle="No shows in your history"
+      emptyViewTitle="No history available"
       searchBarPlaceholder="Search history"
       searchBarAccessory={
         <Grid.Dropdown onChange={onMediaTypeChange} tooltip="Media Type">
@@ -269,7 +269,7 @@ export default function Command() {
       title={(item) => `${item.show.title} - ${item.episode.title}`}
       subtitle={(item) =>
         `${item.episode.season}x${item.episode.number.toString().padStart(2, "0")}${
-          item.watched_at ? ` (${formatter.format(new Date(item.watched_at))})` : ""
+          item.watched_at ? ` - ${formatter.format(new Date(item.watched_at))}` : ""
         }`
       }
       keyFn={(item, index) => `${item.show.ids.trakt}-${item.episode.ids.trakt}-${index}`}
@@ -284,7 +284,7 @@ export default function Command() {
             <Action.OpenInBrowser
               icon={getFavicon(IMDB_APP_URL)}
               title="Open in IMDb"
-              url={getIMDbUrl(item.show.ids.imdb)}
+              url={getIMDbUrl(item.episode.ids.imdb)}
             />
           </ActionPanel.Section>
           <ActionPanel.Section>

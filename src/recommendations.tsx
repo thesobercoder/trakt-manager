@@ -41,10 +41,7 @@ export default function Command() {
         },
       });
 
-      if (response.status !== 200) {
-        throw new Error("Failed to fetch movies");
-      }
-
+      if (response.status !== 200) throw new Error("Failed to fetch recommendations");
       const paginatedResponse = withPagination(response);
 
       return {
@@ -92,10 +89,7 @@ export default function Command() {
         },
       });
 
-      if (response.status !== 200) {
-        throw new Error("Failed to fetch shows");
-      }
-
+      if (response.status !== 200) throw new Error("Failed to fetch recommendations");
       const paginatedResponse = withPagination(response);
 
       return {
@@ -241,7 +235,7 @@ export default function Command() {
   return mediaType === "movie" ? (
     <GenericGrid
       isLoading={isMovieLoading || actionLoading}
-      emptyViewTitle="No movies in your recommendation"
+      emptyViewTitle="No recommendations available"
       searchBarPlaceholder="Search recommendation"
       searchBarAccessory={
         <Grid.Dropdown onChange={onMediaTypeChange} tooltip="Media Type">
@@ -290,7 +284,7 @@ export default function Command() {
   ) : (
     <GenericGrid
       isLoading={isShowsLoading || actionLoading}
-      emptyViewTitle="No shows in your recommendation"
+      emptyViewTitle="No recommendations available"
       searchBarPlaceholder="Search recommendation"
       searchBarAccessory={
         <Grid.Dropdown onChange={onMediaTypeChange} tooltip="Media Type">

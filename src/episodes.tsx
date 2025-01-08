@@ -1,12 +1,13 @@
-import { Icon, Keyboard, showToast, Toast } from "@raycast/api";
-import { useCachedPromise } from "@raycast/utils";
+import { Action, ActionPanel, Grid, Icon, Keyboard, showToast, Toast } from "@raycast/api";
+import { getFavicon, useCachedPromise } from "@raycast/utils";
 import { PaginationOptions } from "@raycast/utils/dist/types";
 import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useRef, useState } from "react";
-import { ShowHistoryGrid } from "./components/history-grid";
+import { GenericGrid } from "./components/generic-grid";
 import { initTraktClient } from "./lib/client";
-import { APP_MAX_LISTENERS } from "./lib/constants";
+import { APP_MAX_LISTENERS, IMDB_APP_URL, TRAKT_APP_URL } from "./lib/constants";
+import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
 import { TraktShowHistoryListItem, withPagination } from "./lib/schema";
 
 export default function Command() {
@@ -16,7 +17,7 @@ export default function Command() {
   const traktClient = initTraktClient();
   const {
     isLoading,
-    data: movies,
+    data: episodes,
     pagination,
   } = useCachedPromise(
     (searchText: string) => async (options: PaginationOptions) => {
@@ -39,10 +40,7 @@ export default function Command() {
         },
       });
 
-      if (response.status !== 200) {
-        throw new Error("Failed to fetch movies");
-      }
-
+      if (response.status !== 200) throw new Error("Failed to search");
       const paginatedResponse = withPagination(response);
 
       return {
@@ -116,20 +114,43 @@ export default function Command() {
   );
 
   return (
-    <ShowHistoryGrid
+    <GenericGrid
       isLoading={isLoading || actionLoading}
-      emptyViewTitle="Search for movies"
-      searchBarPlaceholder="Search for movies"
+      emptyViewTitle="Search for episodes"
+      searchBarPlaceholder="Search for episodes"
       onSearchTextChange={handleSearchTextChange}
-      throttle={true}
       pagination={pagination}
-      episodes={movies}
+      items={episodes}
+      aspectRatio="9/16"
+      fit={Grid.Fit.Fill}
       title={(item) => `${item.episode.title}`}
       subtitle={(item) => `${item.show.title}`}
-      primaryActionTitle="Add to History"
-      primaryActionIcon={Icon.Clock}
-      primaryActionShortcut={Keyboard.Shortcut.Common.Duplicate}
-      primaryAction={(item) => handleAction(item, addEpisodeToHistory, "Episode added to history")}
+      poster={(item) => getPosterUrl(item.show.images, "poster.png")}
+      keyFn={(item, index) => `${item.show.ids.trakt}-${item.episode.ids.trakt}-${index}`}
+      actions={(item) => (
+        <ActionPanel>
+          <ActionPanel.Section>
+            <Action.OpenInBrowser
+              icon={getFavicon(TRAKT_APP_URL)}
+              title="Open in Trakt"
+              url={getTraktUrl("episode", item.show.ids.slug, item.episode.season, item.episode.number)}
+            />
+            <Action.OpenInBrowser
+              icon={getFavicon(IMDB_APP_URL)}
+              title="Open in IMDb"
+              url={getIMDbUrl(item.episode.ids.imdb)}
+            />
+          </ActionPanel.Section>
+          <ActionPanel.Section>
+            <Action
+              title="Add to History"
+              icon={Icon.Clock}
+              shortcut={Keyboard.Shortcut.Common.Duplicate}
+              onAction={() => handleAction(item, addEpisodeToHistory, "Episode added to history")}
+            />
+          </ActionPanel.Section>
+        </ActionPanel>
+      )}
     />
   );
 }
