@@ -7,11 +7,14 @@ import {
   TraktIdSchemaWithTime,
   TraktMovieHistoryList,
   TraktMovieList,
+  TraktMovieRecommendationList,
+  TraktPaginationWithExtendedSchema,
   TraktPaginationWithSortingSchema,
   TraktSearchSchema,
   TraktSeasonList,
   TraktShowHistoryList,
   TraktShowList,
+  TraktShowRecommendationList,
   TraktUpNextQuerySchema,
 } from "./schema";
 
@@ -35,6 +38,15 @@ const TraktMovieContract = c.router({
     },
     query: TraktPaginationWithSortingSchema,
     summary: "Get movies in watchlist",
+  },
+  getRecommendedMovies: {
+    method: "GET",
+    path: "/recommendations/movies",
+    responses: {
+      200: TraktMovieRecommendationList,
+    },
+    query: TraktPaginationWithExtendedSchema,
+    summary: "Get recommended movies",
   },
   addMovieToWatchlist: {
     method: "POST",
@@ -118,6 +130,15 @@ const TraktShowContract = c.router({
     },
     query: TraktPaginationWithSortingSchema,
     summary: "Get shows in watchlist",
+  },
+  getRecommendedShows: {
+    method: "GET",
+    path: "/recommendations/shows",
+    responses: {
+      200: TraktShowRecommendationList,
+    },
+    query: TraktPaginationWithExtendedSchema,
+    summary: "Get recommended shows",
   },
   addShowToWatchlist: {
     method: "POST",

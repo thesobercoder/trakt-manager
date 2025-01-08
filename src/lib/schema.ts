@@ -24,6 +24,8 @@ export const TraktIdSchemaWithTime = TraktIdSchema.extend({
   watched_at: z.string().date(),
 });
 
+export const TraktPaginationWithExtendedSchema = TraktPaginationSchema.merge(TraktExtendedSchema);
+
 export const TraktSearchSchema = TraktPaginationSchema.merge(TraktExtendedSchema).extend({
   query: z.string(),
   fields: z.enum(["title"]),
@@ -53,7 +55,7 @@ export const TraktHistoryItemBase = z.object({
   score: z.number().optional(),
 });
 
-const TraktMovieBaseItem = z.object({
+export const TraktMovieBaseItem = z.object({
   title: z.string(),
   year: z.number().optional(),
   ids: z.object({
@@ -110,7 +112,7 @@ const TraktShowProgress = z.object({
   last_episode: TraktEpisodeListItem,
 });
 
-const TraktShowBaseItem = z.object({
+export const TraktShowBaseItem = z.object({
   title: z.string(),
   year: z.number().optional(),
   ids: z.object({
@@ -169,6 +171,9 @@ export const TraktMovieHistoryListItem = TraktHistoryItemBase.extend({
 
 export const TraktMovieHistoryList = z.array(TraktMovieHistoryListItem);
 
+export const TraktMovieRecommendationList = z.array(TraktMovieBaseItem);
+export const TraktShowRecommendationList = z.array(TraktShowBaseItem);
+
 export const TraktMediaType = z.enum(["movie", "show"]);
 
 export type TraktMovieListItem = z.infer<typeof TraktMovieListItem>;
@@ -185,6 +190,10 @@ export type TraktShowHistoryListItem = z.infer<typeof TraktShowHistoryListItem>;
 export type TraktShowHistoryList = z.infer<typeof TraktShowHistoryList>;
 export type TraktMovieHistoryListItem = z.infer<typeof TraktMovieHistoryListItem>;
 export type TraktMovieHistoryList = z.infer<typeof TraktMovieHistoryList>;
+export type TraktMovieRecommendationList = z.infer<typeof TraktMovieRecommendationList>;
+export type TraktShowRecommendationList = z.infer<typeof TraktShowRecommendationList>;
+export type TraktMovieBaseItem = z.infer<typeof TraktMovieBaseItem>;
+export type TraktShowBaseItem = z.infer<typeof TraktShowBaseItem>;
 
 export const TraktPaginationHeaderSchema = z.object({
   "x-pagination-page": z.coerce.number().default(0),

@@ -49,6 +49,13 @@
       "subtitle": "Trakt Manager",
       "description": "Lists movies and shows that are in your history",
       "mode": "view"
+    },
+    {
+      "name": "recommendations",
+      "title": "Recommendations",
+      "subtitle": "Trakt Manager",
+      "description": "Lists recommended movies and shows",
+      "mode": "view"
     }
   ],
   "dependencies": {
