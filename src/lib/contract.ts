@@ -52,7 +52,7 @@ const TraktMovieContract = c.router({
     method: "POST",
     path: "sync/watchlist",
     responses: {
-      200: c.type<unknown>(),
+      201: z.unknown(),
     },
     body: z.object({
       movies: z.array(TraktIdSchema),
@@ -63,7 +63,7 @@ const TraktMovieContract = c.router({
     method: "POST",
     path: "/sync/watchlist/remove",
     responses: {
-      200: c.type<unknown>(),
+      200: z.unknown(),
     },
     body: z.object({
       movies: z.array(TraktIdSchema),
@@ -74,7 +74,7 @@ const TraktMovieContract = c.router({
     method: "POST",
     path: "/sync/history",
     responses: {
-      200: c.type<unknown>(),
+      200: z.unknown(),
     },
     body: z.object({
       movies: z.array(TraktIdSchemaWithTime),
@@ -94,7 +94,7 @@ const TraktMovieContract = c.router({
     method: "POST",
     path: "/sync/history/remove",
     responses: {
-      200: c.type<unknown>(),
+      201: z.unknown(),
     },
     body: z.object({
       movies: z.array(TraktIdSchema),
@@ -144,7 +144,7 @@ const TraktShowContract = c.router({
     method: "POST",
     path: "sync/watchlist",
     responses: {
-      200: c.type<unknown>(),
+      201: z.unknown(),
     },
     body: z.object({
       shows: z.array(TraktIdSchema),
@@ -155,7 +155,7 @@ const TraktShowContract = c.router({
     method: "POST",
     path: "/sync/watchlist/remove",
     responses: {
-      200: c.type<unknown>(),
+      200: z.unknown(),
     },
     body: z.object({
       shows: z.array(TraktIdSchema),
@@ -166,7 +166,7 @@ const TraktShowContract = c.router({
     method: "POST",
     path: "/sync/history",
     responses: {
-      200: c.type<unknown>(),
+      201: z.unknown(),
     },
     body: z.object({
       shows: z.array(TraktIdSchemaWithTime),
@@ -177,7 +177,7 @@ const TraktShowContract = c.router({
     method: "POST",
     path: "/sync/history",
     responses: {
-      200: c.type<unknown>(),
+      201: z.unknown(),
     },
     body: z.object({
       episodes: z.array(TraktIdSchemaWithTime),
@@ -197,7 +197,7 @@ const TraktShowContract = c.router({
     method: "POST",
     path: "/sync/history/remove",
     responses: {
-      200: c.type<unknown>(),
+      200: z.unknown(),
     },
     body: z.object({
       shows: z.array(TraktIdSchema),
@@ -208,7 +208,7 @@ const TraktShowContract = c.router({
     method: "POST",
     path: "/sync/history/remove",
     responses: {
-      200: c.type<unknown>(),
+      200: z.unknown(),
     },
     body: z.object({
       episodes: z.array(TraktIdSchema),
