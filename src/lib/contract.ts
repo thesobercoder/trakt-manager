@@ -50,7 +50,7 @@ const TraktMovieContract = c.router({
   },
   addMovieToWatchlist: {
     method: "POST",
-    path: "sync/watchlist",
+    path: "/sync/watchlist",
     responses: {
       201: z.unknown(),
     },
@@ -142,7 +142,7 @@ const TraktShowContract = c.router({
   },
   addShowToWatchlist: {
     method: "POST",
-    path: "sync/watchlist",
+    path: "/sync/watchlist",
     responses: {
       201: z.unknown(),
     },
