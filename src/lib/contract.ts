@@ -2,6 +2,7 @@ import { initContract } from "@ts-rest/core";
 import { z } from "zod";
 import {
   TraktEpisodeList,
+  TraktEpisodeListItem,
   TraktExtendedSchema,
   TraktIdSchema,
   TraktIdSchemaWithTime,
@@ -224,6 +225,20 @@ const TraktShowContract = c.router({
     pathParams: z.object({
       showid: z.coerce.number(),
       seasonNumber: z.coerce.number(),
+    }),
+    query: TraktExtendedSchema,
+    summary: "Get episodes for a season",
+  },
+  getEpisode: {
+    method: "GET",
+    path: "/shows/:showid/seasons/:seasonNumber/episodes/:episodeNumber",
+    responses: {
+      200: TraktEpisodeListItem,
+    },
+    pathParams: z.object({
+      showid: z.coerce.number(),
+      seasonNumber: z.coerce.number(),
+      episodeNumber: z.coerce.number(),
     }),
     query: TraktExtendedSchema,
     summary: "Get episodes for a season",

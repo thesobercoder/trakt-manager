@@ -183,6 +183,41 @@ export default function Command() {
     });
   }, []);
 
+  const addFirstEpisodeToHistory = useCallback(async (show: TraktShowListItem) => {
+    const response = await traktClient.shows.getEpisode({
+      params: {
+        showid: show.show.ids.trakt,
+        seasonNumber: 1,
+        episodeNumber: 1,
+      },
+      query: {
+        extended: "full",
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
+    });
+
+    if (response.status !== 200) throw new Error("Failed to get first episode");
+    const firstEpisode = response.body;
+
+    await traktClient.shows.addEpisodeToHistory({
+      body: {
+        episodes: [
+          {
+            ids: {
+              trakt: firstEpisode.ids.trakt,
+            },
+            watched_at: new Date().toISOString(),
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
+    });
+  }, []);
+
   const onMediaTypeChange = useCallback((newValue: string) => {
     abortable.current?.abort();
     abortable.current = new AbortController();
@@ -334,6 +369,12 @@ export default function Command() {
               icon={Icon.Clock}
               shortcut={Keyboard.Shortcut.Common.Duplicate}
               onAction={() => handleShowAction(item, addShowToHistory, "Show added to history")}
+            />
+            <Action
+              title="Add First Episode to History"
+              icon={Icon.Layers}
+              shortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+              onAction={() => handleShowAction(item, addFirstEpisodeToHistory, "First episode added to history")}
             />
           </ActionPanel.Section>
         </ActionPanel>

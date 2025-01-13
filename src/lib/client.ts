@@ -1,6 +1,6 @@
 import { getPreferenceValues } from "@raycast/api";
 import { initClient } from "@ts-rest/core";
-import fetch from "node-fetch";
+import fetch, { AbortError } from "node-fetch";
 import { TRAKT_API_URL } from "./constants";
 import { TraktContract } from "./contract";
 
@@ -53,7 +53,9 @@ export const initTraktClient = () => {
 
         return compatResponse;
       } catch (error) {
-        console.error("[API Request Error]", error);
+        if (!(error instanceof AbortError)) {
+          console.error("[API Request Error]", error);
+        }
         return {
           status: 500,
           body: undefined,
