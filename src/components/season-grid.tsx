@@ -28,7 +28,7 @@ export const SeasonGrid = ({ showId, slug, imdbId }: { showId: number; slug: str
         },
       });
 
-      if (response.status !== 200) throw new Error("Failed to fetch seasons");
+      if (response.status !== 200) return [];
       return response.body;
     },
     [showId],
@@ -51,7 +51,7 @@ export const SeasonGrid = ({ showId, slug, imdbId }: { showId: number; slug: str
       aspectRatio="9/16"
       fit={Grid.Fit.Fill}
       searchBarPlaceholder="Search for seasons"
-      items={seasons || []}
+      items={seasons}
       title={(item) => `Season ${item.number}`}
       subtitle={(item) => `${item.episode_count} episodes`}
       poster={(item) => getPosterUrl(item.images, "poster.png")}

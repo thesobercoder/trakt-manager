@@ -30,7 +30,7 @@ export const EpisodeGrid = ({ showId, seasonNumber, slug }: { showId: number; se
         },
       });
 
-      if (response.status !== 200) throw new Error("Failed to fetch episodes");
+      if (response.status !== 200) return [];
       return response.body;
     },
     [showId, seasonNumber],
@@ -94,7 +94,7 @@ export const EpisodeGrid = ({ showId, seasonNumber, slug }: { showId: number; se
       fit={Grid.Fit.Fill}
       columns={3}
       searchBarPlaceholder="Search for episodes"
-      items={episodes || []}
+      items={episodes}
       title={(item) => item.title}
       subtitle={(item) => `Episode ${item.number}`}
       poster={(item) => getScreenshotUrl(item.images, "episode.png")}

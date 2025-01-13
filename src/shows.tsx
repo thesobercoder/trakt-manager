@@ -41,7 +41,7 @@ export default function Command() {
         },
       });
 
-      if (response.status !== 200) throw new Error("Failed to search");
+      if (response.status !== 200) return { data: [], hasMore: false };
       const paginatedResponse = withPagination(response);
 
       return {
