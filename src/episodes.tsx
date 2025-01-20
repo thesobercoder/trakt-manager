@@ -79,6 +79,20 @@ export default function Command() {
     });
   }, []);
 
+  const checkInEpisode = useCallback(async (episode: TraktShowHistoryListItem) => {
+    await traktClient.shows.checkInEpisode({
+      body: {
+        episodes: [
+          {
+            ids: {
+              trakt: episode.show.ids.trakt,
+            },
+          },
+        ],
+      },
+    });
+  }, []);
+
   const handleSearchTextChange = useCallback(
     (text: string): void => {
       abortable.current?.abort();
@@ -142,6 +156,12 @@ export default function Command() {
             />
           </ActionPanel.Section>
           <ActionPanel.Section>
+            <Action
+              title="Check-in"
+              icon={Icon.Checkmark}
+              shortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+              onAction={() => handleAction(item, checkInEpisode, "Episode checked-in")}
+            />
             <Action
               title="Add to History"
               icon={Icon.Clock}
