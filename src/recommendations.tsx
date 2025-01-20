@@ -5,6 +5,7 @@ import { setMaxListeners } from "node:events";
 import { setTimeout } from "node:timers/promises";
 import { useCallback, useRef, useState } from "react";
 import { GenericGrid } from "./components/generic-grid";
+import { SeasonGrid } from "./components/season-grid";
 import { initTraktClient } from "./lib/client";
 import { APP_MAX_LISTENERS, IMDB_APP_URL, TRAKT_APP_URL } from "./lib/constants";
 import { getIMDbUrl, getPosterUrl, getTraktUrl } from "./lib/helper";
@@ -188,6 +189,40 @@ export default function Command() {
     });
   }, []);
 
+  const checkInFirstEpisodeToHistory = useCallback(async (show: TraktShowBaseItem) => {
+    const response = await traktClient.shows.getEpisode({
+      params: {
+        showid: show.ids.trakt,
+        seasonNumber: 1,
+        episodeNumber: 1,
+      },
+      query: {
+        extended: "full",
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
+    });
+
+    if (response.status !== 200) throw new Error("Failed to get first episode");
+    const firstEpisode = response.body;
+
+    await traktClient.shows.checkInEpisode({
+      body: {
+        episodes: [
+          {
+            ids: {
+              trakt: firstEpisode.ids.trakt,
+            },
+          },
+        ],
+      },
+      fetchOptions: {
+        signal: abortable.current?.signal,
+      },
+    });
+  }, []);
+
   const handleMovieAction = useCallback(
     async (movie: TraktMovieBaseItem, action: (movie: TraktMovieBaseItem) => Promise<void>, message: string) => {
       setActionLoading(true);
@@ -267,8 +302,8 @@ export default function Command() {
           <ActionPanel.Section>
             <Action
               title="Add to Watchlist"
-              icon={Icon.Trash}
-              shortcut={Keyboard.Shortcut.Common.Remove}
+              icon={Icon.Bookmark}
+              shortcut={Keyboard.Shortcut.Common.Edit}
               onAction={() => handleMovieAction(item, addMovieToWatchlist, "Movie added to watchlist")}
             />
             <Action
@@ -314,10 +349,24 @@ export default function Command() {
             />
           </ActionPanel.Section>
           <ActionPanel.Section>
+            <Action.Push
+              icon={Icon.Switch}
+              title="Browse Seasons"
+              shortcut={Keyboard.Shortcut.Common.Open}
+              target={<SeasonGrid showId={item.ids.trakt} slug={item.ids.slug} imdbId={item.ids.imdb} />}
+            />
+            <Action
+              title="Check-in"
+              icon={Icon.Checkmark}
+              shortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+              onAction={() => handleShowAction(item, checkInFirstEpisodeToHistory, "First episode checked-in")}
+            />
+          </ActionPanel.Section>
+          <ActionPanel.Section>
             <Action
               title="Add to Watchlist"
-              icon={Icon.Trash}
-              shortcut={Keyboard.Shortcut.Common.Remove}
+              icon={Icon.Bookmark}
+              shortcut={Keyboard.Shortcut.Common.Edit}
               onAction={() => handleShowAction(item, addShowToWatchlist, "Show added to watchlist")}
             />
             <Action
