@@ -70,6 +70,7 @@ export const EpisodeGrid = ({ showId, seasonNumber, slug }: { showId: number; se
             ids: {
               trakt: episode.ids.trakt,
             },
+            watched_at: new Date().toISOString(),
           },
         ],
       },
