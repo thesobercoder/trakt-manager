@@ -89,6 +89,7 @@ export default function Command() {
             ids: {
               trakt: show.progress.next_episode.ids.trakt,
             },
+            watched_at: new Date().toISOString(),
           },
         ],
       },

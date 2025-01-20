@@ -87,6 +87,7 @@ export default function Command() {
             ids: {
               trakt: episode.show.ids.trakt,
             },
+            watched_at: new Date().toISOString(),
           },
         ],
       },

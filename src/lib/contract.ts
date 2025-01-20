@@ -71,14 +71,16 @@ const TraktMovieContract = c.router({
     }),
     summary: "Remove movie from watchlist",
   },
+  // The new Trakt API still doesn't have the check-in endpoint
+  // Falling back to the history endpoint
   checkInMovie: {
     method: "POST",
-    path: "/checkin",
+    path: "/sync/history",
     responses: {
-      200: c.type<unknown>(),
+      200: z.unknown(),
     },
     body: z.object({
-      movies: z.array(TraktIdSchema),
+      movies: z.array(TraktIdSchemaWithTime),
     }),
     summary: "Check-in movie",
   },
@@ -185,14 +187,16 @@ const TraktShowContract = c.router({
     }),
     summary: "Add show to history",
   },
+  // The new Trakt API still doesn't have the check-in endpoint
+  // Falling back to the history endpoint
   checkInEpisode: {
     method: "POST",
-    path: "/checkin",
+    path: "/sync/history",
     responses: {
-      200: c.type<unknown>(),
+      200: z.unknown(),
     },
     body: z.object({
-      episodes: z.array(TraktIdSchema),
+      episodes: z.array(TraktIdSchemaWithTime),
     }),
     summary: "Check-in episode",
   },

@@ -208,6 +208,7 @@ export default function Command() {
             ids: {
               trakt: firstEpisode.ids.trakt,
             },
+            watched_at: new Date().toISOString(),
           },
         ],
       },
