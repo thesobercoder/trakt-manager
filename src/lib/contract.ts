@@ -71,6 +71,17 @@ const TraktMovieContract = c.router({
     }),
     summary: "Remove movie from watchlist",
   },
+  checkInMovie: {
+    method: "POST",
+    path: "/checkin",
+    responses: {
+      200: c.type<unknown>(),
+    },
+    body: z.object({
+      movies: z.array(TraktIdSchema),
+    }),
+    summary: "Check-in movie",
+  },
   addMovieToHistory: {
     method: "POST",
     path: "/sync/history",
@@ -174,6 +185,17 @@ const TraktShowContract = c.router({
     }),
     summary: "Add show to history",
   },
+  checkInEpisode: {
+    method: "POST",
+    path: "/checkin",
+    responses: {
+      200: c.type<unknown>(),
+    },
+    body: z.object({
+      episodes: z.array(TraktIdSchema),
+    }),
+    summary: "Check-in episode",
+  },
   addEpisodeToHistory: {
     method: "POST",
     path: "/sync/history",
@@ -263,6 +285,17 @@ const TraktShowContract = c.router({
     },
     query: TraktUpNextQuerySchema,
     summary: "Get up next shows",
+  },
+  addSeasonToHistory: {
+    method: "POST",
+    path: "/sync/history",
+    responses: {
+      201: z.unknown(),
+    },
+    body: z.object({
+      seasons: z.array(TraktIdSchemaWithTime),
+    }),
+    summary: "Add season to history",
   },
 });
 

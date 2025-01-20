@@ -183,7 +183,7 @@ export default function Command() {
     });
   }, []);
 
-  const addFirstEpisodeToHistory = useCallback(async (show: TraktShowListItem) => {
+  const checkInFirstEpisodeToHistory = useCallback(async (show: TraktShowListItem) => {
     const response = await traktClient.shows.getEpisode({
       params: {
         showid: show.show.ids.trakt,
@@ -201,14 +201,13 @@ export default function Command() {
     if (response.status !== 200) throw new Error("Failed to get first episode");
     const firstEpisode = response.body;
 
-    await traktClient.shows.addEpisodeToHistory({
+    await traktClient.shows.checkInEpisode({
       body: {
         episodes: [
           {
             ids: {
               trakt: firstEpisode.ids.trakt,
             },
-            watched_at: new Date().toISOString(),
           },
         ],
       },
@@ -303,16 +302,16 @@ export default function Command() {
           </ActionPanel.Section>
           <ActionPanel.Section>
             <Action
-              title="Remove from Watchlist"
-              icon={Icon.Trash}
-              shortcut={Keyboard.Shortcut.Common.Remove}
-              onAction={() => handleMovieAction(item, removeMovieFromWatchlist, "Movie removed from watchlist")}
-            />
-            <Action
               title="Add to History"
               icon={Icon.Clock}
               shortcut={Keyboard.Shortcut.Common.Duplicate}
               onAction={() => handleMovieAction(item, addMovieToHistory, "Movie added to history")}
+            />
+            <Action
+              title="Remove from Watchlist"
+              icon={Icon.Trash}
+              shortcut={Keyboard.Shortcut.Common.Remove}
+              onAction={() => handleMovieAction(item, removeMovieFromWatchlist, "Movie removed from watchlist")}
             />
           </ActionPanel.Section>
         </ActionPanel>
@@ -354,16 +353,18 @@ export default function Command() {
           <ActionPanel.Section>
             <Action.Push
               icon={Icon.Switch}
-              title="Seasons"
+              title="Browse Seasons"
               shortcut={Keyboard.Shortcut.Common.Open}
               target={<SeasonGrid showId={item.show.ids.trakt} slug={item.show.ids.slug} imdbId={item.show.ids.imdb} />}
             />
             <Action
-              title="Remove from Watchlist"
-              icon={Icon.Trash}
-              shortcut={Keyboard.Shortcut.Common.Remove}
-              onAction={() => handleShowAction(item, removeShowFromWatchlist, "Show removed from watchlist")}
+              title="Check-in"
+              icon={Icon.Checkmark}
+              shortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+              onAction={() => handleShowAction(item, checkInFirstEpisodeToHistory, "First episode checked-in")}
             />
+          </ActionPanel.Section>
+          <ActionPanel.Section>
             <Action
               title="Add to History"
               icon={Icon.Clock}
@@ -371,10 +372,10 @@ export default function Command() {
               onAction={() => handleShowAction(item, addShowToHistory, "Show added to history")}
             />
             <Action
-              title="Add First Episode to History"
-              icon={Icon.Layers}
-              shortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
-              onAction={() => handleShowAction(item, addFirstEpisodeToHistory, "First episode added to history")}
+              title="Remove from Watchlist"
+              icon={Icon.Trash}
+              shortcut={Keyboard.Shortcut.Common.Remove}
+              onAction={() => handleShowAction(item, removeShowFromWatchlist, "Show removed from watchlist")}
             />
           </ActionPanel.Section>
         </ActionPanel>

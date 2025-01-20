@@ -291,7 +291,7 @@ export default function Command() {
           <ActionPanel.Section>
             <Action.Push
               icon={Icon.Switch}
-              title="Seasons"
+              title="Browse Seasons"
               shortcut={Keyboard.Shortcut.Common.Open}
               target={<SeasonGrid showId={item.show.ids.trakt} slug={item.show.ids.slug} imdbId={item.show.ids.imdb} />}
             />

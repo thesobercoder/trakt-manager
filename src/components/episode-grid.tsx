@@ -62,6 +62,20 @@ export const EpisodeGrid = ({ showId, seasonNumber, slug }: { showId: number; se
     });
   }, []);
 
+  const checkInEpisode = useCallback(async (episode: TraktEpisodeListItem) => {
+    await traktClient.shows.checkInEpisode({
+      body: {
+        episodes: [
+          {
+            ids: {
+              trakt: episode.ids.trakt,
+            },
+          },
+        ],
+      },
+    });
+  }, []);
+
   const handleAction = useCallback(
     async (
       episode: TraktEpisodeListItem,
@@ -114,6 +128,12 @@ export const EpisodeGrid = ({ showId, seasonNumber, slug }: { showId: number; se
             />
           </ActionPanel.Section>
           <ActionPanel.Section>
+            <Action
+              title="Check-in"
+              icon={Icon.Checkmark}
+              shortcut={Keyboard.Shortcut.Common.ToggleQuickLook}
+              onAction={() => handleAction(item, checkInEpisode, "Episode checked-in")}
+            />
             <Action
               title="Add to History"
               icon={Icon.Clock}
