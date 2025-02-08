@@ -1,8 +1,8 @@
-import { getPreferenceValues } from "@raycast/api";
 import { initClient } from "@ts-rest/core";
 import fetch, { AbortError } from "node-fetch";
-import { TRAKT_API_URL } from "./constants";
+import { TRAKT_API_URL, TRAKT_CLIENT_ID } from "./constants";
 import { TraktContract } from "./contract";
+import { AuthProvider } from "./oauth";
 
 export const initTraktClient = () => {
   return initClient(TraktContract, {
@@ -12,9 +12,8 @@ export const initTraktClient = () => {
       "trakt-api-version": "2",
     },
     api: async ({ path, method, body, headers, fetchOptions }) => {
-      const preferences = getPreferenceValues<ExtensionPreferences>();
-      const accessToken = preferences.token;
-      const traktClientId = preferences.clientId;
+      const accessToken = await AuthProvider.authorize();
+      const traktClientId = TRAKT_CLIENT_ID;
 
       try {
         const response = await fetch(path, {
@@ -27,27 +26,28 @@ export const initTraktClient = () => {
           body,
           ...fetchOptions,
         });
+        const json = await response.json();
 
-        console.log(
-          "[API Request]",
-          JSON.stringify(
-            {
-              method,
-              path,
-              accessToken,
-              body,
-              headers,
-              status: response.status,
-              statusText: response.statusText,
-            },
-            null,
-            2,
-          ),
-        );
+        // Uncomment this line to log API requests
+        // console.log(
+        //   "[API Request]",
+        //   JSON.stringify(
+        //     {
+        //       method,
+        //       path,
+        //       body,
+        //       headers,
+        //       status: response.status,
+        //       statusText: response.statusText,
+        //     },
+        //     null,
+        //     2,
+        //   ),
+        // );
 
         const compatResponse = {
           status: response.status,
-          body: await response.json(),
+          body: json,
           headers: Object.fromEntries(response.headers.entries()) as unknown as Headers,
         };
 
