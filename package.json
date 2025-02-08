@@ -78,6 +78,7 @@
   "license": "MIT",
   "scripts": {
     "build": "ray build -e dist",
+    "check": "tsc --noEmit",
     "dev": "ray develop",
     "fix-lint": "ray lint --fix",
     "fmt": "prettier '**/*' -wu && syncpack-format",
