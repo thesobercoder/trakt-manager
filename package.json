@@ -68,6 +68,11 @@
       "name": "shows",
       "title": "Search Shows",
       "description": "Search for shows by title"
+    },
+    {
+      "name": "up-next",
+      "title": "Up Next",
+      "description": "Get the list of shows that are up next"
     }
   ],
   "dependencies": {
